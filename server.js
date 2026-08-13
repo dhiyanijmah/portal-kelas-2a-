@@ -546,11 +546,14 @@ app.get('/finances', checkAuth, async (req, res) => {
         if (db.users) {
             db.users.forEach(u => { usersMap[String(u.id)] = u.first_name; });
         }
+        
+        // Filter baris kosong/hantu (ini sudah benar)
         const txData = (db.transactions || []).filter(tx => 
             (tx.description || tx.desc) && 
             String(tx.description || tx.desc).trim() !== "" && 
             String(tx.description || tx.desc).trim() !== "-"
         );
+
         const search = (req.query.search || '').toLowerCase();
         const typeFilter = req.query.type || 'all';
         const monthFilter = req.query.monthFilter || 'all';
@@ -560,7 +563,6 @@ app.get('/finances', checkAuth, async (req, res) => {
         const limit = 10;
 
         const kasData = db.kas || [];
-        const txData = db.transactions || [];
 
         let totalKas = 0, totalKaos = 0, totalLainnya = 0, totalExpense = 0;
 
