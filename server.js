@@ -284,15 +284,21 @@ app.get('/calendar', checkAuth, async (req, res) => {
         const notesMap = {};
         userNotes.forEach(n => { notesMap[n.note_date] = n.content; });
 
-        const globalEvents = db.events ? db.events.map(e => {
-            let d = new Date(e.date);
-            d.setHours(d.getHours() + 7); 
-            return {
-                ...e,
-                date: d.toISOString().split('T')[0]
-            };
-        }).filter(e => String(e.date).startsWith(`${year}-${month}`)) : [];
+        // Ambil dan bersihkan tanggal event agar tetap di tanggal yang benar (WIB)
+        const globalEvents = db.events ? db.events
+            .filter(e => e && e.date) // Pastikan data ada
+            .map(e => {
+                let d = new Date(e.date);
+                // Tambahkan 7 jam untuk mengompensasi pergeseran UTC ke WIB
+                d.setHours(d.getHours() + 7); 
+                return {
+                    ...e,
+                    date: d.toISOString().split('T')[0]
+                };
+            })
+            .filter(e => String(e.date).startsWith(`${year}-${month}`)) : [];
         
+        // Buat map agar tanggal bisa dipasangkan di kalender
         const eventsMap = {};
         globalEvents.forEach(e => { eventsMap[e.date] = e; });
         
