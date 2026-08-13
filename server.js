@@ -520,7 +520,10 @@ app.get('/finances', checkAuth, async (req, res) => {
         }
         
         const search = (req.query.search || '').toLowerCase();
-        const typeFilter = req.query.type || 'all';
+        const typeFilter = req.query.type || 'all'; // 'all', 'income', 'expense'
+        const monthFilter = req.query.monthFilter || 'all'; // Filter kas berdasarkan bulan
+        const startDate = req.query.start_date || '';
+        const endDate = req.query.end_date || '';
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
 
@@ -549,6 +552,18 @@ app.get('/finances', checkAuth, async (req, res) => {
             }
         });
 
+        // Helper untuk format tanggal Indonesia (Jakarta)
+        const formatDateID = (dateStr) => {
+            if (!dateStr || dateStr === "-") return "-";
+            try {
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return dateStr;
+                return d.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'long', year: 'numeric' });
+            } catch (e) {
+                return dateStr;
+            }
+        };
+
         let allTransactions = [];
 
         kasData.forEach(k => {
@@ -556,11 +571,13 @@ app.get('/finances', checkAuth, async (req, res) => {
                 const name = usersMap[String(k.user_id)] || ('ID ' + k.user_id);
                 const isKaos = String(k.month || '').trim().toLowerCase() === "kaos";
                 allTransactions.push({
-                    date: k.date || "-",
+                    rawDate: k.date || "",
+                    date: formatDateID(k.date),
                     desc: `${isKaos ? "Iuran Kaos" : "Iuran Kas (" + k.month + ")"} - ${name}`,
                     type: 'income',
                     amount: Number(k.amount || 0),
-                    category: isKaos ? "Kaos" : "Kas"
+                    category: isKaos ? "Kaos" : "Kas",
+                    month: k.month
                 });
             }
         });
@@ -568,24 +585,36 @@ app.get('/finances', checkAuth, async (req, res) => {
         txData.forEach(tx => {
             const isInc = String(tx.type || '').trim().toLowerCase() === 'income';
             allTransactions.push({
-                date: tx.date || "-",
+                rawDate: tx.date || "",
+                date: formatDateID(tx.date),
                 desc: tx.description || tx.desc || "-",
                 type: isInc ? 'income' : 'expense',
                 amount: Number(tx.amount || 0),
-                category: tx.category || "Lainnya"
+                category: tx.category || "Lainnya",
+                month: ""
             });
         });
 
+        // Terapkan Filter
         if (search) {
             allTransactions = allTransactions.filter(t => t.desc.toLowerCase().includes(search) || t.category.toLowerCase().includes(search));
         }
         if (typeFilter !== 'all') {
             allTransactions = allTransactions.filter(t => t.type === typeFilter);
         }
+        if (monthFilter !== 'all') {
+            allTransactions = allTransactions.filter(t => t.category === "Kas" && String(t.month).trim().toLowerCase() === monthFilter.toLowerCase());
+        }
+        if (startDate && endDate) {
+            allTransactions = allTransactions.filter(t => {
+                if (!t.rawDate || t.rawDate === "-") return false;
+                return t.rawDate >= startDate && t.rawDate <= endDate;
+            });
+        }
 
         allTransactions.sort((a, b) => {
-            if (a.date === "-" || b.date === "-") return 0;
-            return new Date(b.date) - new Date(a.date);
+            if (!a.rawDate || !b.rawDate) return 0;
+            return new Date(b.rawDate) - new Date(a.rawDate);
         });
 
         const totalPages = Math.ceil(allTransactions.length / limit) || 1;
@@ -600,7 +629,7 @@ app.get('/finances', checkAuth, async (req, res) => {
             
             rows += `
             <tr class="border-b border-[#cbd5e1] hover:bg-[#f8fafc] transition align-top">
-                <td class="py-3 px-3 sm:px-6 text-xs text-[#4b5563] text-center whitespace-nowrap w-[100px]">${tx.date}</td>
+                <td class="py-3 px-3 sm:px-6 text-xs text-[#4b5563] text-center whitespace-nowrap w-[120px]">${tx.date}</td>
                 <td class="py-3 px-3 sm:px-6 font-medium text-[#1e293b] text-xs sm:text-sm text-left break-words max-w-[180px] sm:max-w-md">${tx.desc}</td>
                 <td class="py-3 px-3 sm:px-6 text-center whitespace-nowrap w-[100px]">${badge}</td>
                 <td class="py-3 px-3 sm:px-6 font-bold text-[#1e293b] text-xs sm:text-sm text-left whitespace-nowrap w-[160px] sm:w-[200px]">Rp ${tx.amount.toLocaleString()}</td>
@@ -610,8 +639,14 @@ app.get('/finances', checkAuth, async (req, res) => {
         const grandTotalIncome = totalKas + totalKaos + totalLainnya;
         const balance = grandTotalIncome - totalExpense;
 
+        const monthsList = ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
+        let monthOptions = `<option value="all">Semua Bulan Kas</option>`;
+        monthsList.forEach(m => {
+            monthOptions += `<option value="${m}" ${monthFilter === m ? 'selected' : ''}>Cek Kas Bulan: ${m}</option>`;
+        });
+
         const content = `
-        <div class="mb-6"><h2 class="text-xl sm:text-2xl font-bold text-[#1e293b]">Laporan Keuangan</h2><p class="text-xs sm:text-sm text-[#4b5563]">Rincian pemasukan kas, kaos, transaksi lainnya, dan pengeluaran kelas 2A.</p></div>
+        <div class="mb-6"><h2 class="text-xl sm:text-2xl font-bold text-[#1e293b]">Laporan Keuangan</h2><p class="text-xs sm:text-sm text-[#4b5563]">Rincian pemasukan kas, kaos, transaksi lainnya, dan pengeluaran kelas 2A (Waktu Jakarta).</p></div>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] border-l-4 border-l-blue-500"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Pendapatan Kas</span><h3 class="text-xl font-black text-blue-600 mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
@@ -627,11 +662,18 @@ app.get('/finances', checkAuth, async (req, res) => {
             </div>
         </div>
 
+        <!-- Form Filter Lengkap -->
         <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-[#cbd5e1] mb-6">
             <form method="GET" class="flex flex-wrap items-end gap-4">
                 <div class="flex-grow min-w-[200px]">
-                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Cari Keterangan / Kategori</label>
-                    <input type="text" name="search" value="${search}" placeholder="Cari nama, kaos, dll..." class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Cari Nama / Keterangan</label>
+                    <input type="text" name="search" value="${search}" placeholder="Cari nama siswa, kaos, dll..." class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Cek Kas Berdasarkan Bulan</label>
+                    <select name="monthFilter" class="border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                        ${monthOptions}
+                    </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Jenis</label>
@@ -641,8 +683,16 @@ app.get('/finances', checkAuth, async (req, res) => {
                         <option value="expense" ${typeFilter === 'expense' ? 'selected' : ''}>Pengeluaran</option>
                     </select>
                 </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Dari Tanggal</label>
+                    <input type="date" name="start_date" value="${startDate}" class="border border-[#cbd5e1] px-3 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Sampai Tanggal</label>
+                    <input type="date" name="end_date" value="${endDate}" class="border border-[#cbd5e1] px-3 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="bg-[#2f6636] hover:bg-[#244f2b] text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition">Cari</button>
+                    <button type="submit" class="bg-[#2f6636] hover:bg-[#244f2b] text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition">Filter</button>
                     <a href="/finances" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center justify-center">Reset</a>
                 </div>
             </form>
@@ -652,7 +702,7 @@ app.get('/finances', checkAuth, async (req, res) => {
             <table class="w-full min-w-[600px]">
                 <thead>
                     <tr class="bg-[#f1f5f9] text-[#4b5563] text-xs uppercase tracking-wider border-b border-[#cbd5e1]">
-                        <th class="py-3 px-3 sm:px-6 text-center w-[100px]">Tanggal</th>
+                        <th class="py-3 px-3 sm:px-6 text-center w-[120px]">Tanggal</th>
                         <th class="py-3 px-3 sm:px-6 text-left">Keterangan</th>
                         <th class="py-3 px-3 sm:px-6 text-center w-[100px]">Tipe</th>
                         <th class="py-3 px-3 sm:px-6 text-left w-[160px] sm:w-[200px]">Jumlah</th>
@@ -662,13 +712,13 @@ app.get('/finances', checkAuth, async (req, res) => {
             </table>
         </div>
 
-        <!-- Navigasi Paginasi (First, Prev, Page X, Next, Last) -->
+        <!-- Navigasi Paginasi Lengkap (First, Prev, Page, Next, Last) -->
         <div class="flex justify-center items-center gap-2 mb-6 flex-wrap">
-            <a href="?page=1&search=${search}&type=${typeFilter}" class="px-3 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">First</a>
-            ${page > 1 ? `<a href="?page=${page-1}&search=${search}&type=${typeFilter}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Prev</a>` : ''}
+            <a href="?page=1&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">First</a>
+            ${page > 1 ? `<a href="?page=${page-1}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Prev</a>` : ''}
             <span class="px-4 py-2 text-sm font-bold text-[#4b5563]">Halaman ${page} dari ${totalPages}</span>
-            ${page < totalPages ? `<a href="?page=${page+1}&search=${search}&type=${typeFilter}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Next</a>` : ''}
-            <a href="?page=${totalPages}&search=${search}&type=${typeFilter}" class="px-3 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Last (${totalPages})</a>
+            ${page < totalPages ? `<a href="?page=${page+1}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Next</a>` : ''}
+            <a href="?page=${totalPages}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Last (${totalPages})</a>
         </div>
 
         <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-[#2f6636] hover:text-[#1e293b] text-sm font-semibold">&larr; Kembali ke Beranda</a></div>`;
