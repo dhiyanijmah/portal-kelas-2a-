@@ -202,8 +202,12 @@ app.post('/login', async (req, res) => {
         const user = await verifyLogin(first_name, password);
         if (user && user.id) {
             const sessionId = Math.random().toString(36).substring(2);
-           const isAdmin = String(user.first_name || '').trim().toLowerCase() === 'admin';
+            
+            // --- PASTIKAN BARIS INI ADA DI SINI ---
+            const isAdmin = String(user.first_name || '').trim().toLowerCase() === 'admin';
             sessions[sessionId] = { ...user, isAdmin };
+            // --------------------------------------
+            
             res.setHeader('Set-Cookie', `sessionId=${sessionId}; Path=/`);
             
             if (isAdmin) {
