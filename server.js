@@ -284,7 +284,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
         const notesMap = {};
         userNotes.forEach(n => { notesMap[n.note_date] = n.content; });
 
-       // Ganti kode globalEvents yang lama dengan yang ini:
+   // Ganti kode globalEvents yang lama dengan yang ini:
 const globalEvents = db.events ? db.events.map(e => {
     let d = new Date(e.date);
     // Tambahkan 7 jam untuk mengompensasi pergeseran waktu agar tetap di tanggal yang sama
@@ -293,7 +293,12 @@ const globalEvents = db.events ? db.events.map(e => {
         ...e,
         date: d.toISOString().split('T')[0]
     };
-}).filter(e => String(e.date).startsWith(`${year}-${month}`)) : [];
+}).filter(e => String(e.date).startsWith(`${year}-${month}`)) : [];s
+        
+        let calendarCells = '';
+        for (let i = 0; i < firstDayIndex; i++) {
+            calendarCells += `<div class="bg-[#f8fafc] min-h-[150px] rounded-2xl border border-dashed border-[#cbd5e1]"></div>`;
+        }
 
         for (let d = 1; d <= totalDays; d++) {
             const dayStr = String(d).padStart(2, '0');
