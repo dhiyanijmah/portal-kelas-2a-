@@ -190,9 +190,16 @@ app.post('/login', async (req, res) => {
         );
         if (user) {
             const sessionId = Math.random().toString(36).substring(2);
-            sessions[sessionId] = user;
+            const isAdmin = String(user.first_name).toLowerCase() === 'admin';
+            sessions[sessionId] = { ...user, isAdmin };
             res.setHeader('Set-Cookie', `sessionId=${sessionId}; Path=/`);
-            res.redirect('/dashboard');
+            
+            // JIKA ADMIN, LANGSUNG MASUK KE PANEL ADMIN UTAMA!
+            if (isAdmin) {
+                res.redirect('/admin/manage');
+            } else {
+                res.redirect('/dashboard');
+            }
         } else {
             res.send(`<script>alert('Username atau Password salah!'); window.location.href='/login';</script>`);
         }
@@ -481,7 +488,6 @@ app.get('/kas', checkAuth, async (req, res) => {
                     
                     <div class="pt-4 border-t font-bold">Total Pembayaran: Rp <span id="totalDisplay">0</span></div>
                     
-                    <!-- Info Pembayaran dengan WhatsApp Link -->
                     <div class="mt-6 p-4 bg-gray-50 rounded-xl text-sm border">
                         <p class="mb-2 font-bold">Info Pembayaran:</p>
                         <p>BCA: 0971149581</p>
@@ -520,8 +526,8 @@ app.get('/finances', checkAuth, async (req, res) => {
         }
         
         const search = (req.query.search || '').toLowerCase();
-        const typeFilter = req.query.type || 'all'; // 'all', 'income', 'expense'
-        const monthFilter = req.query.monthFilter || 'all'; // Filter kas berdasarkan bulan
+        const typeFilter = req.query.type || 'all';
+        const monthFilter = req.query.monthFilter || 'all';
         const startDate = req.query.start_date || '';
         const endDate = req.query.end_date || '';
         const page = parseInt(req.query.page) || 1;
@@ -552,7 +558,6 @@ app.get('/finances', checkAuth, async (req, res) => {
             }
         });
 
-        // Helper untuk format tanggal Indonesia (Jakarta)
         const formatDateID = (dateStr) => {
             if (!dateStr || dateStr === "-") return "-";
             try {
@@ -595,7 +600,6 @@ app.get('/finances', checkAuth, async (req, res) => {
             });
         });
 
-        // Terapkan Filter
         if (search) {
             allTransactions = allTransactions.filter(t => t.desc.toLowerCase().includes(search) || t.category.toLowerCase().includes(search));
         }
@@ -662,7 +666,6 @@ app.get('/finances', checkAuth, async (req, res) => {
             </div>
         </div>
 
-        <!-- Form Filter Lengkap -->
         <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-[#cbd5e1] mb-6">
             <form method="GET" class="flex flex-wrap items-end gap-4">
                 <div class="flex-grow min-w-[200px]">
@@ -712,7 +715,6 @@ app.get('/finances', checkAuth, async (req, res) => {
             </table>
         </div>
 
-        <!-- Navigasi Paginasi Lengkap (First, Prev, Page, Next, Last) -->
         <div class="flex justify-center items-center gap-2 mb-6 flex-wrap">
             <a href="?page=1&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">First</a>
             ${page > 1 ? `<a href="?page=${page-1}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Prev</a>` : ''}
@@ -865,149 +867,239 @@ app.post('/change-password', checkAuth, async (req, res) => {
     } catch (e) { res.status(500).send("Error updating password"); }
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-app.get('/admin', checkAuth, async (req, res) => {
-    // Ganti 'admin' dengan username akun admin Bunda
-    if (String(req.user.first_name).toLowerCase() !== 'admin') {
-        return res.send('<script>alert("Hanya Admin!"); window.location.href="/dashboard";</script>');
-    }
-    const db = await fetchDb();
-    const dbJson = JSON.stringify(db, null, 2);
-    
-    const content = `
-    <h2 class="text-2xl font-bold mb-4">Panel Admin</h2>
-    <div class="bg-white p-6 rounded-xl shadow border mb-6">
-        <h3 class="font-bold mb-4">➕ Tambah Transaksi</h3>
-        <form action="/admin/add-transaction" method="POST" class="space-y-3">
-            <input type="date" name="date" required class="w-full p-2 border rounded">
-            <select name="type" class="w-full p-2 border rounded"><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option></select>
-            <input type="text" name="desc" placeholder="Keterangan" required class="w-full p-2 border rounded">
-            <input type="number" name="amount" placeholder="Jumlah" required class="w-full p-2 border rounded">
-            <input type="text" name="category" placeholder="Kategori" class="w-full p-2 border rounded">
-            <button type="submit" class="bg-[#2f6636] text-white px-4 py-2 rounded">Simpan ke Spreadsheet</button>
-        </form>
-    </div>
-    <a id="downloadBtn" href="#" class="bg-blue-600 text-white px-4 py-2 rounded">Download Backup JSON</a>
-    <script>
-        const data = ${dbJson};
-        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-        document.getElementById('downloadBtn').href = URL.createObjectURL(blob);
-        document.getElementById('downloadBtn').download = 'backup_db.json';
-    </script>`;
-    res.send(layout('Admin', content));
-});
-
-app.post('/admin/add-transaction', checkAuth, async (req, res) => {
-    if (String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Forbidden");
-    await fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'addTransaction', ...req.body }),
-        headers: { 'Content-Type': 'application/json' }
-    });
-    cacheData = null;
-    res.send('<script>alert("Berhasil!"); window.location.href="/admin";</script>');
-});
-
-// Halaman Dashboard Manajemen Admin (Pengumuman & Kalender)
+// --- DASHBOARD UTAMA ADMIN TERPUSAT (/admin/manage) ---
 app.get('/admin/manage', checkAuth, async (req, res) => {
     if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') {
-        return res.send('<script>alert("Hanya Admin!"); window.location.href="/dashboard";</script>');
+        return res.send('<script>alert("Hanya Admin yang dapat mengakses halaman ini!"); window.location.href="/dashboard";</script>');
     }
 
-    const content = `
-    <div class="max-w-4xl mx-auto space-y-8 pb-10">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1] flex justify-between items-center">
-            <div>
-                <h2 class="text-2xl font-bold text-[#1e293b]">Panel Kontrol Admin</h2>
-                <p class="text-xs sm:text-sm text-[#4b5563]">Tambah pengumuman sekolah dan agenda kalender kelas 2A.</p>
+    try {
+        cacheData = null; 
+        const db = await fetchDb();
+        const dbJson = JSON.stringify(db, null, 2);
+
+        const targetUserId = req.query.student_id || (db.users[0] ? db.users[0].id : '');
+        const userKas = db.kas.filter(k => String(k.user_id) === String(targetUserId));
+
+        const sem1Months = ["Juli 2026", "Agustus", "September", "Oktober", "November", "Desember"];
+        const sem2Months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni"];
+        const allMonths = [...sem1Months, ...sem2Months];
+
+        let kasRows = '';
+        const kaosFound = userKas.find(k => String(k.month || '').trim().toLowerCase().includes('kaos'));
+        const isKaosPaid = String(kaosFound?.status || '').trim().toLowerCase() === 'lunas';
+        
+        kasRows += `
+        <tr class="border-b">
+            <td class="p-3 font-semibold">Iuran Kaos</td>
+            <td class="p-3">Rp ${(kaosFound?.amount || 68000).toLocaleString()}</td>
+            <td class="p-3">
+                <form action="/admin/update-kas" method="POST" class="flex gap-2 items-center">
+                    <input type="hidden" name="user_id" value="${targetUserId}">
+                    <input type="hidden" name="month" value="Kaos">
+                    <select name="status" class="border p-1.5 rounded-lg text-xs font-bold bg-white">
+                        <option value="Lunas" ${isKaosPaid ? 'selected' : ''}>Lunas</option>
+                        <option value="Belum Bayar" ${!isKaosPaid ? 'selected' : ''}>Belum Bayar</option>
+                    </select>
+                    <button type="submit" class="bg-[#2f6636] text-white px-3 py-1.5 rounded-lg text-xs font-bold">Update</button>
+                </form>
+            </td>
+        </tr>`;
+
+        allMonths.forEach(m => {
+            const mName = m.split(' ')[0];
+            const found = userKas.find(k => String(k.month || '').trim().toLowerCase() === mName.toLowerCase());
+            const paid = String(found?.status || '').trim().toLowerCase() === 'lunas';
+            
+            kasRows += `
+            <tr class="border-b">
+                <td class="p-3 font-semibold">${m}</td>
+                <td class="p-3">Rp 25.000</td>
+                <td class="p-3">
+                    <form action="/admin/update-kas" method="POST" class="flex gap-2 items-center">
+                        <input type="hidden" name="user_id" value="${targetUserId}">
+                        <input type="hidden" name="month" value="${mName}">
+                        <select name="status" class="border p-1.5 rounded-lg text-xs font-bold bg-white">
+                            <option value="Lunas" ${paid ? 'selected' : ''}>Lunas</option>
+                            <option value="Belum Bayar" ${!paid ? 'selected' : ''}>Belum Bayar</option>
+                        </select>
+                        <button type="submit" class="bg-[#2f6636] text-white px-3 py-1.5 rounded-lg text-xs font-bold">Update</button>
+                    </form>
+                </td>
+            </tr>`;
+        });
+
+        let studentOptions = db.users.map(u => `<option value="${u.id}" ${String(u.id) === String(targetUserId) ? 'selected' : ''}>${u.first_name}</option>`).join('');
+
+        const content = `
+        <div class="max-w-6xl mx-auto space-y-8 pb-12">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1] flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-[#1e293b]">Panel Utama Admin Kelas 2A</h2>
+                    <p class="text-xs sm:text-sm text-[#4b5563]">Kelola data kas, transaksi keuangan, agenda kalender, dan backup database langsung dari sini.</p>
+                </div>
+                <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition">Logout</a>
             </div>
-            <a href="/kas" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold transition">Kelola Kas & Transaksi</a>
+
+            <!-- 1. KELOLA STATUS KAS & KAOS -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
+                <h3 class="font-bold text-lg text-[#1e293b] mb-4">💵 Kelola Status Pembayaran Kas & Kaos Siswa</h3>
+                <div class="mb-4">
+                    <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Pilih Nama Siswa:</label>
+                    <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border p-2.5 rounded-xl w-full sm:w-72 bg-white font-medium text-sm">${studentOptions}</select>
+                </div>
+                <div class="overflow-x-auto border rounded-xl">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-100 text-xs uppercase text-gray-600 border-b">
+                            <tr>
+                                <th class="p-3">Bulan / Item</th>
+                                <th class="p-3">Nominal</th>
+                                <th class="p-3">Ubah Status Lunas/Belum</th>
+                            </tr>
+                        </thead>
+                        <tbody>${kasRows}</tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 2. TAMBAH TRANSAKSI -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
+                <h3 class="font-bold text-lg text-[#1e293b] mb-4">📊 Tambah Transaksi Keuangan (Pemasukan / Pengeluaran)</h3>
+                <form action="/admin/add-transaction" method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Tanggal</label>
+                        <input type="date" name="date" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Tipe</label>
+                        <select name="type" class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                            <option value="income">Pemasukan</option>
+                            <option value="expense">Pengeluaran</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Keterangan</label>
+                        <input type="text" name="desc" placeholder="Contoh: Beli alat kelas" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Jumlah (Rp)</label>
+                        <input type="number" name="amount" placeholder="50000" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                    </div>
+                    <button type="submit" class="bg-[#2f6636] hover:bg-[#244f2b] text-white py-2 px-4 rounded-xl font-bold text-sm h-[41px]">Simpan Transaksi</button>
+                </form>
+            </div>
+
+            <!-- 3. TAMBAH KALENDER & PENGUMUMAN -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
+                    <h3 class="font-bold text-lg text-[#1e293b] mb-3">📅 Tambah Agenda Kalender Kelas</h3>
+                    <form action="/admin/add-event" method="POST" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Tanggal</label>
+                            <input type="date" name="date" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Judul Agenda</label>
+                            <input type="text" name="title" placeholder="Contoh: Ujian Tengah Semester" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Keterangan</label>
+                            <input type="text" name="description" placeholder="Keterangan singkat kegiatan" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                        </div>
+                        <button type="submit" class="w-full bg-[#2f6636] text-white py-2 rounded-xl font-bold text-sm">Simpan Kalender</button>
+                    </form>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
+                    <h3 class="font-bold text-lg text-[#1e293b] mb-3">📢 Buat Pengumuman Sekolah</h3>
+                    <form action="/admin/add-announcement" method="POST" class="space-y-3">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="date" name="date" required class="border p-2 rounded-xl text-sm bg-gray-50">
+                            <input type="text" name="title" placeholder="Judul Pengumuman" required class="border p-2 rounded-xl text-sm bg-gray-50">
+                        </div>
+                        <textarea name="content" rows="2" placeholder="Isi pengumuman..." required class="w-full border p-2 rounded-xl text-sm bg-gray-50 resize-none"></textarea>
+                        <input type="url" name="lampiran" placeholder="Link Google Drive (Opsional)" class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                        <button type="submit" class="w-full bg-[#2f6636] text-white py-2 rounded-xl font-bold text-sm">Publikasikan</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 4. BACKUP DATABASE (JSON) -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl shadow-sm border border-blue-200 flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-lg text-blue-900">💾 Cadangan Database (Backup)</h3>
+                    <p class="text-xs text-blue-700">Unduh file database (.json) saat ini ke komputer sebagai cadangan pengaman.</p>
+                </div>
+                <a id="downloadBtn" href="#" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm transition">Download JSON</a>
+            </div>
         </div>
 
-        <!-- Form 1: Tambah Pengumuman Sekolah -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
-            <h3 class="font-bold text-lg text-[#1e293b] mb-3">📢 Buat Pengumuman Baru</h3>
-            <form action="/admin/add-announcement" method="POST" class="space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Tanggal Pengumuman</label>
-                        <input type="date" name="date" required class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Judul Pengumuman</label>
-                        <input type="text" name="title" placeholder="Contoh: Jadwal Ujian / Kegiatan Outing" required class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Isi Pengumuman</label>
-                    <textarea name="content" rows="4" placeholder="Tulis isi pengumuman selengkapnya di sini..." required class="w-full border border-[#cbd5e1] p-3 rounded-xl text-sm bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636] resize-none"></textarea>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Link Lampiran Google Drive (Opsional)</label>
-                    <input type="url" name="lampiran" placeholder="https://drive.google.com/file/d/..." class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
-                    <p class="text-[11px] text-gray-500 mt-1">💡 Masukkan link sharing file Google Drive (gambar/PDF) agar otomatis tampil dan bisa di-download walimurid.</p>
-                </div>
-                <button type="submit" class="bg-[#2f6636] hover:bg-[#244f2b] text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-sm transition">Publikasikan Pengumuman</button>
-            </form>
-        </div>
-
-        <!-- Form 2: Tambah Agenda Kalender -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
-            <h3 class="font-bold text-lg text-[#1e293b] mb-3">📅 Tambah Agenda Kalender Kelas</h3>
-            <form action="/admin/add-event" method="POST" class="space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Tanggal Agenda</label>
-                        <input type="date" name="date" required class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Judul Agenda</label>
-                        <input type="text" name="title" placeholder="Contoh: Bayar Buku / Perpisahan" required class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Keterangan Singkat</label>
-                    <input type="text" name="description" placeholder="Contoh: Dibawa ke sekolah maksimal pukul 08.00" required class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
-                </div>
-                <button type="submit" class="bg-[#2f6636] hover:bg-[#244f2b] text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-sm transition">Simpan ke Kalender</button>
-            </form>
-        </div>
-
-        <div><a href="/dashboard" class="inline-flex items-center text-[#2f6636] text-sm font-semibold">&larr; Kembali ke Beranda</a></div>
-    </div>`;
-    
-    res.send(layout('Panel Kontrol Admin', content));
+        <script>
+            const data = ${dbJson};
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            document.getElementById('downloadBtn').href = url;
+            document.getElementById('downloadBtn').download = 'backup_portal_kelas_' + new Date().toISOString().split('T')[0] + '.json';
+        </script>`;
+        
+        res.send(layout('Panel Utama Admin', content));
+    } catch (e) {
+        console.error("Admin Manage Error:", e);
+        res.status(500).send("Error loading admin page");
+    }
 });
 
-// Endpoint Proses Tambah Pengumuman
-app.post('/admin/add-announcement', checkAuth, async (req, res) => {
-    if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') {
-        return res.status(403).send("Unauthorized");
-    }
+// Endpoint Proses Post untuk Admin
+app.post('/admin/update-kas', checkAuth, async (req, res) => {
+    if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
     try {
         await fetch(SCRIPT_URL, {
             method: 'POST',
-            body: JSON.stringify({ action: 'addAnnouncement', ...req.body }),
+            body: JSON.stringify({ action: 'updateKas', ...req.body }),
             headers: { 'Content-Type': 'application/json' }
         });
-        cacheData = null; // Reset cache agar langsung muncul di web walimurid
-        res.send(`<script>alert('Pengumuman berhasil dipublikasikan!'); window.location.href='/admin/manage';</script>`);
-    } catch (e) { res.status(500).send("Gagal menyimpan pengumuman"); }
+        cacheData = null;
+        res.send(`<script>alert('Status kas/kaos berhasil diperbarui!'); window.history.back();</script>`);
+    } catch (e) { res.status(500).send("Gagal mengupdate kas"); }
 });
 
-// Endpoint Proses Tambah Event Kalender
+app.post('/admin/add-transaction', checkAuth, async (req, res) => {
+    if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
+    try {
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'addTransaction', ...req.body }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        cacheData = null;
+        res.send(`<script>alert('Transaksi berhasil ditambahkan ke spreadsheet!'); window.history.back();</script>`);
+    } catch (e) { res.status(500).send("Gagal menambah transaksi"); }
+});
+
 app.post('/admin/add-event', checkAuth, async (req, res) => {
-    if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') {
-        return res.status(403).send("Unauthorized");
-    }
+    if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
     try {
         await fetch(SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify({ action: 'addEvent', ...req.body }),
             headers: { 'Content-Type': 'application/json' }
         });
-        cacheData = null; // Reset cache
-        res.send(`<script>alert('Agenda kalender berhasil ditambahkan!'); window.location.href='/admin/manage';</script>`);
+        cacheData = null;
+        res.send(`<script>alert('Agenda kalender berhasil disimpan ke database!'); window.history.back();</script>`);
     } catch (e) { res.status(500).send("Gagal menyimpan agenda"); }
 });
+
+app.post('/admin/add-announcement', checkAuth, async (req, res) => {
+    if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
+    try {
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'addAnnouncement', ...req.body }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        cacheData = null;
+        res.send(`<script>alert('Pengumuman berhasil dipublikasikan!'); window.history.back();</script>`);
+    } catch (e) { res.status(500).send("Gagal mempublikasikan pengumuman"); }
+});
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
