@@ -395,44 +395,122 @@ app.post('/calendar/save', checkAuth, async (req, res) => {
 app.get('/kas', checkAuth, async (req, res) => {
     try {
         const db = await fetchDb();
-        const monthFilter = req.query.monthFilter || 'all';
         const userKas = db.kas.filter(k => String(k.user_id) === String(req.user.id));
+        const period = req.query.period || 'sem1';
+
+        const sem1Months = ["Juli 2026", "Agustus", "September", "Oktober", "November", "Desember"];
+        const sem2Months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni"];
+        let targetMonths = (period === 'sem2') ? sem2Months : (period === 'all' ? [...sem1Months, ...sem2Months] : sem1Months);
+
+        // Helper: Cek status bayar
+        const isPaid = (status) => String(status || '').trim().toLowerCase() === 'lunas';
+
+        // Helper: Ambil harga
+        const getRowAmount = (k, isKaos = false) => {
+            if (k?.amount !== undefined && k?.amount !== null && k?.amount !== "") {
+                let amt = Number(k.amount);
+                if (!isNaN(amt)) return amt;
+            }
+            return isKaos ? 68000 : 25000;
+        };
+
+        let rows = '', checkboxes = '';
         
-        // Filter bulan (Contoh logic simpel)
-        const filteredKas = monthFilter === 'all' ? userKas : userKas.filter(k => k.month === monthFilter);
+        // --- 1. KAOS ---
+        const kaosFound = userKas.find(k => String(k.month || '').trim().toLowerCase().includes('kaos'));
+        const kaosAmount = getRowAmount(kaosFound, true);
+        const isKaosPaid = isPaid(kaosFound?.status);
+        
+        if (period !== 'sem2') {
+            rows += `
+            <tr class="border-b border-[#cbd5e1] hover:bg-[#f8fafc]">
+                <td class="py-4 px-4 font-semibold">Iuran Kaos</td>
+                <td class="py-4 px-3 text-sm">Rp ${kaosAmount.toLocaleString()}</td>
+                <td class="py-4 px-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${isKaosPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${isKaosPaid ? 'Lunas' : 'Belum Bayar'}</span></td>
+            </tr>`;
+            if (!isKaosPaid) {
+                checkboxes += `
+                <label class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100">
+                    <input type="checkbox" class="w-5 h-5 calc-item accent-[#2f6636]" data-price="${kaosAmount}" onchange="calcTotal()">
+                    <span class="text-sm font-medium">Iuran Kaos (Rp ${kaosAmount.toLocaleString()})</span>
+                </label>`;
+            }
+        }
+
+        // --- 2. BULANAN ---
+        targetMonths.forEach((m) => {
+            const found = userKas.find(k => String(k.month || '').trim().toLowerCase() === m.split(' ')[0].toLowerCase());
+            const paid = isPaid(found?.status);
+            const rowAmount = getRowAmount(found, false);
+            
+            rows += `
+            <tr class="border-b border-[#cbd5e1] hover:bg-[#f8fafc]">
+                <td class="py-4 px-4 font-semibold">${m}</td>
+                <td class="py-4 px-3 text-sm">Rp ${rowAmount.toLocaleString()}</td>
+                <td class="py-4 px-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${paid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${paid ? 'Lunas' : 'Belum Bayar'}</span></td>
+            </tr>`;
+            
+            if (!paid) {
+                checkboxes += `
+                <label class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100">
+                    <input type="checkbox" class="w-5 h-5 calc-item accent-[#2f6636]" data-price="${rowAmount}" onchange="calcTotal()">
+                    <span class="text-sm font-medium">${m} (Rp ${rowAmount.toLocaleString()})</span>
+                </label>`;
+            }
+        });
 
         const content = `
-        <!-- Bagian Filter Bulan -->
-        <select onchange="window.location.href='?monthFilter=' + this.value">
-            <option value="all">Semua Bulan</option>
-            <option value="Juli">Juli</option>
-            ...
-        </select>
-
-        <!-- Tabel Kas Bunda -->
-        <!-- Kalkulator -->
-        <div class="mt-4">
-            <p>Centang item di bawah untuk menghitung total pembayaran yang ingin dibayarkan:</p>
-            <label><input type="checkbox" onclick="selectAll(this)"> Pilih Semua</label>
-            <!-- ... checkbox item ... -->
-        </div>
-
-        <!-- Info Pembayaran -->
-        <div class="mt-6 p-4 bg-yellow-50 rounded-lg">
-            <p>Pembayaran dapat dilakukan ke Mba Nisa (Mama Musa), selaku Bendahara Komite:</p>
-            <p><strong>BCA:</strong> 0971149581<br><strong>BNI:</strong> 286855891<br>a.n. Nisa Syakrina</p>
-            <p class="mt-2">Setelah transfer, wajib melakukan konfirmasi pembayaran melalui:<br><strong>Mba Nisa:</strong> +62 858-0032-7444</p>
+        <div class="mb-6 bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
+            <h2 class="text-2xl font-bold mb-4">Iuran Kas Siswa</h2>
+            <select onchange="window.location.href='?period=' + this.value" class="w-full p-3 border rounded-xl mb-4">
+                <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>Semester 1 (Juli - Desember 2026)</option>
+                <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>Semester 2 (Januari - Juni 2027)</option>
+                <option value="all" ${period === 'all' ? 'selected' : ''}>Semua Periode</option>
+            </select>
+            
+            <div class="grid lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 overflow-x-auto bg-white rounded-xl shadow-sm border">
+                    <table class="w-full text-left">${rows}</table>
+                </div>
+                
+                <div class="bg-white p-5 rounded-xl shadow-sm border">
+                    <h3 class="font-bold mb-3">🧮 Kalkulator Pembayaran</h3>
+                    <p class="text-xs mb-4 text-gray-600">Centang item di bawah untuk menghitung total pembayaran yang ingin dibayarkan:</p>
+                    
+                    <label class="flex items-center gap-3 p-3 bg-green-50 rounded-xl mb-3 cursor-pointer font-bold text-[#2f6636]">
+                        <input type="checkbox" id="selectAll" class="w-5 h-5" onchange="selectAll(this)"> Pilih Semua
+                    </label>
+                    
+                    <div class="space-y-2 max-h-[300px] overflow-y-auto mb-4">${checkboxes}</div>
+                    
+                    <div class="pt-4 border-t font-bold">Total Pembayaran: Rp <span id="totalDisplay">0</span></div>
+                    
+                    <!-- Info Pembayaran -->
+                    <div class="mt-6 p-4 bg-gray-50 rounded-xl text-sm border">
+                        <p class="mb-2"><strong>Info Pembayaran:</strong></p>
+                        <p>Transfer ke Mba Nisa (Bendahara):</p>
+                        <p><strong>BCA:</strong> 0971149581</p>
+                        <p><strong>BNI:</strong> 286855891</p>
+                        <p>a.n. Nisa Syakrina</p>
+                        <p class="mt-3">Konfirmasi ke Mba Nisa:<br><strong>+62 858-0032-7444</strong></p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <script>
+            function calcTotal() {
+                let total = 0;
+                document.querySelectorAll('.calc-item:checked').forEach(c => total += parseInt(c.dataset.price));
+                document.getElementById('totalDisplay').innerText = total.toLocaleString();
+            }
             function selectAll(source) {
                 document.querySelectorAll('.calc-item').forEach(c => c.checked = source.checked);
                 calcTotal();
             }
-        </script>
-        `;
+        </script>`;
         res.send(layout('Iuran Kas', content));
-    } catch(e) { res.status(500).send("Error"); }
+    } catch (e) { res.status(500).send("Error"); }
 });
 
 app.get('/finances', checkAuth, async (req, res) => {
