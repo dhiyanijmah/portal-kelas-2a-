@@ -11,11 +11,9 @@ app.get('/', (req, res) => {
 
 const SCRIPT_URL = process.env.APPS_SCRIPT_URL;
 
-// --- SISTEM CACHE (AGAR WEB SUPER NGEBUT / TIDAK LEMOT) ---
 let cacheData = null;
 let lastFetchTime = 0;
-const CACHE_DURATION = 2 * 60 * 1000; // 2 menit agar super cepat dan tidak bolak-balik load
-
+const CACHE_DURATION = 3 * 60 * 1000;
 async function fetchDb() {
     const now = Date.now();
     if (cacheData && (now - lastFetchTime < CACHE_DURATION)) {
@@ -105,9 +103,10 @@ const layout = (title, content) => `
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${title}</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23e57373%22><path d=%22M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z%22/></svg>">
+    <!-- Tailwind CDN sudah cukup, jangan tambahkan link font lain agar lebih ringan -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         #loading-overlay { transition: opacity 0.3s ease; }
     </style>
 </head>
@@ -782,7 +781,7 @@ app.get('/announcements', checkAuth, async (req, res) => {
 
         let cards = '';
         paginated.forEach(a => {
-            let imageHtml = '';
+            let imageHtml = `<div class="mt-4"><img src="${embedUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-xl max-h-80 w-auto object-cover border border-[#cbd5e1]" onerror="this.parentElement.style.display='none'"></div>`;
             let actionButtonsHtml = '';
             const rawUrl = (a.lampiran || a.image || a.file || '').trim();
             
