@@ -866,3 +866,45 @@ app.post('/change-password', checkAuth, async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+app.get('/admin', checkAuth, async (req, res) => {
+    // Ganti 'admin' dengan username akun admin Bunda
+    if (String(req.user.first_name).toLowerCase() !== 'admin') {
+        return res.send('<script>alert("Hanya Admin!"); window.location.href="/dashboard";</script>');
+    }
+    const db = await fetchDb();
+    const dbJson = JSON.stringify(db, null, 2);
+    
+    const content = `
+    <h2 class="text-2xl font-bold mb-4">Panel Admin</h2>
+    <div class="bg-white p-6 rounded-xl shadow border mb-6">
+        <h3 class="font-bold mb-4">➕ Tambah Transaksi</h3>
+        <form action="/admin/add-transaction" method="POST" class="space-y-3">
+            <input type="date" name="date" required class="w-full p-2 border rounded">
+            <select name="type" class="w-full p-2 border rounded"><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option></select>
+            <input type="text" name="desc" placeholder="Keterangan" required class="w-full p-2 border rounded">
+            <input type="number" name="amount" placeholder="Jumlah" required class="w-full p-2 border rounded">
+            <input type="text" name="category" placeholder="Kategori" class="w-full p-2 border rounded">
+            <button type="submit" class="bg-[#2f6636] text-white px-4 py-2 rounded">Simpan ke Spreadsheet</button>
+        </form>
+    </div>
+    <a id="downloadBtn" href="#" class="bg-blue-600 text-white px-4 py-2 rounded">Download Backup JSON</a>
+    <script>
+        const data = ${dbJson};
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+        document.getElementById('downloadBtn').href = URL.createObjectURL(blob);
+        document.getElementById('downloadBtn').download = 'backup_db.json';
+    </script>`;
+    res.send(layout('Admin', content));
+});
+
+app.post('/admin/add-transaction', checkAuth, async (req, res) => {
+    if (String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Forbidden");
+    await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'addTransaction', ...req.body }),
+        headers: { 'Content-Type': 'application/json' }
+    });
+    cacheData = null;
+    res.send('<script>alert("Berhasil!"); window.location.href="/admin";</script>');
+});
