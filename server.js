@@ -908,3 +908,106 @@ app.post('/admin/add-transaction', checkAuth, async (req, res) => {
     cacheData = null;
     res.send('<script>alert("Berhasil!"); window.location.href="/admin";</script>');
 });
+
+// Halaman Dashboard Manajemen Admin (Pengumuman & Kalender)
+app.get('/admin/manage', checkAuth, async (req, res) => {
+    if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') {
+        return res.send('<script>alert("Hanya Admin!"); window.location.href="/dashboard";</script>');
+    }
+
+    const content = `
+    <div class="max-w-4xl mx-auto space-y-8 pb-10">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1] flex justify-between items-center">
+            <div>
+                <h2 class="text-2xl font-bold text-[#1e293b]">Panel Kontrol Admin</h2>
+                <p class="text-xs sm:text-sm text-[#4b5563]">Tambah pengumuman sekolah dan agenda kalender kelas 2A.</p>
+            </div>
+            <a href="/kas" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold transition">Kelola Kas & Transaksi</a>
+        </div>
+
+        <!-- Form 1: Tambah Pengumuman Sekolah -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
+            <h3 class="font-bold text-lg text-[#1e293b] mb-3">📢 Buat Pengumuman Baru</h3>
+            <form action="/admin/add-announcement" method="POST" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Tanggal Pengumuman</label>
+                        <input type="date" name="date" required class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Judul Pengumuman</label>
+                        <input type="text" name="title" placeholder="Contoh: Jadwal Ujian / Kegiatan Outing" required class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Isi Pengumuman</label>
+                    <textarea name="content" rows="4" placeholder="Tulis isi pengumuman selengkapnya di sini..." required class="w-full border border-[#cbd5e1] p-3 rounded-xl text-sm bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636] resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Link Lampiran Google Drive (Opsional)</label>
+                    <input type="url" name="lampiran" placeholder="https://drive.google.com/file/d/..." class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                    <p class="text-[11px] text-gray-500 mt-1">💡 Masukkan link sharing file Google Drive (gambar/PDF) agar otomatis tampil dan bisa di-download walimurid.</p>
+                </div>
+                <button type="submit" class="bg-[#2f6636] hover:bg-[#244f2b] text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-sm transition">Publikasikan Pengumuman</button>
+            </form>
+        </div>
+
+        <!-- Form 2: Tambah Agenda Kalender -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
+            <h3 class="font-bold text-lg text-[#1e293b] mb-3">📅 Tambah Agenda Kalender Kelas</h3>
+            <form action="/admin/add-event" method="POST" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Tanggal Agenda</label>
+                        <input type="date" name="date" required class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Judul Agenda</label>
+                        <input type="text" name="title" placeholder="Contoh: Bayar Buku / Perpisahan" required class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Keterangan Singkat</label>
+                    <input type="text" name="description" placeholder="Contoh: Dibawa ke sekolah maksimal pukul 08.00" required class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                </div>
+                <button type="submit" class="bg-[#2f6636] hover:bg-[#244f2b] text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-sm transition">Simpan ke Kalender</button>
+            </form>
+        </div>
+
+        <div><a href="/dashboard" class="inline-flex items-center text-[#2f6636] text-sm font-semibold">&larr; Kembali ke Beranda</a></div>
+    </div>`;
+    
+    res.send(layout('Panel Kontrol Admin', content));
+});
+
+// Endpoint Proses Tambah Pengumuman
+app.post('/admin/add-announcement', checkAuth, async (req, res) => {
+    if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') {
+        return res.status(403).send("Unauthorized");
+    }
+    try {
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'addAnnouncement', ...req.body }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        cacheData = null; // Reset cache agar langsung muncul di web walimurid
+        res.send(`<script>alert('Pengumuman berhasil dipublikasikan!'); window.location.href='/admin/manage';</script>`);
+    } catch (e) { res.status(500).send("Gagal menyimpan pengumuman"); }
+});
+
+// Endpoint Proses Tambah Event Kalender
+app.post('/admin/add-event', checkAuth, async (req, res) => {
+    if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') {
+        return res.status(403).send("Unauthorized");
+    }
+    try {
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'addEvent', ...req.body }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        cacheData = null; // Reset cache
+        res.send(`<script>alert('Agenda kalender berhasil ditambahkan!'); window.location.href='/admin/manage';</script>`);
+    } catch (e) { res.status(500).send("Gagal menyimpan agenda"); }
+});
