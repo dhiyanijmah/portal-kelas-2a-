@@ -418,14 +418,16 @@ app.get('/kas', checkAuth, async (req, res) => {
             return s === 'lunas' || s === 'paid';
         };
 
-        const getRowAmount = (k, isKaos = false) => {
-            let amt = Number(k?.amount);
-            if (!amt || isNaN(amt)) {
-                amt = isKaos ? 68000 : 25000;
-            }
-            return amt;
-        };
-
+       const getRowAmount = (k, isKaos = false) => {
+    // Jika di data k sudah ada amount (misal 75000, 190000, dll), langsung pakai itu!
+    if (k?.amount !== undefined && k?.amount !== null && k?.amount !== "") {
+        let amt = Number(k.amount);
+        if (!isNaN(amt)) return amt;
+    }
+    
+    // Fallback hanya jika kosong sama sekali
+    return isKaos ? 68000 : 25000;
+};
         // --- DINAMIS KAOS PRICE (Membaca sesuai tagihan anak, default 68000 jika kosong) ---
         const kaosFound = userKas.find(k => {
             const mName = String(k.month || '').trim().toLowerCase();
