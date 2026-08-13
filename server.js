@@ -892,7 +892,7 @@ app.post('/change-password', checkAuth, async (req, res) => {
 });
 
 // --- DASHBOARD UTAMA ADMIN TERPUSAT (/admin/manage) DENGAN BULK UPDATE KAS ---
-aapp.get('/admin/manage', checkAuth, async (req, res) => {
+app.get('/admin/manage', checkAuth, async (req, res) => {
     if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') {
         return res.send('<script>alert("Hanya Admin yang dapat mengakses halaman ini!"); window.location.href="/dashboard";</script>');
     }
