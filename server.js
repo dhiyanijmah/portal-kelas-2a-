@@ -11,9 +11,10 @@ app.get('/', (req, res) => {
 
 const SCRIPT_URL = process.env.APPS_SCRIPT_URL;
 
+// --- SISTEM CACHE (AGAR WEB SUPER NGEBUT / TIDAK LEMOT) ---
 let cacheData = null;
 let lastFetchTime = 0;
-const CACHE_DURATION = 30 * 1000; // Diperpendek jadi 30 detik agar data selalu fresh
+const CACHE_DURATION = 2 * 60 * 1000; // 2 menit agar super cepat dan tidak bolak-balik load
 
 async function fetchDb() {
     const now = Date.now();
@@ -21,7 +22,7 @@ async function fetchDb() {
         return cacheData;
     }
     try {
-        const res = await fetch(`${SCRIPT_URL}?action=getData`);
+        const res = await fetch(`${SCRIPT_URL}?action=getData&t=${Date.now()}`);
         const data = await res.json();
         cacheData = data;
         lastFetchTime = now;
@@ -32,14 +33,15 @@ async function fetchDb() {
     }
 }
 
-// Fungsi khusus agar login kilat (hanya mengecek data users via POST ke Google Apps Script)
+// Fungsi login kilat menggunakan GET agar sesuai dengan Apps Script doGet
 async function verifyLogin(first_name, password) {
     try {
-        const res = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'verifyLogin', first_name, password }),
-            headers: { 'Content-Type': 'application/json' }
+        const params = new URLSearchParams({
+            action: 'verifyLogin',
+            first_name: first_name,
+            password: password
         });
+        const res = await fetch(`${SCRIPT_URL}?${params.toString()}`);
         return await res.json();
     } catch (e) {
         console.error("Gagal verifikasi login:", e);
@@ -271,7 +273,6 @@ app.get('/dashboard', checkAuth, (req, res) => {
 
 app.get('/calendar', checkAuth, async (req, res) => {
     try {
-        cacheData = null; // Selalu paksa refresh saat buka kalender agar event baru dari spreadsheet langsung terbaca
         const db = await fetchDb();
         const currentDate = new Date();
         const year = req.query.year || currentDate.getFullYear();
@@ -408,17 +409,14 @@ app.get('/calendar', checkAuth, async (req, res) => {
 app.post('/calendar/save', checkAuth, async (req, res) => {
     const { year, month, notes } = req.body;
     try {
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ 
-                action: 'saveAllNotes', 
-                user_id: req.user.id, 
-                year: year, 
-                month: month, 
-                notes: notes || {} 
-            }),
-            headers: { 'Content-Type': 'application/json' }
+        const params = new URLSearchParams({
+            action: 'saveAllNotes',
+            user_id: req.user.id,
+            year: year,
+            month: month,
+            notes: JSON.stringify(notes || {})
         });
+        await fetch(`${SCRIPT_URL}?${params.toString()}`);
         cacheData = null;
         res.redirect(`/calendar?year=${year}&month=${month}`);
     } catch (e) { res.status(500).send("Error saving notes"); }
@@ -426,7 +424,6 @@ app.post('/calendar/save', checkAuth, async (req, res) => {
 
 app.get('/kas', checkAuth, async (req, res) => {
     try {
-        cacheData = null;
         const db = await fetchDb();
         const userKas = db.kas.filter(k => String(k.user_id) === String(req.user.id));
         const period = req.query.period || 'sem1';
@@ -545,7 +542,6 @@ app.get('/kas', checkAuth, async (req, res) => {
 
 app.get('/finances', checkAuth, async (req, res) => {
     try {
-        cacheData = null;
         const db = await fetchDb();
         const usersMap = {};
         if (db.users) {
@@ -761,7 +757,6 @@ app.get('/finances', checkAuth, async (req, res) => {
 
 app.get('/announcements', checkAuth, async (req, res) => {
     try {
-        cacheData = null;
         const db = await fetchDb();
         const search = (req.query.search || '').toLowerCase();
         const filter = req.query.filter || 'all';
@@ -885,11 +880,12 @@ app.post('/change-password', checkAuth, async (req, res) => {
         return res.send(`<script>alert('Password lama salah!'); window.location.href='/change-password';</script>`);
     }
     try {
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'updatePassword', user_id: req.user.id, newPassword: newPassword }),
-            headers: { 'Content-Type': 'application/json' }
+        const params = new URLSearchParams({
+            action: 'updatePassword',
+            user_id: req.user.id,
+            newPassword: newPassword
         });
+        await fetch(`${SCRIPT_URL}?${params.toString()}`);
         cacheData = null; 
         res.send(`<script>alert('Password berhasil diubah, silakan login kembali.'); window.location.href='/logout';</script>`);
     } catch (e) { res.status(500).send("Error updating password"); }
@@ -902,7 +898,6 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
     }
 
     try {
-        cacheData = null; 
         const db = await fetchDb();
         const dbJson = JSON.stringify(db, null, 2);
 
@@ -1045,15 +1040,16 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
     }
 });
 
-// Endpoint Proses Post untuk Admin (dengan auto-clear cache agar sinkron real-time)
+// Endpoint Proses Post untuk Admin & Action (Menggunakan URLSearchParams agar data masuk dengan mulus ke Apps Script doGet)
 app.post('/admin/update-kas-bulk', checkAuth, async (req, res) => {
     if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
     try {
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'updateKasBulk', ...req.body }),
-            headers: { 'Content-Type': 'application/json' }
+        const params = new URLSearchParams({
+            action: 'updateKasBulk',
+            user_id: req.body.user_id,
+            months: JSON.stringify(req.body.months || [])
         });
+        await fetch(`${SCRIPT_URL}?${params.toString()}`);
         cacheData = null; // Clear cache agar data langsung segar
         res.send(`<script>alert('Status kas/kaos berhasil diperbarui secara massal!'); window.location.href='/admin/manage?student_id=${req.body.user_id}';</script>`);
     } catch (e) { res.status(500).send("Gagal mengupdate kas"); }
@@ -1062,11 +1058,8 @@ app.post('/admin/update-kas-bulk', checkAuth, async (req, res) => {
 app.post('/admin/add-transaction', checkAuth, async (req, res) => {
     if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
     try {
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'addTransaction', ...req.body }),
-            headers: { 'Content-Type': 'application/json' }
-        });
+        const params = new URLSearchParams({ action: 'addTransaction', ...req.body });
+        await fetch(`${SCRIPT_URL}?${params.toString()}`);
         cacheData = null;
         res.send(`<script>alert('Transaksi berhasil ditambahkan ke spreadsheet!'); window.history.back();</script>`);
     } catch (e) { res.status(500).send("Gagal menambah transaksi"); }
@@ -1075,11 +1068,8 @@ app.post('/admin/add-transaction', checkAuth, async (req, res) => {
 app.post('/admin/add-event', checkAuth, async (req, res) => {
     if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
     try {
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'addEvent', ...req.body }),
-            headers: { 'Content-Type': 'application/json' }
-        });
+        const params = new URLSearchParams({ action: 'addEvent', ...req.body });
+        await fetch(`${SCRIPT_URL}?${params.toString()}`);
         cacheData = null;
         res.send(`<script>alert('Agenda kalender berhasil disimpan ke database!'); window.history.back();</script>`);
     } catch (e) { res.status(500).send("Gagal menyimpan agenda"); }
@@ -1088,11 +1078,8 @@ app.post('/admin/add-event', checkAuth, async (req, res) => {
 app.post('/admin/add-announcement', checkAuth, async (req, res) => {
     if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
     try {
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'addAnnouncement', ...req.body }),
-            headers: { 'Content-Type': 'application/json' }
-        });
+        const params = new URLSearchParams({ action: 'addAnnouncement', ...req.body });
+        await fetch(`${SCRIPT_URL}?${params.toString()}`);
         cacheData = null;
         res.send(`<script>alert('Pengumuman berhasil dipublikasikan!'); window.history.back();</script>`);
     } catch (e) { res.status(500).send("Gagal mempublikasikan pengumuman"); }
