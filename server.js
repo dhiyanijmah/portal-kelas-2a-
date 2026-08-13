@@ -402,10 +402,8 @@ app.get('/kas', checkAuth, async (req, res) => {
         const sem2Months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni"];
         let targetMonths = (period === 'sem2') ? sem2Months : (period === 'all' ? [...sem1Months, ...sem2Months] : sem1Months);
 
-        // Helper: Cek status bayar
         const isPaid = (status) => String(status || '').trim().toLowerCase() === 'lunas';
 
-        // Helper: Ambil harga
         const getRowAmount = (k, isKaos = false) => {
             if (k?.amount !== undefined && k?.amount !== null && k?.amount !== "") {
                 let amt = Number(k.amount);
@@ -416,7 +414,6 @@ app.get('/kas', checkAuth, async (req, res) => {
 
         let rows = '', checkboxes = '';
         
-        // --- 1. KAOS ---
         const kaosFound = userKas.find(k => String(k.month || '').trim().toLowerCase().includes('kaos'));
         const kaosAmount = getRowAmount(kaosFound, true);
         const isKaosPaid = isPaid(kaosFound?.status);
@@ -437,7 +434,6 @@ app.get('/kas', checkAuth, async (req, res) => {
             }
         }
 
-        // --- 2. BULANAN ---
         targetMonths.forEach((m) => {
             const found = userKas.find(k => String(k.month || '').trim().toLowerCase() === m.split(' ')[0].toLowerCase());
             const paid = isPaid(found?.status);
@@ -485,14 +481,13 @@ app.get('/kas', checkAuth, async (req, res) => {
                     
                     <div class="pt-4 border-t font-bold">Total Pembayaran: Rp <span id="totalDisplay">0</span></div>
                     
-                    <!-- Info Pembayaran -->
+                    <!-- Info Pembayaran dengan WhatsApp Link -->
                     <div class="mt-6 p-4 bg-gray-50 rounded-xl text-sm border">
-                        <p class="mb-2"><strong>Info Pembayaran:</strong></p>
-                        <p>Transfer ke Mba Nisa (Bendahara):</p>
-                        <p><strong>BCA:</strong> 0971149581</p>
-                        <p><strong>BNI:</strong> 286855891</p>
+                        <p class="mb-2 font-bold">Info Pembayaran:</p>
+                        <p>BCA: 0971149581</p>
+                        <p>BNI: 286855891</p>
                         <p>a.n. Nisa Syakrina</p>
-                        <p class="mt-3">Konfirmasi ke Mba Nisa:<br><strong>+62 858-0032-7444</strong></p>
+                        <p class="mt-3">Konfirmasi ke Mba Nisa:<br><a href="https://wa.me/6285800327444" target="_blank" class="text-[#2f6636] font-bold underline hover:text-[#244f2b]">+62 858-0032-7444</a></p>
                     </div>
                 </div>
             </div>
@@ -508,7 +503,10 @@ app.get('/kas', checkAuth, async (req, res) => {
                 document.querySelectorAll('.calc-item').forEach(c => c.checked = source.checked);
                 calcTotal();
             }
-        </script>`;
+        </script>
+
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-[#2f6636] hover:text-[#1e293b] text-sm font-semibold">&larr; Kembali ke Beranda</a></div>`;
+        
         res.send(layout('Iuran Kas', content));
     } catch (e) { res.status(500).send("Error"); }
 });
@@ -516,52 +514,170 @@ app.get('/kas', checkAuth, async (req, res) => {
 app.get('/finances', checkAuth, async (req, res) => {
     try {
         const db = await fetchDb();
-        const usersMap = db.users.reduce((acc, u) => ({ ...acc, [String(u.id)]: u.first_name }), {});
+        const usersMap = {};
+        if (db.users) {
+            db.users.forEach(u => { usersMap[String(u.id)] = u.first_name; });
+        }
         
-        // Parameter Filter
         const search = (req.query.search || '').toLowerCase();
-        const typeFilter = req.query.type || 'all'; // 'all', 'income', 'expense'
-        const startDate = req.query.start_date || '';
-        const endDate = req.query.end_date || '';
+        const typeFilter = req.query.type || 'all';
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
 
-        // Gabungkan Data
-        let allTransactions = [
-            ...db.kas.filter(k => String(k.status || '').toLowerCase() === "lunas").map(k => ({
-                date: k.date || "-", // Pastikan di spreadsheet ada kolom date, kalau kosong kasih placeholder
-                desc: `${k.month === "Kaos" ? "Iuran Kaos" : "Iuran Kas"} - ${usersMap[String(k.user_id)] || 'ID ' + k.user_id}`,
-                type: 'income',
-                amount: Number(k.amount || 0),
-                category: k.month === "Kaos" ? "Kaos" : "Kas"
-            })),
-            ...db.transactions.map(tx => ({
+        const kasData = db.kas || [];
+        const txData = db.transactions || [];
+
+        let totalKas = 0, totalKaos = 0, totalLainnya = 0, totalExpense = 0;
+
+        kasData.forEach(item => {
+            if (String(item.status || '').trim().toLowerCase() === "lunas") {
+                const amt = Number(item.amount || 0);
+                if (String(item.month || '').trim().toLowerCase() === "kaos") {
+                    totalKaos += amt;
+                } else {
+                    totalKas += amt;
+                }
+            }
+        });
+
+        txData.forEach(tx => {
+            const amt = Number(tx.amount || 0);
+            if (String(tx.type || '').trim().toLowerCase() === 'income') {
+                totalLainnya += amt;
+            } else {
+                totalExpense += amt;
+            }
+        });
+
+        let allTransactions = [];
+
+        kasData.forEach(k => {
+            if (String(k.status || '').trim().toLowerCase() === "lunas") {
+                const name = usersMap[String(k.user_id)] || ('ID ' + k.user_id);
+                const isKaos = String(k.month || '').trim().toLowerCase() === "kaos";
+                allTransactions.push({
+                    date: k.date || "-",
+                    desc: `${isKaos ? "Iuran Kaos" : "Iuran Kas (" + k.month + ")"} - ${name}`,
+                    type: 'income',
+                    amount: Number(k.amount || 0),
+                    category: isKaos ? "Kaos" : "Kas"
+                });
+            }
+        });
+
+        txData.forEach(tx => {
+            const isInc = String(tx.type || '').trim().toLowerCase() === 'income';
+            allTransactions.push({
                 date: tx.date || "-",
                 desc: tx.description || tx.desc || "-",
-                type: String(tx.type || '').trim().toLowerCase() === 'income' ? 'income' : 'expense',
+                type: isInc ? 'income' : 'expense',
                 amount: Number(tx.amount || 0),
                 category: tx.category || "Lainnya"
-            }))
-        ];
+            });
+        });
 
-        // Filter Logika
-        if (search) allTransactions = allTransactions.filter(t => t.desc.toLowerCase().includes(search));
-        if (typeFilter !== 'all') allTransactions = allTransactions.filter(t => t.type === typeFilter);
-        if (startDate && endDate) allTransactions = allTransactions.filter(t => t.date >= startDate && t.date <= endDate);
+        if (search) {
+            allTransactions = allTransactions.filter(t => t.desc.toLowerCase().includes(search) || t.category.toLowerCase().includes(search));
+        }
+        if (typeFilter !== 'all') {
+            allTransactions = allTransactions.filter(t => t.type === typeFilter);
+        }
 
-        // Sorting & Paginasi
-        allTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+        allTransactions.sort((a, b) => {
+            if (a.date === "-" || b.date === "-") return 0;
+            return new Date(b.date) - new Date(a.date);
+        });
+
         const totalPages = Math.ceil(allTransactions.length / limit) || 1;
         const paginatedTxs = allTransactions.slice((page - 1) * limit, page * limit);
 
-        // Hitung Total
-        const totalPendapatanKas = allTransactions.filter(t => t.category === "Kas" && t.type === 'income').reduce((s, t) => s + t.amount, 0);
-        const totalPendapatanKaos = allTransactions.filter(t => t.category === "Kaos" && t.type === 'income').reduce((s, t) => s + t.amount, 0);
-        const totalLainnya = allTransactions.filter(t => t.category !== "Kas" && t.category !== "Kaos" && t.type === 'income').reduce((s, t) => s + t.amount, 0);
+        let rows = '';
+        paginatedTxs.forEach(tx => {
+            const isIncome = tx.type === 'income';
+            const badge = isIncome 
+                ? '<span class="text-[#166534] bg-[#dcfce7] border border-[#bbf7d0] px-2.5 py-0.5 rounded-full text-[11px] font-bold">Pemasukan</span>' 
+                : '<span class="text-[#991b1b] bg-[#fee2e2] border border-[#fecaca] px-2.5 py-0.5 rounded-full text-[11px] font-bold">Pengeluaran</span>';
+            
+            rows += `
+            <tr class="border-b border-[#cbd5e1] hover:bg-[#f8fafc] transition align-top">
+                <td class="py-3 px-3 sm:px-6 text-xs text-[#4b5563] text-center whitespace-nowrap w-[100px]">${tx.date}</td>
+                <td class="py-3 px-3 sm:px-6 font-medium text-[#1e293b] text-xs sm:text-sm text-left break-words max-w-[180px] sm:max-w-md">${tx.desc}</td>
+                <td class="py-3 px-3 sm:px-6 text-center whitespace-nowrap w-[100px]">${badge}</td>
+                <td class="py-3 px-3 sm:px-6 font-bold text-[#1e293b] text-xs sm:text-sm text-left whitespace-nowrap w-[160px] sm:w-[200px]">Rp ${tx.amount.toLocaleString()}</td>
+            </tr>`;
+        });
 
-        // (Lanjutkan dengan HTML rows, sama seperti pola sebelumnya, pastikan paginasi mencakup First & Last)
-        // ... (Kode HTML tabel dan paginasi seperti contoh sebelumnya, pastikan pakai page=${totalPages} untuk link Last)
-    } catch(e) { res.status(500).send("Error"); }
+        const grandTotalIncome = totalKas + totalKaos + totalLainnya;
+        const balance = grandTotalIncome - totalExpense;
+
+        const content = `
+        <div class="mb-6"><h2 class="text-xl sm:text-2xl font-bold text-[#1e293b]">Laporan Keuangan</h2><p class="text-xs sm:text-sm text-[#4b5563]">Rincian pemasukan kas, kaos, transaksi lainnya, dan pengeluaran kelas 2A.</p></div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] border-l-4 border-l-blue-500"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Pendapatan Kas</span><h3 class="text-xl font-black text-blue-600 mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] border-l-4 border-l-green-500"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Pendapatan Kaos</span><h3 class="text-xl font-black text-green-600 mt-1">Rp ${totalKaos.toLocaleString()}</h3></div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] border-l-4 border-l-amber-500"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Pendapatan Lainnya</span><h3 class="text-xl font-black text-amber-600 mt-1">Rp ${totalLainnya.toLocaleString()}</h3></div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] border-l-4 border-l-red-500"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Pengeluaran</span><h3 class="text-xl font-black text-red-600 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
+        </div>
+
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-[#cbd5e1] mb-6 bg-gradient-to-r from-emerald-50 to-green-50">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-[#2f6636]">Saldo Akhir Kas Kelas (Total Masuk - Pengeluaran)</span>
+                <h3 class="text-2xl sm:text-3xl font-black text-[#2f6636] mt-1">Rp ${balance.toLocaleString()}</h3>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-[#cbd5e1] mb-6">
+            <form method="GET" class="flex flex-wrap items-end gap-4">
+                <div class="flex-grow min-w-[200px]">
+                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Cari Keterangan / Kategori</label>
+                    <input type="text" name="search" value="${search}" placeholder="Cari nama, kaos, dll..." class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Jenis</label>
+                    <select name="type" class="border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                        <option value="all" ${typeFilter === 'all' ? 'selected' : ''}>Semua</option>
+                        <option value="income" ${typeFilter === 'income' ? 'selected' : ''}>Pemasukan</option>
+                        <option value="expense" ${typeFilter === 'expense' ? 'selected' : ''}>Pengeluaran</option>
+                    </select>
+                </div>
+                <div class="flex gap-2">
+                    <button type="submit" class="bg-[#2f6636] hover:bg-[#244f2b] text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition">Cari</button>
+                    <a href="/finances" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center justify-center">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-[#cbd5e1] overflow-x-auto mb-6">
+            <table class="w-full min-w-[600px]">
+                <thead>
+                    <tr class="bg-[#f1f5f9] text-[#4b5563] text-xs uppercase tracking-wider border-b border-[#cbd5e1]">
+                        <th class="py-3 px-3 sm:px-6 text-center w-[100px]">Tanggal</th>
+                        <th class="py-3 px-3 sm:px-6 text-left">Keterangan</th>
+                        <th class="py-3 px-3 sm:px-6 text-center w-[100px]">Tipe</th>
+                        <th class="py-3 px-3 sm:px-6 text-left w-[160px] sm:w-[200px]">Jumlah</th>
+                    </tr>
+                </thead>
+                <tbody>${rows || `<tr><td colspan="4" class="text-center py-8 text-gray-500 text-sm">Tidak ada data keuangan yang ditemukan.</td></tr>`}</tbody>
+            </table>
+        </div>
+
+        <!-- Navigasi Paginasi (First, Prev, Page X, Next, Last) -->
+        <div class="flex justify-center items-center gap-2 mb-6 flex-wrap">
+            <a href="?page=1&search=${search}&type=${typeFilter}" class="px-3 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">First</a>
+            ${page > 1 ? `<a href="?page=${page-1}&search=${search}&type=${typeFilter}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Prev</a>` : ''}
+            <span class="px-4 py-2 text-sm font-bold text-[#4b5563]">Halaman ${page} dari ${totalPages}</span>
+            ${page < totalPages ? `<a href="?page=${page+1}&search=${search}&type=${typeFilter}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Next</a>` : ''}
+            <a href="?page=${totalPages}&search=${search}&type=${typeFilter}" class="px-3 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Last (${totalPages})</a>
+        </div>
+
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-[#2f6636] hover:text-[#1e293b] text-sm font-semibold">&larr; Kembali ke Beranda</a></div>`;
+        
+        res.send(layout('Laporan Keuangan', content));
+    } catch (e) { 
+        console.error("Finance Error:", e);
+        res.status(500).send("Error loading financial report"); 
+    }
 });
 
 app.get('/announcements', checkAuth, async (req, res) => {
