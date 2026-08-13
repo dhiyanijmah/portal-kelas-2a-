@@ -13,7 +13,7 @@ const SCRIPT_URL = process.env.APPS_SCRIPT_URL;
 
 let cacheData = null;
 let lastFetchTime = 0;
-const CACHE_DURATION = 5 * 60 * 1000;
+const CACHE_DURATION = 30 * 1000; // Diperpendek jadi 30 detik agar data selalu fresh
 
 async function fetchDb() {
     const now = Date.now();
@@ -32,14 +32,18 @@ async function fetchDb() {
     }
 }
 
-// Fungsi khusus agar login instan dan ringan di HP (hanya ambil data users)
-async function fetchUsersOnly() {
+// Fungsi khusus agar login kilat (hanya mengecek data users via POST ke Google Apps Script)
+async function verifyLogin(first_name, password) {
     try {
-        const res = await fetch(`${SCRIPT_URL}?action=getUsers`);
+        const res = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'verifyLogin', first_name, password }),
+            headers: { 'Content-Type': 'application/json' }
+        });
         return await res.json();
     } catch (e) {
-        console.error("Gagal mengambil user:", e);
-        return [];
+        console.error("Gagal verifikasi login:", e);
+        return null;
     }
 }
 
@@ -194,12 +198,8 @@ app.get('/login', (req, res) => {
 app.post('/login', async (req, res) => {
     const { first_name, password } = req.body;
     try {
-        const users = await fetchUsersOnly();
-        const user = users.find(u => 
-            String(u.first_name).toLowerCase() === String(first_name).trim().toLowerCase() &&
-            String(u.password).trim() === String(password).trim()
-        );
-        if (user) {
+        const user = await verifyLogin(first_name, password);
+        if (user && user.id) {
             const sessionId = Math.random().toString(36).substring(2);
             const isAdmin = String(user.first_name).toLowerCase() === 'admin';
             sessions[sessionId] = { ...user, isAdmin };
@@ -271,6 +271,7 @@ app.get('/dashboard', checkAuth, (req, res) => {
 
 app.get('/calendar', checkAuth, async (req, res) => {
     try {
+        cacheData = null; // Selalu paksa refresh saat buka kalender agar event baru dari spreadsheet langsung terbaca
         const db = await fetchDb();
         const currentDate = new Date();
         const year = req.query.year || currentDate.getFullYear();
@@ -411,6 +412,7 @@ app.post('/calendar/save', checkAuth, async (req, res) => {
 
 app.get('/kas', checkAuth, async (req, res) => {
     try {
+        cacheData = null;
         const db = await fetchDb();
         const userKas = db.kas.filter(k => String(k.user_id) === String(req.user.id));
         const period = req.query.period || 'sem1';
@@ -529,6 +531,7 @@ app.get('/kas', checkAuth, async (req, res) => {
 
 app.get('/finances', checkAuth, async (req, res) => {
     try {
+        cacheData = null;
         const db = await fetchDb();
         const usersMap = {};
         if (db.users) {
@@ -744,6 +747,7 @@ app.get('/finances', checkAuth, async (req, res) => {
 
 app.get('/announcements', checkAuth, async (req, res) => {
     try {
+        cacheData = null;
         const db = await fetchDb();
         const search = (req.query.search || '').toLowerCase();
         const filter = req.query.filter || 'all';
