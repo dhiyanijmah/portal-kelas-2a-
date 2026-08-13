@@ -284,10 +284,15 @@ app.get('/calendar', checkAuth, async (req, res) => {
         const notesMap = {};
         userNotes.forEach(n => { notesMap[n.note_date] = n.content; });
 
-        const globalEvents = db.events ? db.events.filter(e => String(e.date).startsWith(`${year}-${month}`)) : [];
+        // Bersihkan format tanggal agar cocok dengan kalender web
+        const globalEvents = db.events ? db.events.map(e => ({
+            ...e,
+            date: e.date ? String(e.date).split('T')[0] : ''
+        })).filter(e => String(e.date).startsWith(`${year}-${month}`)) : [];
+        
         const eventsMap = {};
         globalEvents.forEach(e => { eventsMap[e.date] = e; });
-
+        
         let calendarCells = '';
         for (let i = 0; i < firstDayIndex; i++) {
             calendarCells += `<div class="bg-[#f8fafc] min-h-[150px] rounded-2xl border border-dashed border-[#cbd5e1]"></div>`;
