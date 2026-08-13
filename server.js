@@ -203,7 +203,7 @@ app.post('/login', async (req, res) => {
         const user = await verifyLogin(first_name, password);
         if (user && user.id) {
             const sessionId = Math.random().toString(36).substring(2);
-            const isAdmin = String(user.first_name).toLowerCase() === 'admin';
+           const isAdmin = String(user.first_name || '').trim().toLowerCase() === 'admin';
             sessions[sessionId] = { ...user, isAdmin };
             res.setHeader('Set-Cookie', `sessionId=${sessionId}; Path=/`);
             
@@ -1047,10 +1047,8 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
     }
 });
 
-// Endpoint Proses Post untuk Admin & Action (Menggunakan URLSearchParams agar data masuk dengan mulus ke Apps Script doGet)
-// Endpoint Proses Post untuk Admin & Action (Menggunakan koma agar centang ganda / bulk update sukses 100%)
 app.post('/admin/update-kas-bulk', checkAuth, async (req, res) => {
-    if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
+    if (!req.user.isAdmin && String(req.user.first_name || '').trim().toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
     try {
         let monthsInput = req.body.months || [];
         if (!Array.isArray(monthsInput)) {
@@ -1060,17 +1058,17 @@ app.post('/admin/update-kas-bulk', checkAuth, async (req, res) => {
         const params = new URLSearchParams({
             action: 'updateKasBulk',
             user_id: req.body.user_id,
-            months: monthsInput.join(',') // <--- Menggunakan pemisah koma agar aman dan tidak error JSON.parse
+            months: monthsInput.join(',')
         });
         
         await fetch(`${SCRIPT_URL}?${params.toString()}`);
-        cacheData = null; // Clear cache agar data langsung segar
+        cacheData = null; 
         res.send(`<script>alert('Status kas/kaos berhasil diperbarui secara massal!'); window.location.href='/admin/manage?student_id=${req.body.user_id}';</script>`);
     } catch (e) { res.status(500).send("Gagal mengupdate kas"); }
 });
 
 app.post('/admin/add-transaction', checkAuth, async (req, res) => {
-    if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
+    if (!req.user.isAdmin && String(req.user.first_name || '').trim().toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
     try {
         const params = new URLSearchParams({ action: 'addTransaction', ...req.body });
         await fetch(`${SCRIPT_URL}?${params.toString()}`);
@@ -1080,7 +1078,7 @@ app.post('/admin/add-transaction', checkAuth, async (req, res) => {
 });
 
 app.post('/admin/add-event', checkAuth, async (req, res) => {
-    if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
+    if (!req.user.isAdmin && String(req.user.first_name || '').trim().toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
     try {
         const params = new URLSearchParams({ action: 'addEvent', ...req.body });
         await fetch(`${SCRIPT_URL}?${params.toString()}`);
@@ -1090,7 +1088,7 @@ app.post('/admin/add-event', checkAuth, async (req, res) => {
 });
 
 app.post('/admin/add-announcement', checkAuth, async (req, res) => {
-    if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
+    if (!req.user.isAdmin && String(req.user.first_name || '').trim().toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
     try {
         const params = new URLSearchParams({ action: 'addAnnouncement', ...req.body });
         await fetch(`${SCRIPT_URL}?${params.toString()}`);
