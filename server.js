@@ -284,9 +284,8 @@ app.get('/calendar', checkAuth, async (req, res) => {
         const notesMap = {};
         userNotes.forEach(n => { notesMap[n.note_date] = n.content; });
 
-   const globalEvents = db.events ? db.events.map(e => {
+        const globalEvents = db.events ? db.events.map(e => {
             let d = new Date(e.date);
-            // Tambahkan 7 jam untuk mengompensasi pergeseran waktu agar tetap di tanggal yang sama
             d.setHours(d.getHours() + 7); 
             return {
                 ...e,
@@ -294,6 +293,8 @@ app.get('/calendar', checkAuth, async (req, res) => {
             };
         }).filter(e => String(e.date).startsWith(`${year}-${month}`)) : [];
         
+        const eventsMap = {};
+        globalEvents.forEach(e => { eventsMap[e.date] = e; });
         
         let calendarCells = '';
         for (let i = 0; i < firstDayIndex; i++) {
