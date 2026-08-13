@@ -909,11 +909,17 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
         const sem2Months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni"];
         const allMonths = ["Kaos", ...sem1Months, ...sem2Months];
 
-        let checkboxesHtml = '';
+      let checkboxesHtml = '';
         allMonths.forEach(m => {
             const found = userKas.find(k => String(k.month || '').trim().toLowerCase() === m.toLowerCase());
             const isPaid = String(found?.status || '').trim().toLowerCase() === 'lunas';
-            const labelName = m === 'Kaos' ? 'Iuran Kaos (Rp 68.000)' : `${m} (Rp 25.000)`;
+            
+            // Ambil nominal asli dari database/spreadsheet, jika kosong gunakan default (Kaos: 68000, Kas: 25000)
+            let defaultAmt = (m.toLowerCase() === 'kaos') ? 68000 : 25000;
+            let amt = (found && found.amount !== undefined && found.amount !== "") ? Number(found.amount) : defaultAmt;
+            if (isNaN(amt)) amt = defaultAmt;
+
+            const labelName = m === 'Kaos' ? `Iuran Kaos (Rp ${amt.toLocaleString()})` : `${m} (Rp ${amt.toLocaleString()})`;
             
             checkboxesHtml += `
             <label class="flex items-center space-x-3 p-3 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-100 transition">
@@ -921,7 +927,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                 <span class="text-sm font-semibold text-[#1e293b]">${labelName}</span>
             </label>`;
         });
-
+        
         let studentOptions = db.users.map(u => `<option value="${u.id}" ${String(u.id) === String(targetUserId) ? 'selected' : ''}>${u.first_name}</option>`).join('');
 
         const content = `
