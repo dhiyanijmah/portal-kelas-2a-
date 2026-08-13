@@ -551,47 +551,74 @@ app.get('/kas', checkAuth, async (req, res) => {
 app.get('/finances', checkAuth, async (req, res) => {
     try {
         const db = await fetchDb();
-        const filter = req.query.filter || 'all';
-        const startDate = req.query.start_date || '';
-        const endDate = req.query.end_date || '';
         const search = (req.query.search || '').toLowerCase();
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
         
-        let totalIncome = 0, totalExpense = 0;
-        db.transactions.forEach(tx => {
-            const amt = Number(tx.amount);
-            if (tx.type === 'income') totalIncome += amt; else totalExpense += amt;
-        });
+        const kasData = db.kas || [];
+        const txData = db.transactions || [];
 
-        let txs = db.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-        const now = new Date();
+        // 1. Hitung Total Pendapatan Masing-masing Kategori
+        // Total Kas Bulanan (yang Lunas dan bukan Kaos)
+        const totalKas = kasData
+            .filter(item => String(item.status || '').trim().toLowerCase() === "lunas" && String(item.month || '').trim().toLowerCase() !== "kaos")
+            .reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
+        // Total Pendapatan Kaos (yang Lunas)
+        const totalKaos = kasData
+            .filter(item => String(item.status || '').trim().toLowerCase() === "lunas" && String(item.month || '').trim().toLowerCase().includes("kaos"))
+            .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+        // Total Pendapatan Lainnya (dari tab transactions yang tipe income/pemasukan)
+        const totalLainnya = txData
+            .filter(tx => String(tx.type || '').trim().toLowerCase() === 'income')
+            .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+        // Total Pengeluaran (dari tab transactions yang tipe expense/pengeluaran)
+        const totalExpense = txData
+            .filter(tx => String(tx.type || '').trim().toLowerCase() !== 'income')
+            .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+        // 2. Gabungkan Data Kas (yang Lunas) dan Transactions Menjadi Satu List
+        let allTransactions = [
+            ...kasData
+                .filter(k => String(k.status || '').trim().toLowerCase() === "lunas")
+                .map(k => ({
+                    date: k.date || "-",
+                    desc: `Iuran ${k.month} (User ID: ${k.user_id})`,
+                    type: 'income',
+                    amount: Number(k.amount || 0),
+                    category: k.month === "Kaos" ? "Kaos" : "Kas Bulanan"
+                })),
+            ...txData.map(tx => ({
+                date: tx.date || "-",
+                desc: tx.description || tx.desc || "-",
+                type: String(tx.type || '').trim().toLowerCase() === 'income' ? 'income' : 'expense',
+                amount: Number(tx.amount || 0),
+                category: tx.category || "Lainnya"
+            }))
+        ];
+
+        // 3. Filter Pencarian jika diketik
         if (search) {
-            txs = txs.filter(t => String(t.desc).toLowerCase().includes(search));
+            allTransactions = allTransactions.filter(t => String(t.desc).toLowerCase().includes(search) || String(t.category).toLowerCase().includes(search));
         }
 
-        if (startDate && endDate) {
-            txs = txs.filter(t => {
-                return t.date >= startDate && t.date <= endDate;
-            });
-        } else {
-            txs = txs.filter(t => {
-                const tDate = new Date(t.date);
-                if (filter === 'daily') return tDate.toDateString() === now.toDateString();
-                if (filter === 'weekly') { const weekAgo = new Date(); weekAgo.setDate(now.getDate() - 7); return tDate >= weekAgo; }
-                if (filter === 'monthly') return tDate.getMonth() === now.getMonth() && tDate.getFullYear() === now.getFullYear();
-                return true;
-            });
-        }
+        // Urutkan dari yang terbaru (jika ada tanggal)
+        allTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        const totalPages = Math.ceil(txs.length / limit) || 1;
-        const paginatedTxs = txs.slice((page - 1) * limit, page * limit);
+        // 4. Paginasi (Halaman 1, 2, 3, dst.)
+        const totalPages = Math.ceil(allTransactions.length / limit) || 1;
+        const paginatedTxs = allTransactions.slice((page - 1) * limit, page * limit);
+
         let rows = '';
-        
         paginatedTxs.forEach(tx => {
             const amt = Number(tx.amount);
-            const badge = tx.type === 'income' ? '<span class="text-[#166534] bg-[#dcfce7] border border-[#bbf7d0] px-2.5 py-0.5 rounded-full text-[11px] font-bold">Pemasukan</span>' : '<span class="text-[#991b1b] bg-[#fee2e2] border border-[#fecaca] px-2.5 py-0.5 rounded-full text-[11px] font-bold">Pengeluaran</span>';
+            const isIncome = tx.type === 'income';
+            const badge = isIncome 
+                ? '<span class="text-[#166534] bg-[#dcfce7] border border-[#bbf7d0] px-2.5 py-0.5 rounded-full text-[11px] font-bold">Pemasukan</span>' 
+                : '<span class="text-[#991b1b] bg-[#fee2e2] border border-[#fecaca] px-2.5 py-0.5 rounded-full text-[11px] font-bold">Pengeluaran</span>';
+            
             rows += `
             <tr class="border-b border-[#cbd5e1] hover:bg-[#f8fafc] transition align-top">
                 <td class="py-3 px-3 sm:px-6 text-xs text-[#4b5563] text-center whitespace-nowrap w-[100px]">${tx.date}</td>
@@ -600,41 +627,36 @@ app.get('/finances', checkAuth, async (req, res) => {
                 <td class="py-3 px-3 sm:px-6 font-bold text-[#1e293b] text-xs sm:text-sm text-left whitespace-nowrap w-[160px] sm:w-[200px]">Rp ${amt.toLocaleString()}</td>
             </tr>`;
         });
-        
-        const balance = totalIncome - totalExpense;
+
+        const grandTotalIncome = totalKas + totalKaos + totalLainnya;
+        const balance = grandTotalIncome - totalExpense;
+
         const content = `
-        <div class="mb-6"><h2 class="text-xl sm:text-2xl font-bold text-[#1e293b]">Laporan Keuangan</h2><p class="text-xs sm:text-sm text-[#4b5563]">Laporan income & expense kelas 2A 2026/2027.</p></div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
-            <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-[#cbd5e1]"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Pemasukan</span><h3 class="text-xl sm:text-2xl font-black text-[#166534] mt-1">Rp ${totalIncome.toLocaleString()}</h3></div>
-            <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-[#cbd5e1]"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Pengeluaran</span><h3 class="text-xl sm:text-2xl font-black text-[#991b1b] mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
-            <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-[#cbd5e1]"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Saldo</span><h3 class="text-xl sm:text-2xl font-black text-[#2f6636] mt-1">Rp ${balance.toLocaleString()}</h3></div>
+        <div class="mb-6"><h2 class="text-xl sm:text-2xl font-bold text-[#1e293b]">Laporan Keuangan</h2><p class="text-xs sm:text-sm text-[#4b5563]">Rincian pemasukan kas, kaos, transaksi lainnya, dan pengeluaran kelas 2A.</p></div>
+        
+        <!-- Kartu Total Pendapatan -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] border-l-4 border-l-blue-500"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Kas Bulanan</span><h3 class="text-xl font-black text-blue-600 mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] border-l-4 border-l-green-500"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Pendapatan Kaos</span><h3 class="text-xl font-black text-green-600 mt-1">Rp ${totalKaos.toLocaleString()}</h3></div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] border-l-4 border-l-amber-500"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Lainnya (Income)</span><h3 class="text-xl font-black text-amber-600 mt-1">Rp ${totalLainnya.toLocaleString()}</h3></div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] border-l-4 border-l-red-500"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Pengeluaran</span><h3 class="text-xl font-black text-red-600 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
+        </div>
+
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-[#cbd5e1] mb-6 flex justify-between items-center bg-gradient-to-r from-emerald-50 to-green-50">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-[#2f6636] text-[#2f6636]">Saldo Akhir Kas Kelas (Total Masuk - Pengeluaran)</span>
+                <h3 class="text-2xl sm:text-3xl font-black text-[#2f6636] mt-1">Rp ${balance.toLocaleString()}</h3>
+            </div>
         </div>
 
         <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-[#cbd5e1] mb-6">
             <form method="GET" class="flex flex-wrap items-end gap-4">
                 <div class="flex-grow min-w-[200px]">
-                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Cari Nama / Keterangan</label>
-                    <input type="text" name="search" value="${search}" placeholder="Contoh: Nama, Kaos, Juli, dll..." class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Dari Tanggal</label>
-                    <input type="date" name="start_date" value="${startDate}" class="border border-[#cbd5e1] px-3 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Sampai Tanggal</label>
-                    <input type="date" name="end_date" value="${endDate}" class="border border-[#cbd5e1] px-3 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Filter Cepat</label>
-                    <select name="filter" class="border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
-                        <option value="all" ${filter === 'all' && !startDate ? 'selected' : ''}>Semua Waktu</option>
-                        <option value="daily" ${filter === 'daily' ? 'selected' : ''}>Hari Ini</option>
-                        <option value="weekly" ${filter === 'weekly' ? 'selected' : ''}>Minggu Ini</option>
-                        <option value="monthly" ${filter === 'monthly' ? 'selected' : ''}>Bulan Ini</option>
-                    </select>
+                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Cari Keterangan / Kategori</label>
+                    <input type="text" name="search" value="${search}" placeholder="Cari nama, kaos, dll..." class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="bg-[#2f6636] hover:bg-[#244f2b] text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition">Filter</button>
+                    <button type="submit" class="bg-[#2f6636] hover:bg-[#244f2b] text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition">Cari</button>
                     <a href="/finances" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center justify-center">Reset</a>
                 </div>
             </form>
@@ -653,14 +675,23 @@ app.get('/finances', checkAuth, async (req, res) => {
                 <tbody>${rows || `<tr><td colspan="4" class="text-center py-8 text-gray-500 text-sm">Tidak ada data keuangan yang ditemukan.</td></tr>`}</tbody>
             </table>
         </div>
-        <div class="flex justify-center items-center gap-2 mb-6">
-            ${page > 1 ? `<a href="?page=${page-1}&filter=${filter}&search=${search}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Prev</a>` : ''}
+
+        <!-- Tombol Navigasi Paginasi (Page 1, 2, 3, Last) -->
+        <div class="flex justify-center items-center gap-2 mb-6 flex-wrap">
+            <a href="?page=1&search=${search}" class="px-3 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">First</a>
+            ${page > 1 ? `<a href="?page=${page-1}&search=${search}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Prev</a>` : ''}
             <span class="px-4 py-2 text-sm font-bold text-[#4b5563]">Halaman ${page} dari ${totalPages}</span>
-            ${page < totalPages ? `<a href="?page=${page+1}&filter=${filter}&search=${search}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Next</a>` : ''}
+            ${page < totalPages ? `<a href="?page=${page+1}&search=${search}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Next</a>` : ''}
+            <a href="?page=${totalPages}&search=${search}" class="px-3 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Last (${totalPages})</a>
         </div>
+
         <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-[#2f6636] hover:text-[#1e293b] text-sm font-semibold">&larr; Kembali ke Beranda</a></div>`;
+        
         res.send(layout('Laporan Keuangan', content));
-    } catch (e) { res.status(500).send("Error"); }
+    } catch (e) { 
+        console.error("Finance Error:", e);
+        res.status(500).send("Error loading financial report"); 
+    }
 });
 
 app.get('/announcements', checkAuth, async (req, res) => {
