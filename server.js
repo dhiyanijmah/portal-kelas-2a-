@@ -927,7 +927,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                 <span class="text-sm font-semibold text-[#1e293b]">${labelName}</span>
             </label>`;
         });
-        
+
         let studentOptions = db.users.map(u => `<option value="${u.id}" ${String(u.id) === String(targetUserId) ? 'selected' : ''}>${u.first_name}</option>`).join('');
 
         const content = `
@@ -1048,14 +1048,21 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
 });
 
 // Endpoint Proses Post untuk Admin & Action (Menggunakan URLSearchParams agar data masuk dengan mulus ke Apps Script doGet)
+// Endpoint Proses Post untuk Admin & Action (Menggunakan koma agar centang ganda / bulk update sukses 100%)
 app.post('/admin/update-kas-bulk', checkAuth, async (req, res) => {
     if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
     try {
+        let monthsInput = req.body.months || [];
+        if (!Array.isArray(monthsInput)) {
+            monthsInput = [monthsInput];
+        }
+
         const params = new URLSearchParams({
             action: 'updateKasBulk',
             user_id: req.body.user_id,
-            months: JSON.stringify(req.body.months || [])
+            months: monthsInput.join(',') // <--- Menggunakan pemisah koma agar aman dan tidak error JSON.parse
         });
+        
         await fetch(`${SCRIPT_URL}?${params.toString()}`);
         cacheData = null; // Clear cache agar data langsung segar
         res.send(`<script>alert('Status kas/kaos berhasil diperbarui secara massal!'); window.location.href='/admin/manage?student_id=${req.body.user_id}';</script>`);
