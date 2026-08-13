@@ -892,12 +892,13 @@ app.post('/change-password', checkAuth, async (req, res) => {
 });
 
 // --- DASHBOARD UTAMA ADMIN TERPUSAT (/admin/manage) DENGAN BULK UPDATE KAS ---
-app.get('/admin/manage', checkAuth, async (req, res) => {
+aapp.get('/admin/manage', checkAuth, async (req, res) => {
     if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') {
         return res.send('<script>alert("Hanya Admin yang dapat mengakses halaman ini!"); window.location.href="/dashboard";</script>');
     }
 
     try {
+        cacheData = null; // <--- TAMBAHKAN INI AGAR DATA ADMIN SELALU UPDATE REAL-TIME
         const db = await fetchDb();
         const dbJson = JSON.stringify(db, null, 2);
 
