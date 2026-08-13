@@ -32,6 +32,17 @@ async function fetchDb() {
     }
 }
 
+// Fungsi khusus agar login instan dan ringan di HP (hanya ambil data users)
+async function fetchUsersOnly() {
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getUsers`);
+        return await res.json();
+    } catch (e) {
+        console.error("Gagal mengambil user:", e);
+        return [];
+    }
+}
+
 const sessions = {};
 
 function checkAuth(req, res, next) {
@@ -183,8 +194,8 @@ app.get('/login', (req, res) => {
 app.post('/login', async (req, res) => {
     const { first_name, password } = req.body;
     try {
-        const db = await fetchDb();
-        const user = db.users.find(u => 
+        const users = await fetchUsersOnly();
+        const user = users.find(u => 
             String(u.first_name).toLowerCase() === String(first_name).trim().toLowerCase() &&
             String(u.password).trim() === String(password).trim()
         );
@@ -194,7 +205,6 @@ app.post('/login', async (req, res) => {
             sessions[sessionId] = { ...user, isAdmin };
             res.setHeader('Set-Cookie', `sessionId=${sessionId}; Path=/`);
             
-            // JIKA ADMIN, LANGSUNG MASUK KE PANEL ADMIN UTAMA!
             if (isAdmin) {
                 res.redirect('/admin/manage');
             } else {
@@ -867,7 +877,7 @@ app.post('/change-password', checkAuth, async (req, res) => {
     } catch (e) { res.status(500).send("Error updating password"); }
 });
 
-// --- DASHBOARD UTAMA ADMIN TERPUSAT (/admin/manage) ---
+// --- DASHBOARD UTAMA ADMIN TERPUSAT (/admin/manage) DENGAN BULK UPDATE KAS ---
 app.get('/admin/manage', checkAuth, async (req, res) => {
     if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') {
         return res.send('<script>alert("Hanya Admin yang dapat mengakses halaman ini!"); window.location.href="/dashboard";</script>');
@@ -881,52 +891,21 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
         const targetUserId = req.query.student_id || (db.users[0] ? db.users[0].id : '');
         const userKas = db.kas.filter(k => String(k.user_id) === String(targetUserId));
 
-        const sem1Months = ["Juli 2026", "Agustus", "September", "Oktober", "November", "Desember"];
+        const sem1Months = ["Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         const sem2Months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni"];
-        const allMonths = [...sem1Months, ...sem2Months];
+        const allMonths = ["Kaos", ...sem1Months, ...sem2Months];
 
-        let kasRows = '';
-        const kaosFound = userKas.find(k => String(k.month || '').trim().toLowerCase().includes('kaos'));
-        const isKaosPaid = String(kaosFound?.status || '').trim().toLowerCase() === 'lunas';
-        
-        kasRows += `
-        <tr class="border-b">
-            <td class="p-3 font-semibold">Iuran Kaos</td>
-            <td class="p-3">Rp ${(kaosFound?.amount || 68000).toLocaleString()}</td>
-            <td class="p-3">
-                <form action="/admin/update-kas" method="POST" class="flex gap-2 items-center">
-                    <input type="hidden" name="user_id" value="${targetUserId}">
-                    <input type="hidden" name="month" value="Kaos">
-                    <select name="status" class="border p-1.5 rounded-lg text-xs font-bold bg-white">
-                        <option value="Lunas" ${isKaosPaid ? 'selected' : ''}>Lunas</option>
-                        <option value="Belum Bayar" ${!isKaosPaid ? 'selected' : ''}>Belum Bayar</option>
-                    </select>
-                    <button type="submit" class="bg-[#2f6636] text-white px-3 py-1.5 rounded-lg text-xs font-bold">Update</button>
-                </form>
-            </td>
-        </tr>`;
-
+        let checkboxesHtml = '';
         allMonths.forEach(m => {
-            const mName = m.split(' ')[0];
-            const found = userKas.find(k => String(k.month || '').trim().toLowerCase() === mName.toLowerCase());
-            const paid = String(found?.status || '').trim().toLowerCase() === 'lunas';
+            const found = userKas.find(k => String(k.month || '').trim().toLowerCase() === m.toLowerCase());
+            const isPaid = String(found?.status || '').trim().toLowerCase() === 'lunas';
+            const labelName = m === 'Kaos' ? 'Iuran Kaos (Rp 68.000)' : `${m} (Rp 25.000)`;
             
-            kasRows += `
-            <tr class="border-b">
-                <td class="p-3 font-semibold">${m}</td>
-                <td class="p-3">Rp 25.000</td>
-                <td class="p-3">
-                    <form action="/admin/update-kas" method="POST" class="flex gap-2 items-center">
-                        <input type="hidden" name="user_id" value="${targetUserId}">
-                        <input type="hidden" name="month" value="${mName}">
-                        <select name="status" class="border p-1.5 rounded-lg text-xs font-bold bg-white">
-                            <option value="Lunas" ${paid ? 'selected' : ''}>Lunas</option>
-                            <option value="Belum Bayar" ${!paid ? 'selected' : ''}>Belum Bayar</option>
-                        </select>
-                        <button type="submit" class="bg-[#2f6636] text-white px-3 py-1.5 rounded-lg text-xs font-bold">Update</button>
-                    </form>
-                </td>
-            </tr>`;
+            checkboxesHtml += `
+            <label class="flex items-center space-x-3 p-3 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-100 transition">
+                <input type="checkbox" name="months" value="${m}" ${isPaid ? 'checked' : ''} class="w-5 h-5 accent-[#2f6636]">
+                <span class="text-sm font-semibold text-[#1e293b]">${labelName}</span>
+            </label>`;
         });
 
         let studentOptions = db.users.map(u => `<option value="${u.id}" ${String(u.id) === String(targetUserId) ? 'selected' : ''}>${u.first_name}</option>`).join('');
@@ -941,25 +920,24 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                 <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition">Logout</a>
             </div>
 
-            <!-- 1. KELOLA STATUS KAS & KAOS -->
+            <!-- 1. BULK UPDATE STATUS KAS & KAOS -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
-                <h3 class="font-bold text-lg text-[#1e293b] mb-4">💵 Kelola Status Pembayaran Kas & Kaos Siswa</h3>
-                <div class="mb-4">
-                    <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Pilih Nama Siswa:</label>
-                    <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border p-2.5 rounded-xl w-full sm:w-72 bg-white font-medium text-sm">${studentOptions}</select>
-                </div>
-                <div class="overflow-x-auto border rounded-xl">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-100 text-xs uppercase text-gray-600 border-b">
-                            <tr>
-                                <th class="p-3">Bulan / Item</th>
-                                <th class="p-3">Nominal</th>
-                                <th class="p-3">Ubah Status Lunas/Belum</th>
-                            </tr>
-                        </thead>
-                        <tbody>${kasRows}</tbody>
-                    </table>
-                </div>
+                <h3 class="font-bold text-lg text-[#1e293b] mb-2">💵 Kelola Status Pembayaran Kas & Kaos Siswa (Bulk Update)</h3>
+                <p class="text-xs text-gray-500 mb-4">Pilih siswa, lalu centang bulan/item yang sudah lunas dan klik Simpan.</p>
+                
+                <form action="/admin/update-kas-bulk" method="POST">
+                    <input type="hidden" name="user_id" value="${targetUserId}">
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Pilih Nama Siswa:</label>
+                        <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border p-2.5 rounded-xl w-full sm:w-72 bg-white font-medium text-sm">${studentOptions}</select>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
+                        ${checkboxesHtml}
+                    </div>
+
+                    <button type="submit" class="bg-[#2f6636] hover:bg-[#244f2b] text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md transition">💾 Simpan Perubahan Kas (Bulk)</button>
+                </form>
             </div>
 
             <!-- 2. TAMBAH TRANSAKSI -->
@@ -1049,17 +1027,17 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
     }
 });
 
-// Endpoint Proses Post untuk Admin
-app.post('/admin/update-kas', checkAuth, async (req, res) => {
+// Endpoint Proses Post untuk Admin (dengan auto-clear cache agar sinkron real-time)
+app.post('/admin/update-kas-bulk', checkAuth, async (req, res) => {
     if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
     try {
         await fetch(SCRIPT_URL, {
             method: 'POST',
-            body: JSON.stringify({ action: 'updateKas', ...req.body }),
+            body: JSON.stringify({ action: 'updateKasBulk', ...req.body }),
             headers: { 'Content-Type': 'application/json' }
         });
-        cacheData = null;
-        res.send(`<script>alert('Status kas/kaos berhasil diperbarui!'); window.history.back();</script>`);
+        cacheData = null; // Clear cache agar data langsung segar
+        res.send(`<script>alert('Status kas/kaos berhasil diperbarui secara massal!'); window.location.href='/admin/manage?student_id=${req.body.user_id}';</script>`);
     } catch (e) { res.status(500).send("Gagal mengupdate kas"); }
 });
 
