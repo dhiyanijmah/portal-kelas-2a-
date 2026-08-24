@@ -292,13 +292,12 @@ app.get('/dashboard', checkAuth, (req, res) => {
 app.get('/summative', checkAuth, async (req, res) => {
     try {
         const db = await fetchDb();
-        const selectedMonth = req.query.month || 'Juni 2026';
+        const selectedMonth = req.query.month || 'Agustus 2026';
         const summativeData = db.summative || [];
 
         const monthsList = [
-            "Juni 2026", "Juli 2026", "Agustus 2026", "September 2026", 
-            "Oktober 2026", "November 2026", "Ujian Semester", 
-            "Januari 2027", "Februari 2027", "Maret 2027", 
+            "Agustus 2026", "September 2026", "Oktober 2026", "November 2026", 
+            "Ujian Semester", "Januari 2027", "Februari 2027", "Maret 2027", 
             "April 2027", "Mei 2027", "Juni 2027", "Ujian Kenaikan Kelas"
         ];
 
@@ -320,10 +319,14 @@ app.get('/summative', checkAuth, async (req, res) => {
 
         let subjectCards = '';
         subjects.forEach(subj => {
-            const materials = summativeData.filter(s => 
-                String(s.month || '').trim().toLowerCase() === selectedMonth.toLowerCase() &&
-                String(s.subject || '').trim().toLowerCase() === subj.toLowerCase()
-            );
+            // Pencocokan fleksibel (mendukung "Agustus" maupun "Agustus 2026")
+            const materials = summativeData.filter(s => {
+                const dbMonth = String(s.month || '').trim().toLowerCase();
+                const selMonth = selectedMonth.trim().toLowerCase();
+                const isMonthMatch = (dbMonth === selMonth) || selMonth.includes(dbMonth);
+                const isSubjMatch = String(s.subject || '').trim().toLowerCase() === subj.toLowerCase();
+                return isMonthMatch && isSubjMatch;
+            });
 
             let materialItems = '';
             if (materials.length > 0) {
