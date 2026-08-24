@@ -292,28 +292,30 @@ app.get('/dashboard', checkAuth, (req, res) => {
 app.get('/summative', checkAuth, async (req, res) => {
     try {
         const db = await fetchDb();
-        const selectedMonth = req.query.month || 'Juli';
+        const selectedMonth = req.query.month || 'Juni 2026';
         const summativeData = db.summative || [];
 
         const monthsList = [
-            "Juli", "Agustus", "September", "Oktober", 
-            "November", "Desember", "Januari", "Februari", 
-            "Maret", "April", "Mei", "Juni"
+            "Juni 2026", "Juli 2026", "Agustus 2026", "September 2026", 
+            "Oktober 2026", "November 2026", "Ujian Semester", 
+            "Januari 2027", "Februari 2027", "Maret 2027", 
+            "April 2027", "Mei 2027", "Juni 2027", "Ujian Kenaikan Kelas"
         ];
 
         let subjects = [
             "Matematika", "Bahasa Inggris", "Seni", 
             "Bahasa Jawa", "Bahasa Indonesia", "Pancasila", "PAI"
         ];
-        const arabicMonths = ["Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
-        if (arabicMonths.includes(selectedMonth)) {
+        
+        const arabicAllowed = ["Oktober", "November", "Ujian Semester", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Ujian Kenaikan Kelas"];
+        if (arabicAllowed.some(m => selectedMonth.includes(m))) {
             subjects.push("Bahasa Arab");
         }
 
         let monthTabs = '';
         monthsList.forEach(m => {
             const isActive = m === selectedMonth;
-            monthTabs += `<a href="/summative?month=${m}" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${isActive ? 'bg-[#2f6636] text-white shadow-sm' : 'bg-white text-[#4b5563] border border-[#cbd5e1] hover:bg-gray-50'}">${m}</a>`;
+            monthTabs += `<a href="/summative?month=${encodeURIComponent(m)}" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${isActive ? 'bg-[#2f6636] text-white shadow-sm' : 'bg-white text-[#4b5563] border border-[#cbd5e1] hover:bg-gray-50'}">${m}</a>`;
         });
 
         let subjectCards = '';
@@ -365,7 +367,7 @@ app.get('/summative', checkAuth, async (req, res) => {
         const content = `
         <div class="mb-6">
             <h2 class="text-xl sm:text-2xl font-bold text-[#1e293b]">Materi & Kisi-kisi Sumatif</h2>
-            <p class="text-xs sm:text-sm text-[#4b5563]">Pilih bulan untuk melihat materi sumatif per mata pelajaran.</p>
+            <p class="text-xs sm:text-sm text-[#4b5563]">Pilih bulan atau ujian untuk melihat materi per mata pelajaran.</p>
         </div>
 
         <div class="flex overflow-x-auto gap-2 pb-3 mb-6">
@@ -1091,26 +1093,28 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                 </form>
             </div>
 
-            <!-- 3. TAMBAH MATERI SUMATIF (BARU) -->
+            <!-- 3. TAMBAH MATERI SUMATIF -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
                 <h3 class="font-bold text-lg text-[#1e293b] mb-3">📚 Unggah Materi Sumatif</h3>
                 <form action="/admin/add-summative" method="POST" class="space-y-3">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Pilih Bulan</label>
+                            <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Pilih Bulan / Ujian</label>
                             <select name="month" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
-                                <option value="Juli">Juli</option>
-                                <option value="Agustus">Agustus</option>
-                                <option value="September">September</option>
-                                <option value="Oktober">Oktober (Mulai ada B. Arab)</option>
-                                <option value="November">November</option>
-                                <option value="Desember">Desember</option>
-                                <option value="Januari">Januari</option>
-                                <option value="Februari">Februari</option>
-                                <option value="Maret">Maret</option>
-                                <option value="April">April</option>
-                                <option value="Mei">Mei</option>
-                                <option value="Juni">Juni</option>
+                                <option value="Juni 2026">Juni 2026</option>
+                                <option value="Juli 2026">Juli 2026</option>
+                                <option value="Agustus 2026">Agustus 2026</option>
+                                <option value="September 2026">September 2026</option>
+                                <option value="Oktober 2026">Oktober 2026</option>
+                                <option value="November 2026">November 2026</option>
+                                <option value="Ujian Semester">Ujian Semester (Desember)</option>
+                                <option value="Januari 2027">Januari 2027</option>
+                                <option value="Februari 2027">Februari 2027</option>
+                                <option value="Maret 2027">Maret 2027</option>
+                                <option value="April 2027">April 2027</option>
+                                <option value="Mei 2027">Mei 2027</option>
+                                <option value="Juni 2027">Juni 2027</option>
+                                <option value="Ujian Kenaikan Kelas">Ujian Kenaikan Kelas (Juli 2027)</option>
                             </select>
                         </div>
                         <div>
@@ -1249,7 +1253,6 @@ app.post('/admin/add-announcement', checkAuth, async (req, res) => {
     } catch (e) { res.status(500).send("Gagal mempublikasikan pengumuman"); }
 });
 
-// Endpoint POST untuk Simpan Materi Sumatif
 app.post('/admin/add-summative', checkAuth, async (req, res) => {
     if (!req.user.isAdmin && String(req.user.first_name || '').trim().toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
     try {
