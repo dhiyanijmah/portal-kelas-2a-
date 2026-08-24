@@ -31,6 +31,18 @@ async function fetchDb() {
     }
 }
 
+// Fungsi format tanggal ke format Indonesia yang rapi
+const formatDateID = (dateStr) => {
+    if (!dateStr || dateStr === "-") return "-";
+    try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        return d.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'long', year: 'numeric' });
+    } catch (e) {
+        return dateStr;
+    }
+};
+
 // Fungsi login kilat menggunakan GET agar sesuai dengan Apps Script doGet
 async function verifyLogin(first_name, password) {
     try {
@@ -685,17 +697,6 @@ app.get('/finances', checkAuth, async (req, res) => {
             }
         });
 
-        const formatDateID = (dateStr) => {
-            if (!dateStr || dateStr === "-") return "-";
-            try {
-                const d = new Date(dateStr);
-                if (isNaN(d.getTime())) return dateStr;
-                return d.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'long', year: 'numeric' });
-            } catch (e) {
-                return dateStr;
-            }
-        };
-
         let allTransactions = [];
 
         kasData.forEach(k => {
@@ -924,7 +925,7 @@ app.get('/announcements', checkAuth, async (req, res) => {
             <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-[#2f6636] border border-[#cbd5e1] mb-5">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
                     <h3 class="font-bold text-lg text-[#1e293b] flex items-center space-x-2"><span>📢</span><span>${a.title}</span></h3>
-                    <span class="text-xs font-semibold bg-[#f1f5f9] text-[#4b5563] px-3 py-1 rounded-full border border-[#cbd5e1]">${a.date}</span>
+                    <span class="text-xs font-semibold bg-[#f1f5f9] text-[#4b5563] px-3 py-1 rounded-full border border-[#cbd5e1]">${formatDateID(a.date)}</span>
                 </div>
                 <p class="text-[#1e293b] text-sm leading-relaxed whitespace-pre-wrap break-words">${contentText}</p>
                 ${imageHtml}
