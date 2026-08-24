@@ -1215,7 +1215,7 @@ app.post('/admin/update-kas-bulk', checkAuth, async (req, res) => {
         
         await fetch(`${SCRIPT_URL}?${params.toString()}`);
         cacheData = null; 
-        res.send(`<script>alert('Status kas/kaos berhasil diperbarui secara massal!'); window.location.href='/admin/manage?student_id=${req.body.user_id}';</script>`);
+        res.redirect(`/admin/manage?student_id=${req.body.user_id}`);
     } catch (e) { res.status(500).send("Gagal mengupdate kas"); }
 });
 
@@ -1225,7 +1225,7 @@ app.post('/admin/add-transaction', checkAuth, async (req, res) => {
         const params = new URLSearchParams({ action: 'addTransaction', ...req.body });
         await fetch(`${SCRIPT_URL}?${params.toString()}`);
         cacheData = null;
-        res.send(`<script>alert('Transaksi berhasil ditambahkan ke spreadsheet!'); window.history.back();</script>`);
+        res.redirect('/admin/manage');
     } catch (e) { res.status(500).send("Gagal menambah transaksi"); }
 });
 
@@ -1235,7 +1235,7 @@ app.post('/admin/add-event', checkAuth, async (req, res) => {
         const params = new URLSearchParams({ action: 'addEvent', ...req.body });
         await fetch(`${SCRIPT_URL}?${params.toString()}`);
         cacheData = null;
-        res.send(`<script>alert('Agenda kalender berhasil disimpan ke database!'); window.history.back();</script>`);
+        res.redirect('/admin/manage');
     } catch (e) { res.status(500).send("Gagal menyimpan agenda"); }
 });
 
@@ -1245,7 +1245,7 @@ app.post('/admin/add-announcement', checkAuth, async (req, res) => {
         const params = new URLSearchParams({ action: 'addAnnouncement', ...req.body });
         await fetch(`${SCRIPT_URL}?${params.toString()}`);
         cacheData = null;
-        res.send(`<script>alert('Pengumuman berhasil dipublikasikan!'); window.history.back();</script>`);
+        res.redirect('/admin/manage');
     } catch (e) { res.status(500).send("Gagal mempublikasikan pengumuman"); }
 });
 
@@ -1256,7 +1256,7 @@ app.post('/admin/add-summative', checkAuth, async (req, res) => {
         const params = new URLSearchParams({ action: 'addSummative', ...req.body });
         await fetch(`${SCRIPT_URL}?${params.toString()}`);
         cacheData = null;
-        res.send(`<script>alert('Materi sumatif berhasil ditambahkan!'); window.history.back();</script>`);
+        res.redirect('/admin/manage');
     } catch (e) { res.status(500).send("Gagal menambah materi sumatif"); }
 });
 
