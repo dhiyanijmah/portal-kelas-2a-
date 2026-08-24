@@ -27,7 +27,7 @@ async function fetchDb() {
         return cacheData;
     } catch (e) {
         console.error("Gagal mengambil data:", e);
-        return cacheData || { users: [], notes: [], kas: [], transactions: [], announcements: [], events: [] };
+        return cacheData || { users: [], notes: [], kas: [], transactions: [], announcements: [], events: [], summative: [] };
     }
 }
 
@@ -103,7 +103,6 @@ const layout = (title, content) => `
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${title}</title>
-    <!-- Tailwind CDN sudah cukup, jangan tambahkan link font lain agar lebih ringan -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -202,12 +201,8 @@ app.post('/login', async (req, res) => {
         const user = await verifyLogin(first_name, password);
         if (user && user.id) {
             const sessionId = Math.random().toString(36).substring(2);
-            
-            // --- PASTIKAN BARIS INI ADA DI SINI ---
             const isAdmin = String(user.first_name || '').trim().toLowerCase() === 'admin';
             sessions[sessionId] = { ...user, isAdmin };
-            // --------------------------------------
-            
             res.setHeader('Set-Cookie', `sessionId=${sessionId}; Path=/`);
             
             if (isAdmin) {
@@ -263,6 +258,13 @@ app.get('/dashboard', checkAuth, (req, res) => {
                 <p class="text-xs sm:text-sm text-[#4b5563]">Pengumuman dari pihak sekolah.</p>
             </div>
         </a>
+        <a href="/summative" class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-[#cbd5e1] flex items-center space-x-4 sm:space-x-5 group">
+            <div class="bg-[#e8f5e9] text-[#2f6636] p-3 sm:p-4 rounded-xl text-2xl sm:text-3xl group-hover:bg-[#2f6636] group-hover:text-white transition">📚</div>
+            <div>
+                <h3 class="font-bold text-base sm:text-lg text-[#1e293b] group-hover:text-[#2f6636] transition">Materi Sumatif</h3>
+                <p class="text-xs sm:text-sm text-[#4b5563]">Kisi-kisi dan materi sumatif bulanan lengkap.</p>
+            </div>
+        </a>
         <a href="/change-password" class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-[#cbd5e1] flex items-center space-x-4 sm:space-x-5 group">
             <div class="bg-[#e8f5e9] text-[#2f6636] p-3 sm:p-4 rounded-xl text-2xl sm:text-3xl group-hover:bg-[#2f6636] group-hover:text-white transition">🔑</div>
             <div>
@@ -272,6 +274,103 @@ app.get('/dashboard', checkAuth, (req, res) => {
         </a>
     </div>`;
     res.send(layout('Dashboard', content));
+});
+
+// --- HALAMAN MATERI SUMATIF ---
+app.get('/summative', checkAuth, async (req, res) => {
+    try {
+        const db = await fetchDb();
+        const selectedMonth = req.query.month || 'Juli';
+        const summativeData = db.summative || [];
+
+        const monthsList = [
+            "Juli", "Agustus", "September", "Oktober", 
+            "November", "Desember", "Januari", "Februari", 
+            "Maret", "April", "Mei", "Juni"
+        ];
+
+        let subjects = [
+            "Matematika", "Bahasa Inggris", "Seni", 
+            "Bahasa Jawa", "Bahasa Indonesia", "Pancasila", "PAI"
+        ];
+        const arabicMonths = ["Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
+        if (arabicMonths.includes(selectedMonth)) {
+            subjects.push("Bahasa Arab");
+        }
+
+        let monthTabs = '';
+        monthsList.forEach(m => {
+            const isActive = m === selectedMonth;
+            monthTabs += `<a href="/summative?month=${m}" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${isActive ? 'bg-[#2f6636] text-white shadow-sm' : 'bg-white text-[#4b5563] border border-[#cbd5e1] hover:bg-gray-50'}">${m}</a>`;
+        });
+
+        let subjectCards = '';
+        subjects.forEach(subj => {
+            const materials = summativeData.filter(s => 
+                String(s.month || '').trim().toLowerCase() === selectedMonth.toLowerCase() &&
+                String(s.subject || '').trim().toLowerCase() === subj.toLowerCase()
+            );
+
+            let materialItems = '';
+            if (materials.length > 0) {
+                materials.forEach(mat => {
+                    let rawUrl = String(mat.link || '').trim();
+                    let fileId = '';
+                    if (rawUrl.includes('/file/d/')) {
+                        fileId = rawUrl.split('/file/d/')[1].split('/')[0];
+                    } else if (rawUrl.includes('id=')) {
+                        fileId = new URLSearchParams(rawUrl.split('?')[1]).get('id');
+                    }
+                    const downloadUrl = fileId ? `https://drive.google.com/uc?export=download&id=${fileId}` : rawUrl;
+
+                    materialItems += `
+                    <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 mb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                            <span class="font-bold text-sm text-[#1e293b] block">📄 ${mat.title}</span>
+                        </div>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <a href="${rawUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-[#f0fdf4] text-[#166534] border border-[#bbf7d0] px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#dcfce7]">Buka Drive</a>
+                            <a href="${downloadUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-[#2f6636] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#244f2b]">Download</a>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                materialItems = `<p class="text-xs text-gray-400 italic">Materi belum diunggah.</p>`;
+            }
+
+            subjectCards += `
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="bg-emerald-50 text-[#2f6636] p-2.5 rounded-xl text-xl">📖</div>
+                        <h3 class="font-bold text-base text-[#1e293b]">${subj}</h3>
+                    </div>
+                    <div class="space-y-2 mt-2">${materialItems}</div>
+                </div>
+            </div>`;
+        });
+
+        const content = `
+        <div class="mb-6">
+            <h2 class="text-xl sm:text-2xl font-bold text-[#1e293b]">Materi & Kisi-kisi Sumatif</h2>
+            <p class="text-xs sm:text-sm text-[#4b5563]">Pilih bulan untuk melihat materi sumatif per mata pelajaran.</p>
+        </div>
+
+        <div class="flex overflow-x-auto gap-2 pb-3 mb-6">
+            ${monthTabs}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
+            ${subjectCards}
+        </div>
+
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-[#2f6636] hover:text-[#1e293b] text-sm font-semibold">&larr; Kembali ke Beranda</a></div>`;
+
+        res.send(layout('Materi Sumatif', content));
+    } catch (e) {
+        console.error("Summative Error:", e);
+        res.status(500).send("Error loading summative materials");
+    }
 });
 
 app.get('/calendar', checkAuth, async (req, res) => {
@@ -288,12 +387,10 @@ app.get('/calendar', checkAuth, async (req, res) => {
         const notesMap = {};
         userNotes.forEach(n => { notesMap[n.note_date] = n.content; });
 
-        // Ambil dan bersihkan tanggal event agar tetap di tanggal yang benar (WIB)
         const globalEvents = db.events ? db.events
-            .filter(e => e && e.date) // Pastikan data ada
+            .filter(e => e && e.date)
             .map(e => {
                 let d = new Date(e.date);
-                // Tambahkan 7 jam untuk mengompensasi pergeseran UTC ke WIB
                 d.setHours(d.getHours() + 7); 
                 return {
                     ...e,
@@ -302,7 +399,6 @@ app.get('/calendar', checkAuth, async (req, res) => {
             })
             .filter(e => String(e.date).startsWith(`${year}-${month}`)) : [];
         
-        // Buat map agar tanggal bisa dipasangkan di kalender
         const eventsMap = {};
         globalEvents.forEach(e => { eventsMap[e.date] = e; });
         
@@ -551,7 +647,6 @@ app.get('/finances', checkAuth, async (req, res) => {
             db.users.forEach(u => { usersMap[String(u.id)] = u.first_name; });
         }
         
-        // Filter baris kosong/hantu (ini sudah benar)
         const txData = (db.transactions || []).filter(tx => 
             (tx.description || tx.desc) && 
             String(tx.description || tx.desc).trim() !== "" && 
@@ -772,7 +867,7 @@ app.get('/announcements', checkAuth, async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 5;
 
-        let data = db.announcements.sort((a, b) => new Date(b.date) - new Date(a.date));
+        let data = (db.announcements || []).sort((a, b) => new Date(b.date) - new Date(a.date));
 
         if (search) {
             data = data.filter(a => 
@@ -791,7 +886,7 @@ app.get('/announcements', checkAuth, async (req, res) => {
 
         let cards = '';
         paginated.forEach(a => {
-            let imageHtml = `<div class="mt-4"><img src="${embedUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-xl max-h-80 w-auto object-cover border border-[#cbd5e1]" onerror="this.parentElement.style.display='none'"></div>`;
+            let imageHtml = '';
             let actionButtonsHtml = '';
             const rawUrl = (a.lampiran || a.image || a.file || '').trim();
             
@@ -808,14 +903,14 @@ app.get('/announcements', checkAuth, async (req, res) => {
                 if (fileId) {
                     const embedUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
                     const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-                    imageHtml = `<div class="mt-4"><img src="${embedUrl}" alt="Lampiran Pengumuman" class="rounded-xl max-h-80 w-auto object-cover border border-[#cbd5e1]" onerror="this.parentElement.style.display='none'"></div>`;
+                    imageHtml = `<div class="mt-4"><img src="${embedUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-xl max-h-80 w-auto object-cover border border-[#cbd5e1]" onerror="this.parentElement.style.display='none'"></div>`;
                     actionButtonsHtml = `
                     <div class="mt-3 flex flex-wrap gap-2">
                         <a href="${rawUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-[#f0fdf4] hover:bg-[#dcfce7] text-[#166534] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border border-[#bbf7d0] transition"><span>📁</span><span>Buka di Google Drive</span></a>
                         <a href="${downloadUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-[#2f6636] hover:bg-[#244f2b] text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
                     </div>`;
                 } else {
-                    imageHtml = `<div class="mt-4"><img src="${rawUrl}" alt="Lampiran Pengumuman" class="rounded-xl max-h-80 w-auto object-cover border border-[#cbd5e1]" onerror="this.parentElement.style.display='none'"></div>`;
+                    imageHtml = `<div class="mt-4"><img src="${rawUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-xl max-h-80 w-auto object-cover border border-[#cbd5e1]" onerror="this.parentElement.style.display='none'"></div>`;
                     actionButtonsHtml = `
                     <div class="mt-3 flex flex-wrap gap-2">
                         <a href="${rawUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-[#f0fdf4] hover:bg-[#dcfce7] text-[#166534] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border border-[#bbf7d0] transition"><span>🔗</span><span>Buka Link</span></a>
@@ -900,14 +995,14 @@ app.post('/change-password', checkAuth, async (req, res) => {
     } catch (e) { res.status(500).send("Error updating password"); }
 });
 
-// --- DASHBOARD UTAMA ADMIN TERPUSAT (/admin/manage) DENGAN BULK UPDATE KAS ---
+// --- DASHBOARD UTAMA ADMIN TERPUSAT (/admin/manage) ---
 app.get('/admin/manage', checkAuth, async (req, res) => {
-    if (!req.user.isAdmin && String(req.user.first_name).toLowerCase() !== 'admin') {
+    if (!req.user.isAdmin && String(req.user.first_name || '').trim().toLowerCase() !== 'admin') {
         return res.send('<script>alert("Hanya Admin yang dapat mengakses halaman ini!"); window.location.href="/dashboard";</script>');
     }
 
     try {
-        cacheData = null; // <--- TAMBAHKAN INI AGAR DATA ADMIN SELALU UPDATE REAL-TIME
+        cacheData = null; 
         const db = await fetchDb();
         const dbJson = JSON.stringify(db, null, 2);
 
@@ -918,12 +1013,11 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
         const sem2Months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni"];
         const allMonths = ["Kaos", ...sem1Months, ...sem2Months];
 
-      let checkboxesHtml = '';
+        let checkboxesHtml = '';
         allMonths.forEach(m => {
             const found = userKas.find(k => String(k.month || '').trim().toLowerCase() === m.toLowerCase());
             const isPaid = String(found?.status || '').trim().toLowerCase() === 'lunas';
             
-            // Ambil nominal asli dari database/spreadsheet, jika kosong gunakan default (Kaos: 68000, Kas: 25000)
             let defaultAmt = (m.toLowerCase() === 'kaos') ? 68000 : 25000;
             let amt = (found && found.amount !== undefined && found.amount !== "") ? Number(found.amount) : defaultAmt;
             if (isNaN(amt)) amt = defaultAmt;
@@ -944,7 +1038,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1] flex justify-between items-center">
                 <div>
                     <h2 class="text-2xl font-bold text-[#1e293b]">Panel Utama Admin Kelas 2A</h2>
-                    <p class="text-xs sm:text-sm text-[#4b5563]">Kelola data kas, transaksi keuangan, agenda kalender, dan backup database langsung dari sini.</p>
+                    <p class="text-xs sm:text-sm text-[#4b5563]">Kelola data kas, transaksi keuangan, agenda kalender, materi sumatif, dan backup database langsung dari sini.</p>
                 </div>
                 <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition">Logout</a>
             </div>
@@ -996,7 +1090,55 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                 </form>
             </div>
 
-            <!-- 3. TAMBAH KALENDER & PENGUMUMAN -->
+            <!-- 3. TAMBAH MATERI SUMATIF (BARU) -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
+                <h3 class="font-bold text-lg text-[#1e293b] mb-3">📚 Unggah Materi Sumatif</h3>
+                <form action="/admin/add-summative" method="POST" class="space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Pilih Bulan</label>
+                            <select name="month" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                                <option value="Juli">Juli</option>
+                                <option value="Agustus">Agustus</option>
+                                <option value="September">September</option>
+                                <option value="Oktober">Oktober (Mulai ada B. Arab)</option>
+                                <option value="November">November</option>
+                                <option value="Desember">Desember</option>
+                                <option value="Januari">Januari</option>
+                                <option value="Februari">Februari</option>
+                                <option value="Maret">Maret</option>
+                                <option value="April">April</option>
+                                <option value="Mei">Mei</option>
+                                <option value="Juni">Juni</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Mata Pelajaran</label>
+                            <select name="subject" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                                <option value="Matematika">Matematika</option>
+                                <option value="Bahasa Inggris">Bahasa Inggris</option>
+                                <option value="Seni">Seni</option>
+                                <option value="Bahasa Jawa">Bahasa Jawa</option>
+                                <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                                <option value="Pancasila">Pancasila</option>
+                                <option value="PAI">PAI</option>
+                                <option value="Bahasa Arab">Bahasa Arab</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Judul Materi / Bab</label>
+                        <input type="text" name="title" placeholder="Contoh: Bab 1 Penjumlahan & Pengurangan" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Link Google Drive File</label>
+                        <input type="url" name="link" placeholder="https://drive.google.com/file/d/..." required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                    </div>
+                    <button type="submit" class="w-full bg-[#2f6636] text-white py-2.5 rounded-xl font-bold text-sm shadow-sm transition">Simpan Materi Sumatif</button>
+                </form>
+            </div>
+
+            <!-- 4. TAMBAH KALENDER & PENGUMUMAN -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
                     <h3 class="font-bold text-lg text-[#1e293b] mb-3">📅 Tambah Agenda Kalender Kelas</h3>
@@ -1031,7 +1173,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                 </div>
             </div>
 
-            <!-- 4. BACKUP DATABASE (JSON) -->
+            <!-- 5. BACKUP DATABASE (JSON) -->
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl shadow-sm border border-blue-200 flex justify-between items-center">
                 <div>
                     <h3 class="font-bold text-lg text-blue-900">💾 Cadangan Database (Backup)</h3>
@@ -1104,6 +1246,17 @@ app.post('/admin/add-announcement', checkAuth, async (req, res) => {
         cacheData = null;
         res.send(`<script>alert('Pengumuman berhasil dipublikasikan!'); window.history.back();</script>`);
     } catch (e) { res.status(500).send("Gagal mempublikasikan pengumuman"); }
+});
+
+// Endpoint POST untuk Simpan Materi Sumatif
+app.post('/admin/add-summative', checkAuth, async (req, res) => {
+    if (!req.user.isAdmin && String(req.user.first_name || '').trim().toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
+    try {
+        const params = new URLSearchParams({ action: 'addSummative', ...req.body });
+        await fetch(`${SCRIPT_URL}?${params.toString()}`);
+        cacheData = null;
+        res.send(`<script>alert('Materi sumatif berhasil ditambahkan!'); window.history.back();</script>`);
+    } catch (e) { res.status(500).send("Gagal menambah materi sumatif"); }
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
