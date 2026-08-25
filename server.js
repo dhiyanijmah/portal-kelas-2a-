@@ -316,16 +316,13 @@ app.get('/summative', checkAuth, async (req, res) => {
         if (showArabic) subjects.push("Bahasa Arab");
 
         let periodSelect = `
-        <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div class="mb-4">
             <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3 border border-[#cbd5e1] rounded-xl text-sm font-semibold bg-white outline-none focus:ring-2 focus:ring-[#2f6636] shadow-sm">
                 <option value="month" ${period === 'month' ? 'selected' : ''}>🔍 Filter: Pilih Bulan Tertentu</option>
                 <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>📚 Tampilkan Semester 1 (Agustus - Ujian Smt)</option>
                 <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>📚 Tampilkan Semester 2 (Januari - UKK)</option>
                 <option value="all" ${period === 'all' ? 'selected' : ''}>📂 Tampilkan Semua Periode (Semua Bulan)</option>
             </select>
-            <button id="downloadAllBtn" onclick="downloadAllFiles()" class="w-full sm:w-auto bg-[#2f6636] hover:bg-[#244f2b] text-white px-5 py-3 rounded-xl text-sm font-bold shadow-sm transition flex items-center justify-center gap-2">
-                <span>📥</span> Download Semua File Periode Ini
-            </button>
         </div>`;
 
         let monthTabs = '';
@@ -337,7 +334,6 @@ app.get('/summative', checkAuth, async (req, res) => {
             monthTabs = `<div class="flex overflow-x-auto gap-2 pb-3 mb-4">${monthTabs}</div>`;
         }
 
-        let allPeriodDownloadUrls = [];
         let subjectCards = '';
         
         subjects.forEach(subj => {
@@ -362,8 +358,6 @@ app.get('/summative', checkAuth, async (req, res) => {
                         fileId = new URLSearchParams(rawUrl.split('?')[1]).get('id');
                     }
                     const downloadUrl = fileId ? `https://drive.google.com/uc?export=download&id=${fileId}` : rawUrl;
-                    
-                    if (downloadUrl) allPeriodDownloadUrls.push(downloadUrl);
 
                     let monthBadge = period !== 'month' ? `<span class="text-[10px] bg-[#e0f2fe] text-[#0369a1] px-2 py-0.5 rounded mt-1 inline-block border border-[#bae6fd] font-bold">${mat.month || '-'}</span>` : '';
 
@@ -405,28 +399,6 @@ app.get('/summative', checkAuth, async (req, res) => {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
             ${subjectCards}
         </div>
-
-        <script>
-            const filesToDownload = ${JSON.stringify(allPeriodDownloadUrls)};
-            function downloadAllFiles() {
-                if (filesToDownload.length === 0) {
-                    alert('Tidak ada file untuk didownload pada periode ini.');
-                    return;
-                }
-                if(confirm('Akan mendownload ' + filesToDownload.length + ' file sekaligus. Lanjutkan?')) {
-                    filesToDownload.forEach((url, index) => {
-                        setTimeout(() => {
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = '';
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                        }, index * 700); // Jeda 700ms tiap file agar aman dari blokir browser
-                    });
-                }
-            }
-        </script>
 
         <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-[#2f6636] hover:text-[#1e293b] text-sm font-semibold">&larr; Kembali ke Beranda</a></div>`;
 
