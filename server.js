@@ -292,14 +292,19 @@ app.get('/dashboard', checkAuth, (req, res) => {
 app.get('/summative', checkAuth, async (req, res) => {
     try {
         const db = await fetchDb();
+        const period = req.query.period || 'month';
         const selectedMonth = req.query.month || 'Agustus 2026';
         const summativeData = db.summative || [];
 
-        const monthsList = [
-            "Agustus 2026", "September 2026", "Oktober 2026", "November 2026", 
-            "Ujian Semester", "Januari 2027", "Februari 2027", "Maret 2027", 
-            "April 2027", "Mei 2027", "Juni 2027", "Ujian Kenaikan Kelas"
-        ];
+        const sem1 = ["Agustus 2026", "September 2026", "Oktober 2026", "November 2026", "Ujian Semester"];
+        const sem2 = ["Januari 2027", "Februari 2027", "Maret 2027", "April 2027", "Mei 2027", "Juni 2027", "Ujian Kenaikan Kelas"];
+        const allMonthsList = [...sem1, ...sem2];
+
+        let targetMonths = [];
+        if (period === 'sem1') targetMonths = sem1;
+        else if (period === 'sem2') targetMonths = sem2;
+        else if (period === 'all') targetMonths = allMonthsList;
+        else targetMonths = [selectedMonth];
 
         let subjects = [
             "Matematika", "Bahasa Inggris", "Seni", 
@@ -307,23 +312,45 @@ app.get('/summative', checkAuth, async (req, res) => {
         ];
         
         const arabicAllowed = ["Oktober", "November", "Ujian Semester", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Ujian Kenaikan Kelas"];
-        if (arabicAllowed.some(m => selectedMonth.includes(m))) {
+        
+        let showArabic = false;
+        if (period !== 'month') {
+            showArabic = true; 
+        } else {
+            showArabic = arabicAllowed.some(m => selectedMonth.includes(m));
+        }
+        
+        if (showArabic) {
             subjects.push("Bahasa Arab");
         }
 
+        let periodSelect = `
+        <div class="mb-4">
+            <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3 border border-[#cbd5e1] rounded-xl text-sm font-semibold bg-white outline-none focus:ring-2 focus:ring-[#2f6636] shadow-sm">
+                <option value="month" ${period === 'month' ? 'selected' : ''}>🔍 Filter: Pilih Bulan Tertentu</option>
+                <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>📚 Tampilkan Semester 1 (Agustus - Ujian Smt)</option>
+                <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>📚 Tampilkan Semester 2 (Januari - UKK)</option>
+                <option value="all" ${period === 'all' ? 'selected' : ''}>📂 Tampilkan Semua Periode (Semua Bulan)</option>
+            </select>
+        </div>`;
+
         let monthTabs = '';
-        monthsList.forEach(m => {
-            const isActive = m === selectedMonth;
-            monthTabs += `<a href="/summative?month=${encodeURIComponent(m)}" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${isActive ? 'bg-[#2f6636] text-white shadow-sm' : 'bg-white text-[#4b5563] border border-[#cbd5e1] hover:bg-gray-50'}">${m}</a>`;
-        });
+        if (period === 'month') {
+            allMonthsList.forEach(m => {
+                const isActive = m === selectedMonth;
+                monthTabs += `<a href="/summative?period=month&month=${encodeURIComponent(m)}" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${isActive ? 'bg-[#2f6636] text-white shadow-sm' : 'bg-white text-[#4b5563] border border-[#cbd5e1] hover:bg-gray-50'}">${m}</a>`;
+            });
+            monthTabs = `<div class="flex overflow-x-auto gap-2 pb-3 mb-4">${monthTabs}</div>`;
+        }
 
         let subjectCards = '';
         subjects.forEach(subj => {
-            // Pencocokan fleksibel (mendukung "Agustus" maupun "Agustus 2026")
             const materials = summativeData.filter(s => {
                 const dbMonth = String(s.month || '').trim().toLowerCase();
-                const selMonth = selectedMonth.trim().toLowerCase();
-                const isMonthMatch = (dbMonth === selMonth) || selMonth.includes(dbMonth);
+                const isMonthMatch = targetMonths.some(tm => {
+                    const selMonth = tm.trim().toLowerCase();
+                    return (dbMonth === selMonth) || selMonth.includes(dbMonth);
+                });
                 const isSubjMatch = String(s.subject || '').trim().toLowerCase() === subj.toLowerCase();
                 return isMonthMatch && isSubjMatch;
             });
@@ -340,42 +367,43 @@ app.get('/summative', checkAuth, async (req, res) => {
                     }
                     const downloadUrl = fileId ? `https://drive.google.com/uc?export=download&id=${fileId}` : rawUrl;
 
+                    // Tambahkan label bulan jika difilter berdasarkan semester/semua agar tidak bingung
+                    let monthBadge = period !== 'month' ? `<span class="text-[10px] bg-[#e0f2fe] text-[#0369a1] px-2 py-0.5 rounded mt-1 inline-block border border-[#bae6fd] font-bold">${mat.month || '-'}</span>` : '';
+
                     materialItems += `
                     <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 mb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
                             <span class="font-bold text-sm text-[#1e293b] block">📄 ${mat.title}</span>
+                            ${monthBadge}
                         </div>
-                        <div class="flex gap-2 w-full sm:w-auto">
+                        <div class="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                             <a href="${rawUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-[#f0fdf4] text-[#166534] border border-[#bbf7d0] px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#dcfce7]">Buka Drive</a>
                             <a href="${downloadUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-[#2f6636] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#244f2b]">Download</a>
                         </div>
                     </div>`;
                 });
             } else {
-                materialItems = `<p class="text-xs text-gray-400 italic">Materi belum diunggah.</p>`;
+                materialItems = `<p class="text-xs text-gray-400 italic">Materi belum diunggah untuk periode ini.</p>`;
             }
 
             subjectCards += `
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center space-x-3 mb-3">
-                        <div class="bg-emerald-50 text-[#2f6636] p-2.5 rounded-xl text-xl">📖</div>
-                        <h3 class="font-bold text-base text-[#1e293b]">${subj}</h3>
-                    </div>
-                    <div class="space-y-2 mt-2">${materialItems}</div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] flex flex-col">
+                <div class="flex items-center space-x-3 mb-3">
+                    <div class="bg-emerald-50 text-[#2f6636] p-2.5 rounded-xl text-xl">📖</div>
+                    <h3 class="font-bold text-base text-[#1e293b]">${subj}</h3>
                 </div>
+                <div class="space-y-2 mt-2 max-h-80 overflow-y-auto pr-1 scrollbar-thin">${materialItems}</div>
             </div>`;
         });
 
         const content = `
-        <div class="mb-6">
+        <div class="mb-4">
             <h2 class="text-xl sm:text-2xl font-bold text-[#1e293b]">Materi & Kisi-kisi Sumatif</h2>
-            <p class="text-xs sm:text-sm text-[#4b5563]">Pilih bulan atau ujian untuk melihat materi per mata pelajaran.</p>
+            <p class="text-xs sm:text-sm text-[#4b5563]">Pilih periode atau bulan spesifik untuk melihat dan mendownload materi.</p>
         </div>
 
-        <div class="flex overflow-x-auto gap-2 pb-3 mb-6">
-            ${monthTabs}
-        </div>
+        ${periodSelect}
+        ${monthTabs}
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
             ${subjectCards}
