@@ -1423,9 +1423,3 @@ app.post('/admin/add-summative', checkAuth, async (req, res) => {
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 ```eof
-
-Silakan jalankan perintah Git berikut di terminal Anda untuk memperbarui repository:
-```bash
-git add .
-git commit -m "UI: Tambah garis pemisah lunas/belum pada kas, hilangkan enter bulan tahun, kecilkan tanggal pengumuman dengan ikon, dan bersihkan ikon filter sumatif"
-git push origin main
