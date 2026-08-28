@@ -257,7 +257,7 @@ app.get('/login', (req, res) => {
                     <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/80 mb-1">Password</label>
                     <input type="password" name="password" required class="w-full px-4 py-3 border border-deepgreen/25 rounded-2xl focus:ring-2 focus:ring-deepgreen outline-none text-base bg-white transition shadow-sm font-semibold text-earthtext" placeholder="Password akun">
                 </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-deepgreen to-sagegreen hover:opacity-95 text-white py-3.5 rounded-2xl font-bold shadow-md transition text-base tracking-wide">Sign In</button>
+                <button type="submit" class="w-full bg-gradient-to-r from-deepgreen to-sagegreen hover:opacity-95 text-white py-3.5 rounded-2xl font-bold shadow-md transition text-base tracking-wide">Masuk</button>
             </form>
         </div>
     </body></html>`);
@@ -373,7 +373,7 @@ app.get('/summative', checkAuth, async (req, res) => {
         if (showArabic) subjects.push("Bahasa Arab");
 
         const subjectBgColors = [
-            'bg-white', 
+            'bg-[#F4F7F4]', 
             'bg-[#F3F8F5]', 
             'bg-[#FEF9E7]', 
             'bg-[#FDF2F2]', 
@@ -436,7 +436,7 @@ app.get('/summative', checkAuth, async (req, res) => {
                             ${monthBadge}
                         </div>
                         <div class="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                            <a href="${downloadUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-deepgreen text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-sagegreen transition shadow-sm">Download</a>
+                            <a href="${downloadUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-deepgreen text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-tangerine transition shadow-sm">Download</a>
                         </div>
                     </div>`;
                 });
@@ -565,7 +565,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
         let monthOptions = monthsList.map(mObj => `<option value="${mObj.v}" ${mObj.v === month ? 'selected' : ''}>${mObj.n}</option>`).join('');
 
         const content = `
-        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-tangerine text-white p-6 rounded-[2rem] shadow-sm border border-tangerine/30">
+        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-deepgreen text-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/30">
             <div>
                 <h2 class="text-xl sm:text-2xl font-bold text-white">Kalendar Akademik 2026/2027</h2>
                 <p class="text-xs sm:text-sm text-white/90">Agenda kelas, libur nasional, dan catatan jadwal pribadi siswa.</p>
@@ -662,7 +662,7 @@ app.get('/kas', checkAuth, async (req, res) => {
             if (!isKaosPaid) {
                 checkboxes += `
                 <label class="flex items-center gap-3 p-3 bg-white rounded-2xl cursor-pointer hover:bg-cream border border-deepgreen/15">
-                    <input type="checkbox" class="w-5 h-5 calc-item accent-tangerine" data-price="${kaosAmount}" onchange="calcTotal()">
+                    <input type="checkbox" class="w-4 h-4 calc-item accent-[#FDA172]" data-price="${kaosAmount}" onchange="calcTotal()">
                     <span class="text-sm font-bold text-earthtext">Iuran Kaos (Rp ${kaosAmount.toLocaleString()})</span>
                 </label>`;
             }
@@ -683,7 +683,7 @@ app.get('/kas', checkAuth, async (req, res) => {
             if (!paid) {
                 checkboxes += `
                 <label class="flex items-center gap-3 p-3 bg-white rounded-2xl cursor-pointer hover:bg-cream border border-deepgreen/15">
-                    <input type="checkbox" class="w-5 h-5 calc-item accent-tangerine" data-price="${rowAmount}" onchange="calcTotal()">
+                    <input type="checkbox" class="w-4 h-4 calc-item accent-[#FDA172]" data-price="${rowAmount}" onchange="calcTotal()">
                     <span class="text-sm font-bold text-earthtext">${m} (Rp ${rowAmount.toLocaleString()})</span>
                 </label>`;
             }
@@ -708,23 +708,23 @@ app.get('/kas', checkAuth, async (req, res) => {
                         <h3 class="font-bold mb-3 text-earthtext">🧮 Kalkulator Pembayaran</h3>
                         <p class="text-xs mb-4 text-earthtext/70">Centang item di bawah untuk menghitung total pembayaran:</p>
                         
-                        <label class="flex items-center gap-3 p-3 bg-sagegreen/20 border border-sagegreen/30 rounded-2xl mb-3 cursor-pointer font-bold text-deepgreen">
-                            <input type="checkbox" id="selectAll" class="w-5 h-5 accent-tangerine" onchange="selectAll(this)"> Pilih Semua
+                        <label class="flex items-center gap-3 p-3 bg-white border border-deepgreen/15 rounded-2xl mb-3 cursor-pointer font-bold text-deepgreen shadow-sm">
+                            <input type="checkbox" id="selectAll" class="w-4 h-4 accent-[#FDA172]" onchange="selectAll(this)"> Pilih Semua
                         </label>
                         
                         <div class="space-y-2.5 max-h-[300px] overflow-y-auto mb-4 pr-1">${checkboxes}</div>
                     </div>
 
                     <div>
-                        <div class="pt-4 border-t border-deepgreen/15 font-bold text-earthtext">Total Pembayaran: Rp <span id="totalDisplay">0</span></div>
-                        
-                        <div class="mt-6 p-4 bg-white rounded-2xl text-xs sm:text-sm border border-deepgreen/15 text-earthtext shadow-sm">
+                        <div class="mt-4 p-4 bg-white rounded-2xl text-xs sm:text-sm border border-deepgreen/15 text-earthtext shadow-sm">
                             <p class="mb-2 font-bold text-deepgreen">Info Pembayaran:</p>
                             <p>BCA: 0971149581</p>
                             <p>BNI: 286855891</p>
                             <p>a.n. Nisa Syakrina</p>
-                            <a href="https://wa.me/6285800327444" target="_blank" class="block w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-2xl transition shadow-sm mt-3">WhatsApp Mba Nisa</a>
+                            <a href="https://wa.me/6285800327444" target="_blank" class="inline-flex items-center justify-center gap-2 w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-xs transition shadow-sm mt-3"><span>💬</span><span>WhatsApp Mba Nisa</span></a>
                         </div>
+                        
+                        <div class="mt-4 pt-3 border-t border-deepgreen/15 font-bold text-earthtext text-sm text-center">Total Pembayaran: Rp <span id="totalDisplay">0</span></div>
                     </div>
                 </div>
             </div>
@@ -920,7 +920,7 @@ app.get('/finances', checkAuth, async (req, res) => {
                     <input type="date" name="end_date" value="${endDate}" class="border border-deepgreen/25 px-3 py-2.5 rounded-2xl text-sm font-bold bg-white outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="bg-tangerine hover:bg-[#e06d19] text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-sm transition">Filter</button>
+                    <button type="submit" class="bg-deepgreen hover:bg-sagegreen text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-sm transition">Filter</button>
                     <a href="/finances" class="bg-deepgreen/10 hover:bg-deepgreen/20 text-deepgreen px-4 py-2.5 rounded-2xl text-sm font-bold transition flex items-center justify-center">Reset</a>
                 </div>
             </form>
@@ -1004,13 +1004,13 @@ app.get('/announcements', checkAuth, async (req, res) => {
                     imageHtml = `<div class="mt-4"><img src="${embedUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-2xl max-h-80 w-auto object-cover border border-deepgreen/15" onerror="this.parentElement.style.display='none'"></div>`;
                     actionButtonsHtml = `
                     <div class="mt-3 flex flex-wrap gap-2">
-                        <a href="${downloadUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-deepgreen hover:bg-sagegreen text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
+                        <a href="${downloadUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-deepgreen hover:bg-tangerine text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
                     </div>`;
                 } else {
                     imageHtml = `<div class="mt-4"><img src="${rawUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-2xl max-h-80 w-auto object-cover border border-deepgreen/15" onerror="this.parentElement.style.display='none'"></div>`;
                     actionButtonsHtml = `
                     <div class="mt-3 flex flex-wrap gap-2">
-                        <a href="${rawUrl}" download target="_blank" class="inline-flex items-center space-x-2 bg-deepgreen hover:bg-sagegreen text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
+                        <a href="${rawUrl}" download target="_blank" class="inline-flex items-center space-x-2 bg-deepgreen hover:bg-tangerine text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
                     </div>`;
                 }
             }
@@ -1122,7 +1122,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
             
             checkboxesHtml += `
             <label class="flex items-center space-x-3 p-3 bg-white border border-deepgreen/15 rounded-2xl cursor-pointer hover:bg-cream/50 transition">
-                <input type="checkbox" name="months" value="${m}" ${isPaid ? 'checked' : ''} class="w-5 h-5 accent-tangerine">
+                <input type="checkbox" name="months" value="${m}" ${isPaid ? 'checked' : ''} class="w-4 h-4 accent-[#FDA172]">
                 <span class="text-sm font-bold text-earthtext">${labelName}</span>
             </label>`;
         });
