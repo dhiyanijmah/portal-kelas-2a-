@@ -361,7 +361,7 @@ app.get('/dashboard', checkAuth, (req, res) => {
     res.send(layout('Dashboard', content));
 });
 
-// --- HALAMAN MATERI SUMATIF (Tanpa Icon Mapel, Filter Tanpa Icon, Bulan/Tahun lengkap & nowrap) ---
+// --- HALAMAN MATERI SUMATIF ---
 app.get('/summative', checkAuth, async (req, res) => {
     try {
         const db = await fetchDb();
@@ -394,7 +394,6 @@ app.get('/summative', checkAuth, async (req, res) => {
             return 'bg-white/50 backdrop-blur-md border border-white/70';
         };
 
-        // Filter tanpa icon
         let periodSelect = `
         <div class="mb-4">
             <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3.5 border border-white/70 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md text-earthtext outline-none focus:ring-2 focus:ring-tangerine shadow-md">
@@ -409,7 +408,6 @@ app.get('/summative', checkAuth, async (req, res) => {
         if (period === 'month') {
             allMonthsList.forEach(m => {
                 const isActive = m === selectedMonth;
-                // Bulan dan tahun lengkap, whitespace-nowrap agar tidak dienter
                 monthTabs += `<a href="/summative?period=month&month=${encodeURIComponent(m)}" class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition whitespace-nowrap shadow-sm ${isActive ? 'bg-deepgreen text-white shadow' : 'bg-white/50 text-earthtext border border-white/70 hover:bg-white/80 backdrop-blur-sm'}">${m}</a>`;
             });
             monthTabs = `<div class="flex overflow-x-auto gap-2 pb-3 mb-4">${monthTabs}</div>`;
@@ -459,7 +457,6 @@ app.get('/summative', checkAuth, async (req, res) => {
 
             const cardBgColor = getSubjectBgColor(subj);
 
-            // Tanpa icon mapel
             subjectCards += `
             <div class="${cardBgColor} p-6 rounded-[2rem] shadow-sm border border-white/70 flex flex-col backdrop-blur-md">
                 <div class="mb-4">
@@ -522,7 +519,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
         
         let calendarCells = '';
         for (let i = 0; i < firstDayIndex; i++) {
-            calendarCells += `<div class="bg-white/10 min-h-[150px] rounded-3xl border border-dashed border-white/25"></div>`;
+            calendarCells += `<div class="bg-white/10 min-h-[170px] rounded-[2rem] border border-dashed border-white/25"></div>`;
         }
 
         for (let d = 1; d <= totalDays; d++) {
@@ -565,7 +562,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
                 <div class="mt-2">
                     <textarea name="notes[${dateKey}]" rows="2" class="w-full text-xs p-2.5 border border-white/70 rounded-2xl resize-none focus:ring-2 focus:ring-tangerine outline-none bg-white/70 backdrop-blur-sm transition text-earthtext font-medium" placeholder="Catatan pribadi...">${existingNote}</textarea>
                 </div>
-            `;
+            </div>`;
         }
 
         const monthsList = [
@@ -658,23 +655,20 @@ app.get('/kas', checkAuth, async (req, res) => {
             return isKaos ? 68000 : 25000;
         };
 
-        let lunasRows = '';
-        let belumRows = '';
+        let allKasRows = [];
         let checkboxes = '';
-        let rowIdx = 0;
         
         const kaosFound = userKas.find(k => String(k.month || '').trim().toLowerCase().includes('kaos'));
         const kaosAmount = getRowAmount(kaosFound, true);
         const isKaosPaid = isPaid(kaosFound?.status);
         
         if (period !== 'sem2') {
-            const rowHtml = `
-            <tr class="border-b border-white/20 hover:bg-white/40 transition">
+            allKasRows.push(`
+            <tr class="bg-white/40 hover:bg-white/60 transition shadow-[inset_0_1px_3px_rgba(255,255,255,0.8)]">
                 <td class="py-4 px-3 sm:px-4 font-bold text-earthtext whitespace-nowrap">Iuran Kaos</td>
                 <td class="py-4 px-3 text-sm text-earthtext/80 whitespace-nowrap">Rp ${kaosAmount.toLocaleString()}</td>
                 <td class="py-4 px-3 text-center whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-bold ${isKaosPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${isKaosPaid ? 'Lunas' : 'Belum Bayar'}</span></td>
-            </tr>`;
-            if (isKaosPaid) lunasRows += rowHtml; else belumRows += rowHtml;
+            </tr>`);
 
             if (!isKaosPaid) {
                 checkboxes += `
@@ -693,13 +687,12 @@ app.get('/kas', checkAuth, async (req, res) => {
             const paid = isPaid(found?.status);
             const rowAmount = getRowAmount(found, false);
             
-            const rowHtml = `
-            <tr class="border-b border-white/20 hover:bg-white/40 transition">
+            allKasRows.push(`
+            <tr class="bg-white/40 hover:bg-white/60 transition shadow-[inset_0_1px_3px_rgba(255,255,255,0.8)]">
                 <td class="py-4 px-3 sm:px-4 font-bold text-earthtext whitespace-nowrap">${m}</td>
                 <td class="py-4 px-3 text-sm text-earthtext/80 whitespace-nowrap">Rp ${rowAmount.toLocaleString()}</td>
                 <td class="py-4 px-3 text-center whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-bold ${paid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${paid ? 'Lunas' : 'Belum Bayar'}</span></td>
-            </tr>`;
-            if (paid) lunasRows += rowHtml; else belumRows += rowHtml;
+            </tr>`);
             
             if (!paid) {
                 checkboxes += `
@@ -713,11 +706,8 @@ app.get('/kas', checkAuth, async (req, res) => {
             }
         });
 
-        let tableRows = lunasRows;
-        if (lunasRows && belumRows) {
-            tableRows += `<tr><td colspan="3" class="py-2 px-3"><div class="border-t border-dashed border-earthtext/25 my-1"></div></td></tr>`;
-        }
-        tableRows += belumRows;
+        // 3D Shadow recessed divider between each row and below kaos
+        const tableRows = allKasRows.join(`<tr class="h-2"><td colspan="3"><div class="h-2 w-full bg-black/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.12)] rounded-full my-1"></div></td></tr>`);
 
         const content = `
         <div class="mb-6 bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-[2rem] shadow-sm border border-white/70">
@@ -729,8 +719,8 @@ app.get('/kas', checkAuth, async (req, res) => {
             </select>
             
             <div class="grid lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 overflow-x-auto bg-white/50 backdrop-blur-md rounded-2xl shadow-sm border border-white/70 p-2">
-                    <table class="w-full text-left">${tableRows}</table>
+                <div class="lg:col-span-2 overflow-x-auto bg-white/50 backdrop-blur-md rounded-2xl shadow-sm border border-white/70 p-4">
+                    <table class="w-full text-left border-collapse">${tableRows}</table>
                 </div>
                 
                 <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70 flex flex-col justify-between">
@@ -1065,7 +1055,6 @@ app.get('/announcements', checkAuth, async (req, res) => {
             const contentText = String(a.content || '').replace(/\\n/g, '\n');
             const formattedDate = formatDateID(a.date);
 
-            // Tanggal di bagian pengumuman kecil dan dikasih icon calendar sebelumnya
             cards += `
             <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70 mb-5">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
