@@ -372,16 +372,17 @@ app.get('/summative', checkAuth, async (req, res) => {
         let showArabic = (period !== 'month') ? true : arabicAllowed.some(m => selectedMonth.includes(m));
         if (showArabic) subjects.push("Bahasa Arab");
 
-        const subjectBgColors = [
-            'bg-[#F4F7F4]', 
-            'bg-[#F3F8F5]', 
-            'bg-[#FEF9E7]', 
-            'bg-[#FDF2F2]', 
-            'bg-[#FDF3E7]', 
-            'bg-[#F5F3FF]', 
-            'bg-[#ECFDF5]', 
-            'bg-[#FFFBEB]'
-        ];
+        const getSubjectBgColor = (subj) => {
+            const s = String(subj || '').trim().toLowerCase();
+            if (s === 'matematika') return 'bg-[#EAF2F8]'; // Soft distinct blue pastel for Matematika
+            if (s === 'bahasa inggris') return 'bg-[#F3F8F5]';
+            if (s === 'seni') return 'bg-[#FEF9E7]';
+            if (s === 'bahasa jawa') return 'bg-[#FDF2F2]';
+            if (s === 'bahasa indonesia') return 'bg-[#FDF3E7]';
+            if (s === 'pancasila') return 'bg-[#F5F3FF]';
+            if (s === 'pai') return 'bg-[#ECFDF5]';
+            return 'bg-[#FFFBEB]'; // Bahasa Arab / default
+        };
 
         let periodSelect = `
         <div class="mb-4">
@@ -404,7 +405,7 @@ app.get('/summative', checkAuth, async (req, res) => {
 
         let subjectCards = '';
         
-        subjects.forEach((subj, index) => {
+        subjects.forEach((subj) => {
             const materials = summativeData.filter(s => {
                 const dbMonth = String(s.month || '').trim().toLowerCase();
                 const isMonthMatch = targetMonths.some(tm => {
@@ -444,7 +445,7 @@ app.get('/summative', checkAuth, async (req, res) => {
                 materialItems = `<p class="text-xs text-earthtext/50 italic p-3">Materi belum diunggah untuk periode ini.</p>`;
             }
 
-            const cardBgColor = subjectBgColors[index % subjectBgColors.length];
+            const cardBgColor = getSubjectBgColor(subj);
 
             subjectCards += `
             <div class="${cardBgColor} p-6 rounded-[2rem] shadow-sm border border-deepgreen/15 flex flex-col">
@@ -737,6 +738,8 @@ app.get('/kas', checkAuth, async (req, res) => {
                     const label = c.closest('label');
                     if (c.checked) {
                         total += parseInt(c.dataset.price);
+                        label.style.backgroundColor = '#ffffff';
+                    } else {
                         label.style.backgroundColor = '#ffffff';
                     }
                 });
