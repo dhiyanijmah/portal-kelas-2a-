@@ -127,7 +127,7 @@ const layout = (title, content) => `
                     colors: {
                         deepgreen: '#215F47',
                         sagegreen: '#4B8A6C',
-                        softorange: '#E89A5B',
+                        tangerine: '#E89254',
                         cream: '#F7F4ED',
                         earthtext: '#2C3B32',
                         cardbg: '#FFFFFF',
@@ -141,7 +141,7 @@ const layout = (title, content) => `
         #loading-overlay { transition: opacity 0.3s ease; }
     </style>
 </head>
-<body class="bg-cream text-earthtext min-h-screen flex flex-col selection:bg-softorange selection:text-white">
+<body class="bg-cream text-earthtext min-h-screen flex flex-col selection:bg-tangerine selection:text-white">
     <div id="loading-overlay" class="fixed inset-0 bg-cream/90 backdrop-blur-md flex flex-col items-center justify-center z-[9999]" style="display: none;">
         <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-deepgreen"></div>
         <p class="mt-4 text-deepgreen font-bold text-lg animate-pulse">Memuat halaman...</p>
@@ -219,7 +219,7 @@ app.get('/login', (req, res) => {
                         colors: {
                             deepgreen: '#215F47',
                             sagegreen: '#4B8A6C',
-                            softorange: '#E89A5B',
+                            tangerine: '#E89254',
                             cream: '#F7F4ED',
                             earthtext: '#2C3B32',
                             cardbg: '#FFFFFF',
@@ -243,11 +243,11 @@ app.get('/login', (req, res) => {
             <form action="/login" method="POST" class="space-y-4" onsubmit="document.getElementById('login-loading').style.display='flex';">
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/80 mb-1">Username</label>
-                    <input type="text" name="first_name" required class="w-full px-4 py-3 border border-deepgreen/20 rounded-2xl focus:ring-2 focus:ring-softorange outline-none text-base bg-cream/50 transition shadow-sm font-semibold text-earthtext" placeholder="Nama depan siswa">
+                    <input type="text" name="first_name" required class="w-full px-4 py-3 border border-deepgreen/20 rounded-2xl focus:ring-2 focus:ring-tangerine outline-none text-base bg-cream/50 transition shadow-sm font-semibold text-earthtext" placeholder="Nama depan siswa">
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/80 mb-1">Password</label>
-                    <input type="password" name="password" required class="w-full px-4 py-3 border border-deepgreen/20 rounded-2xl focus:ring-2 focus:ring-softorange outline-none text-base bg-cream/50 transition shadow-sm font-semibold text-earthtext" placeholder="Password akun">
+                    <input type="password" name="password" required class="w-full px-4 py-3 border border-deepgreen/20 rounded-2xl focus:ring-2 focus:ring-tangerine outline-none text-base bg-cream/50 transition shadow-sm font-semibold text-earthtext" placeholder="Password akun">
                 </div>
                 <button type="submit" class="w-full bg-gradient-to-r from-deepgreen to-sagegreen hover:opacity-95 text-white py-3.5 rounded-2xl font-bold shadow-md transition text-base tracking-wide">Sign In</button>
             </form>
@@ -286,47 +286,47 @@ app.get('/dashboard', checkAuth, (req, res) => {
     <div class="mb-6 bg-gradient-to-r from-deepgreen to-sagegreen text-white p-6 sm:p-8 rounded-[2rem] shadow-lg flex justify-between items-center border border-white/15">
         <div>
             <span class="text-[10px] uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full font-bold text-white">Dashboard Wali Murid</span>
-            <h2 class="text-2xl sm:text-3xl font-bold mt-2 text-white">Assalamualaikum, Ayah dan Bunda ${String(req.user.first_name)}</h2>
+            <h2 class="text-2xl sm:text-3xl font-bold mt-2 text-white">Assalamualaikum, Ayah & Bunda ${String(req.user.first_name)}</h2>
         </div>
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <a href="/calendar" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-softorange/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+        <a href="/calendar" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-tangerine/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
             <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🗓️</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Kalendar Akademik</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Agenda kelas & jadwal pribadi siswa.</p>
             </div>
         </a>
-        <a href="/kas" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-softorange/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+        <a href="/kas" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-tangerine/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
             <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">💰</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Iuran Kas Siswa</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Pembayaran kas pribadi setiap siswa.</p>
             </div>
         </a>
-        <a href="/finances" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-softorange/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+        <a href="/finances" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-tangerine/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
             <div class="bg-amber-100 text-amber-800 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📊</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-amber-700 transition">Laporan Keuangan</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Rincian income & expense kelas 2A.</p>
             </div>
         </a>
-        <a href="/announcements" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-softorange/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+        <a href="/announcements" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-tangerine/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
             <div class="bg-sky-100 text-sky-800 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔔</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-sky-700 transition">Pengumuman</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Informasi resmi dari sekolah.</p>
             </div>
         </a>
-        <a href="/summative" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-softorange/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+        <a href="/summative" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-tangerine/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
             <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📘</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Materi Sumatif</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Kisi-kisi dan materi bulanan lengkap.</p>
             </div>
         </a>
-        <a href="/change-password" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-softorange/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+        <a href="/change-password" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-tangerine/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
             <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔒</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Ganti Password</h3>
@@ -366,7 +366,7 @@ app.get('/summative', checkAuth, async (req, res) => {
 
         let periodSelect = `
         <div class="mb-4">
-            <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3.5 border border-deepgreen/20 rounded-2xl text-sm font-bold bg-cream/50 text-earthtext outline-none focus:ring-2 focus:ring-softorange shadow-sm">
+            <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3.5 border border-deepgreen/20 rounded-2xl text-sm font-bold bg-cream/50 text-earthtext outline-none focus:ring-2 focus:ring-tangerine shadow-sm">
                 <option value="month" ${period === 'month' ? 'selected' : ''}>🔍 Filter: Pilih Bulan Tertentu</option>
                 <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>📚 Tampilkan Semester 1 (Agustus - Ujian Smt)</option>
                 <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>📚 Tampilkan Semester 2 (Januari - UKK)</option>
@@ -449,7 +449,7 @@ app.get('/summative', checkAuth, async (req, res) => {
             ${subjectCards}
         </div>
 
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-softorange text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-tangerine text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
 
         res.send(layout('Materi Sumatif', content));
     } catch (e) {
@@ -503,7 +503,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
             const isToday = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}` === dateKey;
 
             const hasAgenda = (existingNote.trim() !== '' || globalEvent);
-            const cellBgClass = hasAgenda ? 'bg-amber-50 border-amber-200' : (isToday ? 'bg-white border-softorange ring-2 ring-softorange/20 shadow-md' : 'bg-white border-deepgreen/15');
+            const cellBgClass = hasAgenda ? 'bg-amber-50 border-amber-200' : (isToday ? 'bg-white border-tangerine ring-2 ring-tangerine/20 shadow-md' : 'bg-white border-deepgreen/15');
 
             let eventHtml = '';
             if (globalEvent) {
@@ -525,12 +525,12 @@ app.get('/calendar', checkAuth, async (req, res) => {
             <div class="${cellBgClass} p-3.5 rounded-[2rem] border shadow-sm flex flex-col justify-between min-h-[170px] transition">
                 <div>
                     <div class="flex justify-between items-center mb-2">
-                        <span class="font-bold text-sm ${isToday ? 'bg-softorange text-white w-7 h-7 rounded-full flex items-center justify-center' : (isSunday || holidayName ? 'text-red-600 font-extrabold' : 'text-earthtext')}">${d}</span>
+                        <span class="font-bold text-sm ${isToday ? 'bg-tangerine text-white w-7 h-7 rounded-full flex items-center justify-center' : (isSunday || holidayName ? 'text-red-600 font-extrabold' : 'text-earthtext')}">${d}</span>
                     </div>
                     ${eventHtml}
                 </div>
                 <div class="mt-2">
-                    <textarea name="notes[${dateKey}]" rows="2" class="w-full text-xs p-2.5 border border-deepgreen/20 rounded-2xl resize-none focus:ring-2 focus:ring-softorange outline-none bg-cream/40 focus:bg-white transition" placeholder="Catatan pribadi...">${existingNote}</textarea>
+                    <textarea name="notes[${dateKey}]" rows="2" class="w-full text-xs p-2.5 border border-deepgreen/20 rounded-2xl resize-none focus:ring-2 focus:ring-tangerine outline-none bg-cream/40 focus:bg-white transition" placeholder="Catatan pribadi...">${existingNote}</textarea>
                 </div>
             </div>`;
         }
@@ -545,14 +545,14 @@ app.get('/calendar', checkAuth, async (req, res) => {
         let monthOptions = monthsList.map(mObj => `<option value="${mObj.v}" ${mObj.v === month ? 'selected' : ''}>${mObj.n}</option>`).join('');
 
         const content = `
-        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#FDF3E7] p-6 rounded-[2rem] shadow-sm border border-softorange/30">
+        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#FDF3E7] p-6 rounded-[2rem] shadow-sm border border-tangerine/30">
             <div>
                 <h2 class="text-xl sm:text-2xl font-bold text-earthtext">Kalendar Akademik 2026/2027</h2>
                 <p class="text-xs sm:text-sm text-earthtext/70">Agenda kelas, libur nasional, dan catatan jadwal pribadi siswa.</p>
             </div>
             <form method="GET" class="flex flex-wrap items-center gap-2 sm:space-x-3 w-full md:w-auto">
-                <select name="month" onchange="this.form.submit()" class="border border-deepgreen/25 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white outline-none focus:ring-2 focus:ring-softorange cursor-pointer text-earthtext">${monthOptions}</select>
-                <input type="number" name="year" value="${year}" onchange="this.form.submit()" class="border border-deepgreen/25 px-3 py-2.5 rounded-2xl text-sm font-bold w-28 bg-white outline-none focus:ring-2 focus:ring-softorange text-earthtext">
+                <select name="month" onchange="this.form.submit()" class="border border-deepgreen/25 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white outline-none focus:ring-2 focus:ring-tangerine cursor-pointer text-earthtext">${monthOptions}</select>
+                <input type="number" name="year" value="${year}" onchange="this.form.submit()" class="border border-deepgreen/25 px-3 py-2.5 rounded-2xl text-sm font-bold w-28 bg-white outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
             </form>
         </div>
 
@@ -583,7 +583,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
         </form>
 
         <div class="mt-6">
-            <a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-softorange text-sm font-bold">&larr; Kembali ke Beranda</a>
+            <a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-tangerine text-sm font-bold">&larr; Kembali ke Beranda</a>
         </div>`;
 
         res.send(layout('Kalendar Akademik', content));
@@ -642,7 +642,7 @@ app.get('/kas', checkAuth, async (req, res) => {
             if (!isKaosPaid) {
                 checkboxes += `
                 <label class="flex items-center gap-3 p-3 bg-cream/50 rounded-2xl cursor-pointer hover:bg-cream border border-deepgreen/15">
-                    <input type="checkbox" class="w-5 h-5 calc-item accent-softorange" data-price="${kaosAmount}" onchange="calcTotal()">
+                    <input type="checkbox" class="w-5 h-5 calc-item accent-tangerine" data-price="${kaosAmount}" onchange="calcTotal()">
                     <span class="text-sm font-bold text-earthtext">Iuran Kaos (Rp ${kaosAmount.toLocaleString()})</span>
                 </label>`;
             }
@@ -663,7 +663,7 @@ app.get('/kas', checkAuth, async (req, res) => {
             if (!paid) {
                 checkboxes += `
                 <label class="flex items-center gap-3 p-3 bg-cream/50 rounded-2xl cursor-pointer hover:bg-cream border border-deepgreen/15">
-                    <input type="checkbox" class="w-5 h-5 calc-item accent-softorange" data-price="${rowAmount}" onchange="calcTotal()">
+                    <input type="checkbox" class="w-5 h-5 calc-item accent-tangerine" data-price="${rowAmount}" onchange="calcTotal()">
                     <span class="text-sm font-bold text-earthtext">${m} (Rp ${rowAmount.toLocaleString()})</span>
                 </label>`;
             }
@@ -672,7 +672,7 @@ app.get('/kas', checkAuth, async (req, res) => {
         const content = `
         <div class="mb-6 bg-white p-6 sm:p-8 rounded-[2rem] shadow-sm border border-deepgreen/15">
             <h2 class="text-2xl font-bold mb-4 text-earthtext">Iuran Kas Siswa</h2>
-            <select onchange="window.location.href='?period=' + this.value" class="w-full p-3.5 border border-deepgreen/20 rounded-2xl mb-6 bg-cream/50 text-earthtext font-bold text-sm outline-none focus:ring-2 focus:ring-softorange">
+            <select onchange="window.location.href='?period=' + this.value" class="w-full p-3.5 border border-deepgreen/20 rounded-2xl mb-6 bg-cream/50 text-earthtext font-bold text-sm outline-none focus:ring-2 focus:ring-tangerine">
                 <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>Semester 1 (Juli - Desember 2026)</option>
                 <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>Semester 2 (Januari - Juni 2027)</option>
                 <option value="all" ${period === 'all' ? 'selected' : ''}>Semua Periode</option>
@@ -689,7 +689,7 @@ app.get('/kas', checkAuth, async (req, res) => {
                         <p class="text-xs mb-4 text-earthtext/70">Centang item di bawah untuk menghitung total pembayaran:</p>
                         
                         <label class="flex items-center gap-3 p-3 bg-sagegreen/20 border border-sagegreen/30 rounded-2xl mb-3 cursor-pointer font-bold text-deepgreen">
-                            <input type="checkbox" id="selectAll" class="w-5 h-5 accent-softorange" onchange="selectAll(this)"> Pilih Semua
+                            <input type="checkbox" id="selectAll" class="w-5 h-5 accent-tangerine" onchange="selectAll(this)"> Pilih Semua
                         </label>
                         
                         <div class="space-y-2.5 max-h-[300px] overflow-y-auto mb-4 pr-1">${checkboxes}</div>
@@ -722,7 +722,7 @@ app.get('/kas', checkAuth, async (req, res) => {
             }
         </script>
 
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-softorange text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-tangerine text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
         
         res.send(layout('Iuran Kas', content));
     } catch (e) { res.status(500).send("Error"); }
@@ -860,11 +860,11 @@ app.get('/finances', checkAuth, async (req, res) => {
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="bg-[#F7F4ED] p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-[#4B8A6C]"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Total Kas</span><h3 class="text-xl font-bold text-deepgreen mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
             <div class="bg-[#F3F8F5] p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-[#215F47]"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Total Kaos</span><h3 class="text-xl font-bold text-emerald-800 mt-1">Rp ${totalKaos.toLocaleString()}</h3></div>
-            <div class="bg-[#FEF9E7] p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-[#E89A5B]"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pendapatan Lain</span><h3 class="text-xl font-bold text-amber-700 mt-1">Rp ${totalLainnya.toLocaleString()}</h3></div>
+            <div class="bg-[#FEF9E7] p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-[#E89254]"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pendapatan Lain</span><h3 class="text-xl font-bold text-amber-700 mt-1">Rp ${totalLainnya.toLocaleString()}</h3></div>
             <div class="bg-[#FDF2F2] p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-red-400"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pengeluaran</span><h3 class="text-xl font-bold text-red-600 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
         </div>
 
-        <div class="bg-[#FDF3E7] p-6 rounded-[2rem] shadow-sm border border-softorange/30 mb-6">
+        <div class="bg-[#FDF3E7] p-6 rounded-[2rem] shadow-sm border border-tangerine/30 mb-6">
             <div>
                 <span class="text-xs font-bold uppercase tracking-wider text-deepgreen">Saldo Akhir Kas Kelas (Total Masuk - Pengeluaran)</span>
                 <h3 class="text-2xl sm:text-3xl font-bold text-earthtext mt-1">Rp ${balance.toLocaleString()}</h3>
@@ -875,17 +875,17 @@ app.get('/finances', checkAuth, async (req, res) => {
             <form method="GET" class="flex flex-wrap items-end gap-4">
                 <div class="flex-grow min-w-[200px]">
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Cari Nama / Keterangan</label>
-                    <input type="text" name="search" value="${search}" placeholder="Cari nama siswa, kaos, dll..." class="w-full border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-softorange text-earthtext">
+                    <input type="text" name="search" value="${search}" placeholder="Cari nama siswa, kaos, dll..." class="w-full border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Bulan Kas</label>
-                    <select name="monthFilter" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-softorange text-earthtext">
+                    <select name="monthFilter" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
                         ${monthOptions}
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Jenis</label>
-                    <select name="type" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-softorange text-earthtext">
+                    <select name="type" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
                         <option value="all" ${typeFilter === 'all' ? 'selected' : ''}>Semua</option>
                         <option value="income" ${typeFilter === 'income' ? 'selected' : ''}>Pemasukan</option>
                         <option value="expense" ${typeFilter === 'expense' ? 'selected' : ''}>Pengeluaran</option>
@@ -893,14 +893,14 @@ app.get('/finances', checkAuth, async (req, res) => {
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Dari Tanggal</label>
-                    <input type="date" name="start_date" value="${startDate}" class="border border-deepgreen/20 px-3 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-softorange text-earthtext">
+                    <input type="date" name="start_date" value="${startDate}" class="border border-deepgreen/20 px-3 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Sampai Tanggal</label>
-                    <input type="date" name="end_date" value="${endDate}" class="border border-deepgreen/20 px-3 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-softorange text-earthtext">
+                    <input type="date" name="end_date" value="${endDate}" class="border border-deepgreen/20 px-3 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="bg-softorange hover:bg-[#d88949] text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-sm transition">Filter</button>
+                    <button type="submit" class="bg-tangerine hover:bg-[#d88241] text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-sm transition">Filter</button>
                     <a href="/finances" class="bg-deepgreen/10 hover:bg-deepgreen/20 text-deepgreen px-4 py-2.5 rounded-2xl text-sm font-bold transition flex items-center justify-center">Reset</a>
                 </div>
             </form>
@@ -928,7 +928,7 @@ app.get('/finances', checkAuth, async (req, res) => {
             <a href="?page=${totalPages}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white border border-deepgreen/20 rounded-2xl text-sm font-bold text-deepgreen hover:bg-cream/50">Last (${totalPages})</a>
         </div>
 
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-softorange text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-tangerine text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
         
         res.send(layout('Laporan Keuangan', content));
     } catch (e) { 
@@ -999,7 +999,7 @@ app.get('/announcements', checkAuth, async (req, res) => {
 
             const contentText = String(a.content || '').replace(/\\n/g, '\n');
             cards += `
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm border-l-4 border-l-softorange border border-deepgreen/15 mb-5">
+            <div class="bg-white p-6 rounded-[2rem] shadow-sm border-l-4 border-l-tangerine border border-deepgreen/15 mb-5">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
                     <h3 class="font-bold text-lg text-earthtext flex items-center space-x-2"><span>📢</span><span>${a.title}</span></h3>
                     <span class="text-xs font-bold bg-cream text-earthtext px-3 py-1 rounded-full border border-deepgreen/15">${formatDateID(a.date)}</span>
@@ -1017,8 +1017,8 @@ app.get('/announcements', checkAuth, async (req, res) => {
         </div>
         <div class="bg-white p-4 rounded-[2rem] shadow-sm border border-deepgreen/15 mb-6">
             <form method="GET" class="flex flex-wrap gap-3 items-center">
-                <input type="text" name="search" value="${search}" placeholder="Cari judul/isi pengumuman..." class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-softorange flex-grow text-earthtext">
-                <select name="filter" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-softorange text-earthtext">
+                <input type="text" name="search" value="${search}" placeholder="Cari judul/isi pengumuman..." class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-tangerine flex-grow text-earthtext">
+                <select name="filter" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
                     <option value="all" ${filter === 'all' ? 'selected' : ''}>Semua Waktu</option>
                     <option value="weekly" ${filter === 'weekly' ? 'selected' : ''}>Minggu Ini</option>
                 </select>
@@ -1031,7 +1031,7 @@ app.get('/announcements', checkAuth, async (req, res) => {
             <span class="px-4 py-2 text-sm font-bold text-earthtext/70">Halaman ${page} dari ${totalPages}</span>
             ${page < totalPages ? `<a href="?page=${page+1}&search=${search}&filter=${filter}" class="px-4 py-2 bg-white border border-deepgreen/20 rounded-2xl text-sm font-bold text-deepgreen hover:bg-cream">Next</a>` : ''}
         </div>
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-softorange text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-tangerine text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
         res.send(layout('Pengumuman', content));
     } catch (e) { res.status(500).send("Error"); }
 });
@@ -1043,15 +1043,15 @@ app.get('/change-password', checkAuth, (req, res) => {
         <form action="/change-password" method="POST" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/70 mb-1">Password Lama</label>
-                <input type="password" name="oldPassword" required class="w-full px-4 py-2.5 border border-deepgreen/20 rounded-2xl outline-none focus:ring-2 focus:ring-softorange bg-cream/50 text-earthtext font-bold">
+                <input type="password" name="oldPassword" required class="w-full px-4 py-2.5 border border-deepgreen/20 rounded-2xl outline-none focus:ring-2 focus:ring-tangerine bg-cream/50 text-earthtext font-bold">
             </div>
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/70 mb-1">Password Baru</label>
-                <input type="password" name="newPassword" required class="w-full px-4 py-2.5 border border-deepgreen/20 rounded-2xl outline-none focus:ring-2 focus:ring-softorange bg-cream/50 text-earthtext font-bold">
+                <input type="password" name="newPassword" required class="w-full px-4 py-2.5 border border-deepgreen/20 rounded-2xl outline-none focus:ring-2 focus:ring-tangerine bg-cream/50 text-earthtext font-bold">
             </div>
             <button type="submit" class="w-full bg-deepgreen text-white py-3 rounded-2xl font-bold hover:bg-sagegreen transition shadow-md">Simpan Password Baru</button>
         </form>
-        <div class="mt-6"><a href="/dashboard" class="text-deepgreen font-bold hover:text-softorange">&larr; Kembali ke Beranda</a></div>
+        <div class="mt-6"><a href="/dashboard" class="text-deepgreen font-bold hover:text-tangerine">&larr; Kembali ke Beranda</a></div>
     </div>`;
     res.send(layout('Ganti Password', context));
 });
@@ -1104,7 +1104,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
             
             checkboxesHtml += `
             <label class="flex items-center space-x-3 p-3 bg-white border border-deepgreen/15 rounded-2xl cursor-pointer hover:bg-cream/50 transition">
-                <input type="checkbox" name="months" value="${m}" ${isPaid ? 'checked' : ''} class="w-5 h-5 accent-softorange">
+                <input type="checkbox" name="months" value="${m}" ${isPaid ? 'checked' : ''} class="w-5 h-5 accent-tangerine">
                 <span class="text-sm font-bold text-earthtext">${labelName}</span>
             </label>`;
         });
@@ -1130,7 +1130,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                     <input type="hidden" name="user_id" value="${targetUserId}">
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Pilih Nama Siswa:</label>
-                        <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border border-deepgreen/20 p-3 rounded-2xl w-full sm:w-72 bg-cream/50 font-bold text-sm outline-none focus:ring-2 focus:ring-softorange text-earthtext">${studentOptions}</select>
+                        <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border border-deepgreen/20 p-3 rounded-2xl w-full sm:w-72 bg-cream/50 font-bold text-sm outline-none focus:ring-2 focus:ring-tangerine text-earthtext">${studentOptions}</select>
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
