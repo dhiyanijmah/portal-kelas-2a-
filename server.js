@@ -143,9 +143,9 @@ const layout = (title, content) => `
     <style>
         body {
             font-family: 'Quicksand', sans-serif;
-            background: radial-gradient(circle at 15% 15%, rgba(251, 191, 36, 0.4) 0%, transparent 35%),
-                        radial-gradient(circle at 85% 85%, rgba(75, 138, 108, 0.5) 0%, transparent 45%),
-                        linear-gradient(135deg, #B2CEBE 0%, #528E72 50%, #204332 100%);
+            background: radial-gradient(circle at 15% 12%, rgba(246, 222, 160, 0.75) 0%, transparent 45%),
+                        radial-gradient(circle at 88% 85%, rgba(110, 175, 145, 0.65) 0%, transparent 50%),
+                        linear-gradient(145deg, #E2F0EA 0%, #A8D1BE 50%, #68A589 100%);
             background-attachment: fixed;
             min-height: 100vh;
         }
@@ -168,7 +168,7 @@ const layout = (title, content) => `
     </nav>
 
     <main class="max-w-4xl mx-auto p-4 sm:p-6 flex-grow w-full">
-        <div class="bg-white/25 backdrop-blur-2xl text-earthtext rounded-[2.5rem] p-6 sm:p-8 shadow-2xl border border-white/40 min-h-[75vh] flex flex-col justify-between">
+        <div class="bg-white/30 backdrop-blur-2xl text-earthtext rounded-[2.5rem] p-6 sm:p-8 shadow-2xl border border-white/50 min-h-[75vh] flex flex-col justify-between">
             <div>
                 ${content}
             </div>
@@ -246,9 +246,9 @@ app.get('/login', (req, res) => {
         <style>
             body {
                 font-family: 'Quicksand', sans-serif;
-                background: radial-gradient(circle at 15% 15%, rgba(251, 191, 36, 0.4) 0%, transparent 35%),
-                            radial-gradient(circle at 85% 85%, rgba(75, 138, 108, 0.5) 0%, transparent 45%),
-                            linear-gradient(135deg, #B2CEBE 0%, #528E72 50%, #204332 100%);
+                background: radial-gradient(circle at 15% 12%, rgba(246, 222, 160, 0.75) 0%, transparent 45%),
+                            radial-gradient(circle at 88% 85%, rgba(110, 175, 145, 0.65) 0%, transparent 50%),
+                            linear-gradient(145deg, #E2F0EA 0%, #A8D1BE 50%, #68A589 100%);
                 background-attachment: fixed;
                 min-height: 100vh;
             }
@@ -260,7 +260,7 @@ app.get('/login', (req, res) => {
             <p class="mt-4 text-white font-bold text-lg animate-pulse">Memuat halaman...</p>
         </div>
 
-        <div class="bg-white/25 backdrop-blur-2xl p-6 sm:p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-white/40 text-earthtext">
+        <div class="bg-white/30 backdrop-blur-2xl p-6 sm:p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-white/50 text-earthtext">
             <div class="text-center mb-6">
                 <h1 class="text-xl sm:text-2xl font-bold text-deepgreen">Portal Walimurid Kelas 2A</h1>
                 <p class="text-xs sm:text-sm text-earthtext/80 mt-1">Assalamualaikum, selamat datang Ayah Bunda. Mohon masukkan Username dan Password</p>
@@ -268,11 +268,11 @@ app.get('/login', (req, res) => {
             <form action="/login" method="POST" class="space-y-4" onsubmit="document.getElementById('login-loading').style.display='flex';">
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/90 mb-1">Username</label>
-                    <input type="text" name="first_name" required class="w-full px-4 py-3 border border-white/50 rounded-2xl focus:ring-2 focus:ring-deepgreen outline-none text-base bg-white/40 backdrop-blur-md transition shadow-sm font-semibold text-earthtext" placeholder="Nama depan siswa">
+                    <input type="text" name="first_name" required class="w-full px-4 py-3 border border-white/60 rounded-2xl focus:ring-2 focus:ring-deepgreen outline-none text-base bg-white/50 backdrop-blur-md transition shadow-sm font-semibold text-earthtext" placeholder="Nama depan siswa">
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/90 mb-1">Password</label>
-                    <input type="password" name="password" required class="w-full px-4 py-3 border border-white/50 rounded-2xl focus:ring-2 focus:ring-deepgreen outline-none text-base bg-white/40 backdrop-blur-md transition shadow-sm font-semibold text-earthtext" placeholder="Password akun">
+                    <input type="password" name="password" required class="w-full px-4 py-3 border border-white/60 rounded-2xl focus:ring-2 focus:ring-deepgreen outline-none text-base bg-white/50 backdrop-blur-md transition shadow-sm font-semibold text-earthtext" placeholder="Password akun">
                 </div>
                 <button type="submit" class="w-full bg-gradient-to-r from-deepgreen to-sagegreen hover:opacity-95 text-white py-3.5 rounded-2xl font-bold shadow-md transition text-base tracking-wide">Masuk</button>
             </form>
@@ -391,19 +391,13 @@ app.get('/summative', checkAuth, async (req, res) => {
 
         const getSubjectBgColor = (subj) => {
             const s = String(subj || '').trim().toLowerCase();
-            if (s === 'matematika') return 'bg-[#D6E6F2]/7ishing backdrop-blur-md border border-white/50'; // Soft distinct blue pastel for Matematika
-            if (s === 'bahasa inggris') return 'bg-white/35 backdrop-blur-md border border-white/50';
-            if (s === 'seni') return 'bg-white/35 backdrop-blur-md border border-white/50';
-            if (s === 'bahasa jawa') return 'bg-white/35 backdrop-blur-md border border-white/50';
-            if (s === 'bahasa indonesia') return 'bg-white/35 backdrop-blur-md border border-white/50';
-            if (s === 'pancasila') return 'bg-white/35 backdrop-blur-md border border-white/50';
-            if (s === 'pai') return 'bg-white/35 backdrop-blur-md border border-white/50';
+            if (s === 'matematika') return 'bg-[#D6E6F2]/70 backdrop-blur-md border border-white/50'; // Soft distinct blue pastel for Matematika
             return 'bg-white/35 backdrop-blur-md border border-white/50';
         };
 
         let periodSelect = `
         <div class="mb-4">
-            <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3.5 border border-white/50 rounded-2xl text-sm font-bold bg-white/60 backdrop-blur-md text-earthtext outline-none focus:ring-2 focus:ring-tangerine shadow-sm">
+            <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3.5 border border-white/60 rounded-2xl text-sm font-bold bg-white/60 backdrop-blur-md text-earthtext outline-none focus:ring-2 focus:ring-tangerine shadow-sm">
                 <option value="month" ${period === 'month' ? 'selected' : ''}>🔍 Filter: Pilih Bulan Tertentu</option>
                 <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>📚 Tampilkan Semester 1 (Agustus - Ujian Smt)</option>
                 <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>📚 Tampilkan Semester 2 (Januari - UKK)</option>
