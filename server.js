@@ -340,7 +340,7 @@ app.get('/dashboard', checkAuth, (req, res) => {
     res.send(layout('Dashboard', content));
 });
 
-// --- HALAMAN MATERI SUMATIF ---
+// --- HALAMAN MATERI SUMATIF (2 mapel per baris) ---
 app.get('/summative', checkAuth, async (req, res) => {
     try {
         const db = await fetchDb();
@@ -381,7 +381,7 @@ app.get('/summative', checkAuth, async (req, res) => {
         if (period === 'month') {
             allMonthsList.forEach(m => {
                 const isActive = m === selectedMonth;
-                monthTabs += `<a href="/summative?period=month&month=${encodeURIComponent(m)}" class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition whitespace-nowrap shadow-sm ${isActive ? 'bg-deepgreen text-white' : 'bg-cream/60 text-earthtext border border-deepgreen/15 hover:bg-cream'}">${m}</a>`;
+                monthTabs += `<a href="/summative?period=month&month=${encodeURIComponent(m)}" class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition whitespace-nowrap shadow-sm ${isActive ? 'bg-softorange text-white' : 'bg-cream/60 text-earthtext border border-deepgreen/15 hover:bg-cream'}">${m}</a>`;
             });
             monthTabs = `<div class="flex overflow-x-auto gap-2 pb-3 mb-4">${monthTabs}</div>`;
         }
@@ -448,7 +448,7 @@ app.get('/summative', checkAuth, async (req, res) => {
         ${periodSelect}
         ${monthTabs}
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
             ${subjectCards}
         </div>
 
@@ -581,7 +581,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
             </div>
 
             <div class="mt-6 flex justify-end">
-                <button type="submit" class="w-full sm:w-auto bg-deepgreen hover:bg-[#184a36] text-white px-8 py-3.5 rounded-2xl font-bold text-sm shadow-md transition">💾 Simpan jadwal pribadi siswa</button>
+                <button type="submit" class="w-full sm:w-auto bg-softorange hover:bg-[#d88949] text-white px-8 py-3.5 rounded-2xl font-bold text-sm shadow-md transition">💾 Simpan jadwal pribadi siswa</button>
             </div>
         </form>
 
