@@ -362,7 +362,7 @@ app.get('/dashboard', checkAuth, (req, res) => {
     res.send(layout('Dashboard', content));
 });
 
-// --- HALAMAN MATERI SUMATIF ---
+// --- HALAMAN MATERI SUMATIF (Tanpa Icon Mapel) ---
 app.get('/summative', checkAuth, async (req, res) => {
     try {
         const db = await fetchDb();
@@ -393,20 +393,6 @@ app.get('/summative', checkAuth, async (req, res) => {
             const s = String(subj || '').trim().toLowerCase();
             if (s === 'matematika') return 'bg-[#D6E6F2]/75 backdrop-blur-md border border-white/70'; 
             return 'bg-white/50 backdrop-blur-md border border-white/70';
-        };
-
-        // Fungsi ikon khusus tiap mata pelajaran sesuai catatan
-        const getSubjectIcon = (subj) => {
-            const s = String(subj || '').trim().toLowerCase();
-            if (s === 'matematika') return '📐';
-            if (s === 'bahasa inggris') return '🔤';
-            if (s === 'seni') return '🎨';
-            if (s === 'bahasa jawa') return '🎭';
-            if (s === 'bahasa indonesia') return '📖';
-            if (s === 'pancasila') return '🦅';
-            if (s === 'pai') return '☪️';
-            if (s === 'bahasa arab') return '🇸🇦';
-            return '📚';
         };
 
         let periodSelect = `
@@ -471,13 +457,12 @@ app.get('/summative', checkAuth, async (req, res) => {
             }
 
             const cardBgColor = getSubjectBgColor(subj);
-            const subjIcon = getSubjectIcon(subj);
 
+            // Tanpa icon mapel sesuai permintaan revisi
             subjectCards += `
             <div class="${cardBgColor} p-6 rounded-[2rem] shadow-sm border border-white/70 flex flex-col backdrop-blur-md">
-                <div class="flex items-center space-x-3 mb-4">
-                    <div class="bg-sagegreen/20 text-deepgreen p-3 rounded-2xl text-xl shadow-sm">${subjIcon}</div>
-                    <h3 class="font-bold text-base text-earthtext">${subj}</h3>
+                <div class="mb-4">
+                    <h3 class="font-bold text-lg text-earthtext">${subj}</h3>
                 </div>
                 <div class="space-y-2 mt-1 max-h-80 overflow-y-auto pr-1">${materialItems}</div>
             </div>`;
@@ -550,7 +535,6 @@ app.get('/calendar', checkAuth, async (req, res) => {
             const isToday = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}` === dateKey;
 
             const hasAgenda = (existingNote.trim() !== '' || globalEvent);
-            // Kalendar akademik yang ada kegiatannya diganti warna orange muda (bg-amber-100/90)
             const cellBgClass = hasAgenda ? 'bg-amber-100/90 border-amber-300 backdrop-blur-md shadow-sm' : (isToday ? 'bg-white/90 border-tangerine ring-2 ring-tangerine/20 shadow-md backdrop-blur-md' : 'bg-white/50 border-white/70 backdrop-blur-md');
 
             let eventHtml = '';
@@ -684,7 +668,7 @@ app.get('/kas', checkAuth, async (req, res) => {
             const trBg = rowIdx % 2 === 0 ? 'bg-white/10' : 'bg-white/30';
             rowIdx++;
             rows += `
-            <tr class="${trBg} border-b border-white/20 hover:bg-white/40 transition">
+            <tr class="${trBg} border-b-2 border-emerald-900/25 hover:bg-white/40 transition">
                 <td class="py-4 px-3 sm:px-4 font-bold text-earthtext">Iuran Kaos</td>
                 <td class="py-4 px-3 text-sm text-earthtext/80 whitespace-nowrap">Rp ${kaosAmount.toLocaleString()}</td>
                 <td class="py-4 px-3 text-center whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-bold ${isKaosPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${isKaosPaid ? 'Lunas' : 'Belum Bayar'}</span></td>
@@ -710,7 +694,7 @@ app.get('/kas', checkAuth, async (req, res) => {
             rowIdx++;
 
             rows += `
-            <tr class="${trBg} border-b border-white/20 hover:bg-white/40 transition">
+            <tr class="${trBg} border-b border-white/30 hover:bg-white/40 transition">
                 <td class="py-4 px-3 sm:px-4 font-bold text-earthtext">${m}</td>
                 <td class="py-4 px-3 text-sm text-earthtext/80 whitespace-nowrap">Rp ${rowAmount.toLocaleString()}</td>
                 <td class="py-4 px-3 text-center whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-bold ${paid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${paid ? 'Lunas' : 'Belum Bayar'}</span></td>
@@ -936,7 +920,6 @@ app.get('/finances', checkAuth, async (req, res) => {
             <div class="bg-red-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-red-200"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Pengeluaran</span><h3 class="text-xl font-bold text-red-800 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
         </div>
 
-        <!-- Saldo Akhir Kas Kelas: background gradient, teks (Total Masuk - Pengeluaran) dihapus -->
         <div class="bg-gradient-to-r from-deepgreen via-[#3A7A61] to-sagegreen backdrop-blur-md text-white p-6 rounded-[2rem] shadow-md border border-white/30 mb-6">
             <div>
                 <span class="text-xs font-bold uppercase tracking-wider text-white/90">Saldo Akhir Kas Kelas</span>
@@ -944,7 +927,6 @@ app.get('/finances', checkAuth, async (req, res) => {
             </div>
         </div>
 
-        <!-- Filter laporan keuangan diperjelas dengan shadow-md -->
         <div class="bg-white/50 backdrop-blur-md p-5 sm:p-6 rounded-[2rem] shadow-md border border-white/70 mb-6">
             <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                 <div>
@@ -994,7 +976,6 @@ app.get('/finances', checkAuth, async (req, res) => {
             </table>
         </div>
 
-        <!-- Pemilihan halaman berupa angka aja ("Halaman X") -->
         <div class="flex justify-center items-center gap-3 mb-6 flex-wrap">
             <a href="?page=1&search=${encodeURIComponent(search)}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white/60 border border-white/75 rounded-2xl text-sm font-bold text-deepgreen hover:bg-white/90 backdrop-blur-sm shadow-sm">First</a>
             ${page > 1 ? `<a href="?page=${page-1}&search=${encodeURIComponent(search)}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white/60 border border-white/75 rounded-2xl text-sm font-bold text-deepgreen hover:bg-white/90 backdrop-blur-sm shadow-sm">Prev</a>` : ''}
@@ -1075,14 +1056,13 @@ app.get('/announcements', checkAuth, async (req, res) => {
             }
 
             const contentText = String(a.content || '').replace(/\\n/g, '\n');
-            const formattedDate = formatDateID(a.date); // Menjadi misal: 27 Agustus 2026
+            const formattedDate = formatDateID(a.date);
 
-            // Bagian pengumuman: tanggal memakai format teks bulan lengkap, ikon toa diganti kalender kecil
             cards += `
             <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70 mb-5">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
                     <h3 class="font-bold text-lg text-earthtext">${a.title}</h3>
-                    <span class="text-xs font-bold bg-white/70 backdrop-blur-sm text-earthtext/80 px-3 py-1 rounded-full border border-white/75 flex items-center space-x-1.5 shadow-sm">
+                    <span class="text-[10px] font-bold bg-white/70 backdrop-blur-sm text-earthtext/80 px-2.5 py-0.5 rounded-full border border-white/75 flex items-center space-x-1 shadow-sm">
                         <span>🗓️</span><span>${formattedDate}</span>
                     </span>
                 </div>
@@ -1434,3 +1414,10 @@ app.post('/admin/add-summative', checkAuth, async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+```eof
+
+Silakan jalankan perintah Git untuk memperbarui repository Anda:
+```bash
+git add .
+git commit -m "UI: Hapus icon pada setiap mata pelajaran di halaman materi sumatif"
+git push origin main
