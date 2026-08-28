@@ -127,7 +127,11 @@ const layout = (title, content) => `
                     colors: {
                         deepgreen: '#215F47',
                         sagegreen: '#4B8A6C',
-                        tangerine: '#E89254',
+                        tangerine: '#FA8128',
+                        merigold: '#FCAE1E',
+                        cider: '#B56727',
+                        cantaloupe: '#FDA172',
+                        sandstone: '#D67229',
                         cream: '#F7F4ED',
                         earthtext: '#2C3B32',
                         cardbg: '#FFFFFF',
@@ -219,7 +223,11 @@ app.get('/login', (req, res) => {
                         colors: {
                             deepgreen: '#215F47',
                             sagegreen: '#4B8A6C',
-                            tangerine: '#E89254',
+                            tangerine: '#FA8128',
+                            merigold: '#FCAE1E',
+                            cider: '#B56727',
+                            cantaloupe: '#FDA172',
+                            sandstone: '#D67229',
                             cream: '#F7F4ED',
                             earthtext: '#2C3B32',
                             cardbg: '#FFFFFF',
@@ -243,13 +251,13 @@ app.get('/login', (req, res) => {
             <form action="/login" method="POST" class="space-y-4" onsubmit="document.getElementById('login-loading').style.display='flex';">
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/80 mb-1">Username</label>
-                    <input type="text" name="first_name" required class="w-full px-4 py-3 border border-deepgreen/20 rounded-2xl focus:ring-2 focus:ring-tangerine outline-none text-base bg-cream/50 transition shadow-sm font-semibold text-earthtext" placeholder="Nama depan siswa">
+                    <input type="text" name="first_name" required class="w-full px-4 py-3 border border-deepgreen/20 rounded-2xl focus:ring-2 focus:ring-tangerine outline-none text-base bg-[#FDA172]/15 transition shadow-sm font-semibold text-earthtext" placeholder="Nama depan siswa">
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/80 mb-1">Password</label>
-                    <input type="password" name="password" required class="w-full px-4 py-3 border border-deepgreen/20 rounded-2xl focus:ring-2 focus:ring-tangerine outline-none text-base bg-cream/50 transition shadow-sm font-semibold text-earthtext" placeholder="Password akun">
+                    <input type="password" name="password" required class="w-full px-4 py-3 border border-deepgreen/20 rounded-2xl focus:ring-2 focus:ring-tangerine outline-none text-base bg-[#FDA172]/15 transition shadow-sm font-semibold text-earthtext" placeholder="Password akun">
                 </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-deepgreen to-sagegreen hover:opacity-95 text-white py-3.5 rounded-2xl font-bold shadow-md transition text-base tracking-wide">Sign In</button>
+                <button type="submit" class="w-full bg-tangerine hover:bg-[#e06d19] text-white py-3.5 rounded-2xl font-bold shadow-md transition text-base tracking-wide">Sign In</button>
             </form>
         </div>
     </body></html>`);
@@ -283,7 +291,7 @@ app.get('/logout', (req, res) => {
 
 app.get('/dashboard', checkAuth, (req, res) => {
     const content = `
-    <div class="mb-6 bg-gradient-to-r from-deepgreen to-sagegreen text-white p-6 sm:p-8 rounded-[2rem] shadow-lg flex justify-between items-center border border-white/15">
+    <div class="mb-6 bg-tangerine text-white p-6 sm:p-8 rounded-[2rem] shadow-lg flex justify-between items-center border border-white/15">
         <div>
             <span class="text-[10px] uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full font-bold text-white">Dashboard Wali Murid</span>
             <h2 class="text-2xl sm:text-3xl font-bold mt-2 text-white">Assalamualaikum, Ayah & Bunda ${String(req.user.first_name)}</h2>
@@ -337,7 +345,7 @@ app.get('/dashboard', checkAuth, (req, res) => {
     res.send(layout('Dashboard', content));
 });
 
-// --- HALAMAN MATERI SUMATIF (2 mapel per baris) ---
+// --- HALAMAN MATERI SUMATIF (2 mapel per baris dengan warna background berbeda tiap mapel) ---
 app.get('/summative', checkAuth, async (req, res) => {
     try {
         const db = await fetchDb();
@@ -364,9 +372,20 @@ app.get('/summative', checkAuth, async (req, res) => {
         let showArabic = (period !== 'month') ? true : arabicAllowed.some(m => selectedMonth.includes(m));
         if (showArabic) subjects.push("Bahasa Arab");
 
+        const subjectBgColors = [
+            'bg-[#F7F4ED]', // Cream
+            'bg-[#F3F8F5]', // Soft Green
+            'bg-[#FEF9E7]', // Soft Yellow
+            'bg-[#FDF2F2]', // Soft Red
+            'bg-[#FDF3E7]', // Soft Tangerine
+            'bg-[#F5F3FF]', // Soft Purple
+            'bg-[#ECFDF5]', // Soft Emerald
+            'bg-[#FFFBEB]'  // Soft Amber
+        ];
+
         let periodSelect = `
         <div class="mb-4">
-            <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3.5 border border-deepgreen/20 rounded-2xl text-sm font-bold bg-cream/50 text-earthtext outline-none focus:ring-2 focus:ring-tangerine shadow-sm">
+            <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3.5 border border-deepgreen/20 rounded-2xl text-sm font-bold bg-[#FDA172]/15 text-earthtext outline-none focus:ring-2 focus:ring-tangerine shadow-sm">
                 <option value="month" ${period === 'month' ? 'selected' : ''}>🔍 Filter: Pilih Bulan Tertentu</option>
                 <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>📚 Tampilkan Semester 1 (Agustus - Ujian Smt)</option>
                 <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>📚 Tampilkan Semester 2 (Januari - UKK)</option>
@@ -385,7 +404,7 @@ app.get('/summative', checkAuth, async (req, res) => {
 
         let subjectCards = '';
         
-        subjects.forEach(subj => {
+        subjects.forEach((subj, index) => {
             const materials = summativeData.filter(s => {
                 const dbMonth = String(s.month || '').trim().toLowerCase();
                 const isMonthMatch = targetMonths.some(tm => {
@@ -411,14 +430,13 @@ app.get('/summative', checkAuth, async (req, res) => {
                     let monthBadge = period !== 'month' ? `<span class="text-[10px] bg-sagegreen/20 text-deepgreen px-2.5 py-0.5 rounded-full mt-1 inline-block font-bold">${mat.month || '-'}</span>` : '';
 
                     materialItems += `
-                    <div class="p-4 bg-cream/40 rounded-2xl border border-deepgreen/15 mb-2.5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div class="p-4 bg-white/70 rounded-2xl border border-deepgreen/15 mb-2.5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
                             <span class="font-bold text-sm text-earthtext block">📄 ${mat.title}</span>
                             ${monthBadge}
                         </div>
                         <div class="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                            <a href="${rawUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-emerald-50 text-emerald-800 border border-emerald-200 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-100 transition">Buka Drive</a>
-                            <a href="${downloadUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-deepgreen text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-sagegreen transition">Download</a>
+                            <a href="${downloadUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-deepgreen text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-sagegreen transition shadow-sm">Download</a>
                         </div>
                     </div>`;
                 });
@@ -426,8 +444,10 @@ app.get('/summative', checkAuth, async (req, res) => {
                 materialItems = `<p class="text-xs text-earthtext/50 italic p-3">Materi belum diunggah untuk periode ini.</p>`;
             }
 
+            const cardBgColor = subjectBgColors[index % subjectBgColors.length];
+
             subjectCards += `
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/15 flex flex-col">
+            <div class="${cardBgColor} p-6 rounded-[2rem] shadow-sm border border-deepgreen/15 flex flex-col">
                 <div class="flex items-center space-x-3 mb-4">
                     <div class="bg-sagegreen/20 text-deepgreen p-3 rounded-2xl text-xl shadow-sm">📖</div>
                     <h3 class="font-bold text-base text-earthtext">${subj}</h3>
@@ -530,7 +550,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
                     ${eventHtml}
                 </div>
                 <div class="mt-2">
-                    <textarea name="notes[${dateKey}]" rows="2" class="w-full text-xs p-2.5 border border-deepgreen/20 rounded-2xl resize-none focus:ring-2 focus:ring-tangerine outline-none bg-cream/40 focus:bg-white transition" placeholder="Catatan pribadi...">${existingNote}</textarea>
+                    <textarea name="notes[${dateKey}]" rows="2" class="w-full text-xs p-2.5 border border-deepgreen/20 rounded-2xl resize-none focus:ring-2 focus:ring-tangerine outline-none bg-[#FDA172]/15 focus:bg-white transition" placeholder="Catatan pribadi...">${existingNote}</textarea>
                 </div>
             </div>`;
         }
@@ -545,14 +565,14 @@ app.get('/calendar', checkAuth, async (req, res) => {
         let monthOptions = monthsList.map(mObj => `<option value="${mObj.v}" ${mObj.v === month ? 'selected' : ''}>${mObj.n}</option>`).join('');
 
         const content = `
-        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#FDF3E7] p-6 rounded-[2rem] shadow-sm border border-tangerine/30">
+        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-tangerine text-white p-6 rounded-[2rem] shadow-sm border border-tangerine/30">
             <div>
-                <h2 class="text-xl sm:text-2xl font-bold text-earthtext">Kalendar Akademik 2026/2027</h2>
-                <p class="text-xs sm:text-sm text-earthtext/70">Agenda kelas, libur nasional, dan catatan jadwal pribadi siswa.</p>
+                <h2 class="text-xl sm:text-2xl font-bold text-white">Kalendar Akademik 2026/2027</h2>
+                <p class="text-xs sm:text-sm text-white/90">Agenda kelas, libur nasional, dan catatan jadwal pribadi siswa.</p>
             </div>
             <form method="GET" class="flex flex-wrap items-center gap-2 sm:space-x-3 w-full md:w-auto">
-                <select name="month" onchange="this.form.submit()" class="border border-deepgreen/25 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white outline-none focus:ring-2 focus:ring-tangerine cursor-pointer text-earthtext">${monthOptions}</select>
-                <input type="number" name="year" value="${year}" onchange="this.form.submit()" class="border border-deepgreen/25 px-3 py-2.5 rounded-2xl text-sm font-bold w-28 bg-white outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
+                <select name="month" onchange="this.form.submit()" class="border border-white/30 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white outline-none focus:ring-2 focus:ring-white cursor-pointer text-earthtext">${monthOptions}</select>
+                <input type="number" name="year" value="${year}" onchange="this.form.submit()" class="border border-white/30 px-3 py-2.5 rounded-2xl text-sm font-bold w-28 bg-white outline-none focus:ring-2 focus:ring-white text-earthtext">
             </form>
         </div>
 
@@ -672,7 +692,7 @@ app.get('/kas', checkAuth, async (req, res) => {
         const content = `
         <div class="mb-6 bg-white p-6 sm:p-8 rounded-[2rem] shadow-sm border border-deepgreen/15">
             <h2 class="text-2xl font-bold mb-4 text-earthtext">Iuran Kas Siswa</h2>
-            <select onchange="window.location.href='?period=' + this.value" class="w-full p-3.5 border border-deepgreen/20 rounded-2xl mb-6 bg-cream/50 text-earthtext font-bold text-sm outline-none focus:ring-2 focus:ring-tangerine">
+            <select onchange="window.location.href='?period=' + this.value" class="w-full p-3.5 border border-deepgreen/20 rounded-2xl mb-6 bg-[#FDA172]/15 text-earthtext font-bold text-sm outline-none focus:ring-2 focus:ring-tangerine">
                 <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>Semester 1 (Juli - Desember 2026)</option>
                 <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>Semester 2 (Januari - Juni 2027)</option>
                 <option value="all" ${period === 'all' ? 'selected' : ''}>Semua Periode</option>
@@ -858,16 +878,16 @@ app.get('/finances', checkAuth, async (req, res) => {
         <div class="mb-6"><h2 class="text-xl sm:text-2xl font-bold text-earthtext">Laporan Keuangan</h2><p class="text-xs sm:text-sm text-earthtext/70">Rincian pemasukan kas, kaos, transaksi lainnya, dan pengeluaran kelas 2A.</p></div>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-[#F7F4ED] p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-[#4B8A6C]"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Total Kas</span><h3 class="text-xl font-bold text-deepgreen mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
-            <div class="bg-[#F3F8F5] p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-[#215F47]"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Total Kaos</span><h3 class="text-xl font-bold text-emerald-800 mt-1">Rp ${totalKaos.toLocaleString()}</h3></div>
-            <div class="bg-[#FEF9E7] p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-[#E89254]"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pendapatan Lain</span><h3 class="text-xl font-bold text-amber-700 mt-1">Rp ${totalLainnya.toLocaleString()}</h3></div>
-            <div class="bg-[#FDF2F2] p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-red-400"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pengeluaran</span><h3 class="text-xl font-bold text-red-600 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
+            <div class="bg-[#FDA172]/20 p-5 rounded-[2rem] shadow-sm border border-deepgreen/15"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Total Kas</span><h3 class="text-xl font-bold text-deepgreen mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
+            <div class="bg-[#FCAE1E]/20 p-5 rounded-[2rem] shadow-sm border border-deepgreen/15"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Total Kaos</span><h3 class="text-xl font-bold text-amber-800 mt-1">Rp ${totalKaos.toLocaleString()}</h3></div>
+            <div class="bg-[#D67229]/20 p-5 rounded-[2rem] shadow-sm border border-deepgreen/15"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pendapatan Lain</span><h3 class="text-xl font-bold text-amber-900 mt-1">Rp ${totalLainnya.toLocaleString()}</h3></div>
+            <div class="bg-[#B56727]/20 p-5 rounded-[2rem] shadow-sm border border-deepgreen/15"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pengeluaran</span><h3 class="text-xl font-bold text-red-900 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
         </div>
 
-        <div class="bg-[#FDF3E7] p-6 rounded-[2rem] shadow-sm border border-tangerine/30 mb-6">
+        <div class="bg-tangerine text-white p-6 rounded-[2rem] shadow-sm border border-tangerine/30 mb-6">
             <div>
-                <span class="text-xs font-bold uppercase tracking-wider text-deepgreen">Saldo Akhir Kas Kelas (Total Masuk - Pengeluaran)</span>
-                <h3 class="text-2xl sm:text-3xl font-bold text-earthtext mt-1">Rp ${balance.toLocaleString()}</h3>
+                <span class="text-xs font-bold uppercase tracking-wider text-white/90">Saldo Akhir Kas Kelas (Total Masuk - Pengeluaran)</span>
+                <h3 class="text-2xl sm:text-3xl font-bold text-white mt-1">Rp ${balance.toLocaleString()}</h3>
             </div>
         </div>
 
@@ -875,17 +895,17 @@ app.get('/finances', checkAuth, async (req, res) => {
             <form method="GET" class="flex flex-wrap items-end gap-4">
                 <div class="flex-grow min-w-[200px]">
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Cari Nama / Keterangan</label>
-                    <input type="text" name="search" value="${search}" placeholder="Cari nama siswa, kaos, dll..." class="w-full border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
+                    <input type="text" name="search" value="${search}" placeholder="Cari nama siswa, kaos, dll..." class="w-full border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-[#FDA172]/15 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Bulan Kas</label>
-                    <select name="monthFilter" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
+                    <select name="monthFilter" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-[#FDA172]/15 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
                         ${monthOptions}
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Jenis</label>
-                    <select name="type" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
+                    <select name="type" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-[#FDA172]/15 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
                         <option value="all" ${typeFilter === 'all' ? 'selected' : ''}>Semua</option>
                         <option value="income" ${typeFilter === 'income' ? 'selected' : ''}>Pemasukan</option>
                         <option value="expense" ${typeFilter === 'expense' ? 'selected' : ''}>Pengeluaran</option>
@@ -893,14 +913,14 @@ app.get('/finances', checkAuth, async (req, res) => {
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Dari Tanggal</label>
-                    <input type="date" name="start_date" value="${startDate}" class="border border-deepgreen/20 px-3 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
+                    <input type="date" name="start_date" value="${startDate}" class="border border-deepgreen/20 px-3 py-2.5 rounded-2xl text-sm font-bold bg-[#FDA172]/15 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Sampai Tanggal</label>
-                    <input type="date" name="end_date" value="${endDate}" class="border border-deepgreen/20 px-3 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
+                    <input type="date" name="end_date" value="${endDate}" class="border border-deepgreen/20 px-3 py-2.5 rounded-2xl text-sm font-bold bg-[#FDA172]/15 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="bg-tangerine hover:bg-[#d88241] text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-sm transition">Filter</button>
+                    <button type="submit" class="bg-tangerine hover:bg-[#e06d19] text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-sm transition">Filter</button>
                     <a href="/finances" class="bg-deepgreen/10 hover:bg-deepgreen/20 text-deepgreen px-4 py-2.5 rounded-2xl text-sm font-bold transition flex items-center justify-center">Reset</a>
                 </div>
             </form>
@@ -984,14 +1004,12 @@ app.get('/announcements', checkAuth, async (req, res) => {
                     imageHtml = `<div class="mt-4"><img src="${embedUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-2xl max-h-80 w-auto object-cover border border-deepgreen/15" onerror="this.parentElement.style.display='none'"></div>`;
                     actionButtonsHtml = `
                     <div class="mt-3 flex flex-wrap gap-2">
-                        <a href="${rawUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold border border-emerald-200 transition"><span>📁</span><span>Buka di Google Drive</span></a>
                         <a href="${downloadUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-deepgreen hover:bg-sagegreen text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
                     </div>`;
                 } else {
                     imageHtml = `<div class="mt-4"><img src="${rawUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-2xl max-h-80 w-auto object-cover border border-deepgreen/15" onerror="this.parentElement.style.display='none'"></div>`;
                     actionButtonsHtml = `
                     <div class="mt-3 flex flex-wrap gap-2">
-                        <a href="${rawUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold border border-emerald-200 transition"><span>🔗</span><span>Buka Link</span></a>
                         <a href="${rawUrl}" download target="_blank" class="inline-flex items-center space-x-2 bg-deepgreen hover:bg-sagegreen text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
                     </div>`;
                 }
@@ -999,7 +1017,7 @@ app.get('/announcements', checkAuth, async (req, res) => {
 
             const contentText = String(a.content || '').replace(/\\n/g, '\n');
             cards += `
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm border-l-4 border-l-tangerine border border-deepgreen/15 mb-5">
+            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/15 mb-5">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
                     <h3 class="font-bold text-lg text-earthtext flex items-center space-x-2"><span>📢</span><span>${a.title}</span></h3>
                     <span class="text-xs font-bold bg-cream text-earthtext px-3 py-1 rounded-full border border-deepgreen/15">${formatDateID(a.date)}</span>
@@ -1017,8 +1035,8 @@ app.get('/announcements', checkAuth, async (req, res) => {
         </div>
         <div class="bg-white p-4 rounded-[2rem] shadow-sm border border-deepgreen/15 mb-6">
             <form method="GET" class="flex flex-wrap gap-3 items-center">
-                <input type="text" name="search" value="${search}" placeholder="Cari judul/isi pengumuman..." class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-tangerine flex-grow text-earthtext">
-                <select name="filter" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
+                <input type="text" name="search" value="${search}" placeholder="Cari judul/isi pengumuman..." class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-[#FDA172]/15 outline-none focus:ring-2 focus:ring-tangerine flex-grow text-earthtext">
+                <select name="filter" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-[#FDA172]/15 outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
                     <option value="all" ${filter === 'all' ? 'selected' : ''}>Semua Waktu</option>
                     <option value="weekly" ${filter === 'weekly' ? 'selected' : ''}>Minggu Ini</option>
                 </select>
@@ -1043,11 +1061,11 @@ app.get('/change-password', checkAuth, (req, res) => {
         <form action="/change-password" method="POST" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/70 mb-1">Password Lama</label>
-                <input type="password" name="oldPassword" required class="w-full px-4 py-2.5 border border-deepgreen/20 rounded-2xl outline-none focus:ring-2 focus:ring-tangerine bg-cream/50 text-earthtext font-bold">
+                <input type="password" name="oldPassword" required class="w-full px-4 py-2.5 border border-deepgreen/20 rounded-2xl outline-none focus:ring-2 focus:ring-tangerine bg-[#FDA172]/15 text-earthtext font-bold">
             </div>
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/70 mb-1">Password Baru</label>
-                <input type="password" name="newPassword" required class="w-full px-4 py-2.5 border border-deepgreen/20 rounded-2xl outline-none focus:ring-2 focus:ring-tangerine bg-cream/50 text-earthtext font-bold">
+                <input type="password" name="newPassword" required class="w-full px-4 py-2.5 border border-deepgreen/20 rounded-2xl outline-none focus:ring-2 focus:ring-tangerine bg-[#FDA172]/15 text-earthtext font-bold">
             </div>
             <button type="submit" class="w-full bg-deepgreen text-white py-3 rounded-2xl font-bold hover:bg-sagegreen transition shadow-md">Simpan Password Baru</button>
         </form>
@@ -1130,7 +1148,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                     <input type="hidden" name="user_id" value="${targetUserId}">
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Pilih Nama Siswa:</label>
-                        <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border border-deepgreen/20 p-3 rounded-2xl w-full sm:w-72 bg-cream/50 font-bold text-sm outline-none focus:ring-2 focus:ring-tangerine text-earthtext">${studentOptions}</select>
+                        <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border border-deepgreen/20 p-3 rounded-2xl w-full sm:w-72 bg-[#FDA172]/15 font-bold text-sm outline-none focus:ring-2 focus:ring-tangerine text-earthtext">${studentOptions}</select>
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -1149,22 +1167,22 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                 <form action="/admin/add-transaction" method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Tanggal</label>
-                        <input type="date" name="date" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                        <input type="date" name="date" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 text-earthtext font-bold">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Tipe</label>
-                        <select name="type" class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                        <select name="type" class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 text-earthtext font-bold">
                             <option value="income">Pemasukan</option>
                             <option value="expense">Pengeluaran</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Keterangan</label>
-                        <input type="text" name="desc" placeholder="Contoh: Beli alat kelas" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                        <input type="text" name="desc" placeholder="Contoh: Beli alat kelas" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 text-earthtext font-bold">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Jumlah (Rp)</label>
-                        <input type="number" name="amount" placeholder="50000" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                        <input type="number" name="amount" placeholder="50000" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 text-earthtext font-bold">
                     </div>
                     <div class="w-full">
                         <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-2.5 px-4 rounded-2xl font-bold text-sm h-[42px] shadow-sm">Simpan Transaksi</button>
@@ -1179,7 +1197,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Pilih Bulan / Ujian</label>
-                            <select name="month" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                            <select name="month" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 text-earthtext font-bold">
                                 <option value="Juni 2026">Juni 2026</option>
                                 <option value="Juli 2026">Juli 2026</option>
                                 <option value="Agustus 2026">Agustus 2026</option>
@@ -1198,7 +1216,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Mata Pelajaran</label>
-                            <select name="subject" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                            <select name="subject" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 text-earthtext font-bold">
                                 <option value="Matematika">Matematika</option>
                                 <option value="Bahasa Inggris">Bahasa Inggris</option>
                                 <option value="Seni">Seni</option>
@@ -1212,11 +1230,11 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Judul Materi / Bab</label>
-                        <input type="text" name="title" placeholder="Contoh: Bab 1 Penjumlahan & Pengurangan" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                        <input type="text" name="title" placeholder="Contoh: Bab 1 Penjumlahan & Pengurangan" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 text-earthtext font-bold">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Link Google Drive File</label>
-                        <input type="url" name="link" placeholder="https://drive.google.com/file/d/..." required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                        <input type="url" name="link" placeholder="https://drive.google.com/file/d/..." required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 text-earthtext font-bold">
                     </div>
                     <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-3 rounded-2xl font-bold text-sm shadow-sm transition">Simpan Materi Sumatif</button>
                 </form>
@@ -1229,15 +1247,15 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                     <form action="/admin/add-event" method="POST" class="space-y-3">
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Tanggal</label>
-                            <input type="date" name="date" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                            <input type="date" name="date" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 text-earthtext font-bold">
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Judul Agenda</label>
-                            <input type="text" name="title" placeholder="Contoh: Ujian Tengah Semester" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                            <input type="text" name="title" placeholder="Contoh: Ujian Tengah Semester" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 text-earthtext font-bold">
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Keterangan</label>
-                            <input type="text" name="description" placeholder="Keterangan singkat kegiatan" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                            <input type="text" name="description" placeholder="Keterangan singkat kegiatan" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 text-earthtext font-bold">
                         </div>
                         <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-2.5 rounded-2xl font-bold text-sm shadow-sm">Simpan Kalender</button>
                     </form>
@@ -1247,11 +1265,11 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                     <h3 class="font-bold text-lg text-earthtext mb-3">📢 Buat Pengumuman Sekolah</h3>
                     <form action="/admin/add-announcement" method="POST" class="space-y-3">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <input type="date" name="date" required class="border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
-                            <input type="text" name="title" placeholder="Judul Pengumuman" required class="border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                            <input type="date" name="date" required class="border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 text-earthtext font-bold">
+                            <input type="text" name="title" placeholder="Judul Pengumuman" required class="border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 text-earthtext font-bold">
                         </div>
-                        <textarea name="content" rows="2" placeholder="Isi pengumuman..." required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 resize-none text-earthtext font-bold"></textarea>
-                        <input type="url" name="lampiran" placeholder="Link Google Drive (Opsional)" class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                        <textarea name="content" rows="2" placeholder="Isi pengumuman..." required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 resize-none text-earthtext font-bold"></textarea>
+                        <input type="url" name="lampiran" placeholder="Link Google Drive (Opsional)" class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-[#FDA172]/15 text-earthtext font-bold">
                         <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-2.5 rounded-2xl font-bold text-sm shadow-sm">Publikasikan</button>
                     </form>
                 </div>
