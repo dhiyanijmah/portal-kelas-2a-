@@ -632,8 +632,8 @@ app.get('/kas', checkAuth, async (req, res) => {
         const userKas = db.kas.filter(k => String(k.user_id) === String(req.user.id));
         const period = req.query.period || 'sem1';
 
-        const sem1Months = ["Juli 2026", "Agustus", "September", "Oktober", "November", "Desember"];
-        const sem2Months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni"];
+        const sem1Months = ["Juli 2026", "Agustus 2026", "September 2026", "Oktober 2026", "November 2026", "Desember 2026"];
+        const sem2Months = ["Januari 2027", "Februari 2027", "Maret 2027", "April 2027", "Mei 2027", "Juni 2027"];
         let targetMonths = (period === 'sem2') ? sem2Months : (period === 'all' ? [...sem1Months, ...sem2Months] : sem1Months);
 
         const isPaid = (status) => String(status || '').trim().toLowerCase() === 'lunas';
@@ -661,9 +661,9 @@ app.get('/kas', checkAuth, async (req, res) => {
             </tr>`;
             if (!isKaosPaid) {
                 checkboxes += `
-                <label class="flex items-center gap-3 p-3 bg-white rounded-2xl cursor-pointer hover:bg-cream border border-deepgreen/15">
+                <label class="flex items-center gap-3 p-3 bg-white rounded-2xl cursor-pointer hover:bg-cream border border-deepgreen/15 transition">
                     <input type="checkbox" class="w-4 h-4 calc-item accent-[#FDA172]" data-price="${kaosAmount}" onchange="calcTotal()">
-                    <span class="text-sm font-bold text-earthtext">Iuran Kaos (Rp ${kaosAmount.toLocaleString()})</span>
+                    <span class="text-sm font-bold text-earthtext">Iuran Kaos</span>
                 </label>`;
             }
         }
@@ -682,9 +682,9 @@ app.get('/kas', checkAuth, async (req, res) => {
             
             if (!paid) {
                 checkboxes += `
-                <label class="flex items-center gap-3 p-3 bg-white rounded-2xl cursor-pointer hover:bg-cream border border-deepgreen/15">
+                <label class="flex items-center gap-3 p-3 bg-white rounded-2xl cursor-pointer hover:bg-cream border border-deepgreen/15 transition">
                     <input type="checkbox" class="w-4 h-4 calc-item accent-[#FDA172]" data-price="${rowAmount}" onchange="calcTotal()">
-                    <span class="text-sm font-bold text-earthtext">${m} (Rp ${rowAmount.toLocaleString()})</span>
+                    <span class="text-sm font-bold text-earthtext">${m}</span>
                 </label>`;
             }
         });
@@ -721,7 +721,7 @@ app.get('/kas', checkAuth, async (req, res) => {
                             <p>BCA: 0971149581</p>
                             <p>BNI: 286855891</p>
                             <p>a.n. Nisa Syakrina</p>
-                            <a href="https://wa.me/6285800327444" target="_blank" class="inline-flex items-center justify-center gap-2 w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-xs transition shadow-sm mt-3"><span>💬</span><span>WhatsApp Mba Nisa</span></a>
+                            <a href="https://wa.me/6285800327444" target="_blank" class="inline-flex items-center justify-center w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition shadow-sm mt-3">Konfirmasi Transfer</a>
                         </div>
                         
                         <div class="mt-4 pt-3 border-t border-deepgreen/15 font-bold text-earthtext text-sm text-center">Total Pembayaran: Rp <span id="totalDisplay">0</span></div>
@@ -733,7 +733,13 @@ app.get('/kas', checkAuth, async (req, res) => {
         <script>
             function calcTotal() {
                 let total = 0;
-                document.querySelectorAll('.calc-item:checked').forEach(c => total += parseInt(c.dataset.price));
+                document.querySelectorAll('.calc-item').forEach(c => {
+                    const label = c.closest('label');
+                    if (c.checked) {
+                        total += parseInt(c.dataset.price);
+                        label.style.backgroundColor = '#ffffff';
+                    }
+                });
                 document.getElementById('totalDisplay').innerText = total.toLocaleString();
             }
             function selectAll(source) {
