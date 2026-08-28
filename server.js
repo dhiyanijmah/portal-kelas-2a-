@@ -390,7 +390,13 @@ app.get('/summative', checkAuth, async (req, res) => {
 
         const getSubjectBgColor = (subj) => {
             const s = String(subj || '').trim().toLowerCase();
-            if (s === 'matematika') return 'bg-[#D6E6F2]/75 backdrop-blur-md border border-white/70'; 
+            if (s === 'matematika') return 'bg-purple-100/75 backdrop-blur-md border border-white/70'; // Ungu muda
+            if (s === 'bahasa inggris') return 'bg-blue-100/75 backdrop-blur-md border border-white/70'; // Biru muda
+            if (s === 'seni') return 'bg-amber-100/75 backdrop-blur-md border border-white/70'; // Kuning muda
+            if (s === 'bahasa jawa') return 'bg-[#EEDFCC]/75 backdrop-blur-md border border-white/70'; // Cokelat muda
+            if (s === 'bahasa indonesia') return 'bg-rose-100/75 backdrop-blur-md border border-white/70'; // Merah muda
+            if (s === 'pancasila') return 'bg-yellow-100/75 backdrop-blur-md border border-white/70'; // Emas muda
+            if (s === 'pai') return 'bg-emerald-100/75 backdrop-blur-md border border-white/70'; // Hijau muda
             return 'bg-white/50 backdrop-blur-md border border-white/70';
         };
 
@@ -1418,3 +1424,4 @@ app.post('/admin/add-summative', checkAuth, async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+```eof
