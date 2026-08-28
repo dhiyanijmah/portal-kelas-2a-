@@ -1424,4 +1424,3 @@ app.post('/admin/add-summative', checkAuth, async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-```eof
