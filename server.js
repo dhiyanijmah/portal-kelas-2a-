@@ -31,7 +31,7 @@ async function fetchDb() {
     }
 }
 
-// Fungsi format tanggal ke format Indonesia yang rapi (Bulan ditulis lengkap, misal: Agustus)
+// Fungsi format tanggal ke format Indonesia yang rapi (misal: 27 Agustus 2026)
 const formatDateID = (dateStr) => {
     if (!dateStr || dateStr === "-") return "-";
     try {
@@ -395,9 +395,23 @@ app.get('/summative', checkAuth, async (req, res) => {
             return 'bg-white/50 backdrop-blur-md border border-white/70';
         };
 
+        // Fungsi ikon khusus tiap mata pelajaran sesuai catatan
+        const getSubjectIcon = (subj) => {
+            const s = String(subj || '').trim().toLowerCase();
+            if (s === 'matematika') return '📐';
+            if (s === 'bahasa inggris') return '🔤';
+            if (s === 'seni') return '🎨';
+            if (s === 'bahasa jawa') return '🎭';
+            if (s === 'bahasa indonesia') return '📖';
+            if (s === 'pancasila') return '🦅';
+            if (s === 'pai') return '☪️';
+            if (s === 'bahasa arab') return '🇸🇦';
+            return '📚';
+        };
+
         let periodSelect = `
         <div class="mb-4">
-            <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3.5 border border-white/70 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md text-earthtext outline-none focus:ring-2 focus:ring-tangerine shadow-sm">
+            <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3.5 border border-white/70 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md text-earthtext outline-none focus:ring-2 focus:ring-tangerine shadow-md">
                 <option value="month" ${period === 'month' ? 'selected' : ''}>🔍 Filter: Pilih Bulan Tertentu</option>
                 <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>📚 Tampilkan Semester 1 (Agustus - Ujian Smt)</option>
                 <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>📚 Tampilkan Semester 2 (Januari - UKK)</option>
@@ -457,11 +471,12 @@ app.get('/summative', checkAuth, async (req, res) => {
             }
 
             const cardBgColor = getSubjectBgColor(subj);
+            const subjIcon = getSubjectIcon(subj);
 
             subjectCards += `
             <div class="${cardBgColor} p-6 rounded-[2rem] shadow-sm border border-white/70 flex flex-col backdrop-blur-md">
                 <div class="flex items-center space-x-3 mb-4">
-                    <div class="bg-sagegreen/20 text-deepgreen p-3 rounded-2xl text-xl shadow-sm">📖</div>
+                    <div class="bg-sagegreen/20 text-deepgreen p-3 rounded-2xl text-xl shadow-sm">${subjIcon}</div>
                     <h3 class="font-bold text-base text-earthtext">${subj}</h3>
                 </div>
                 <div class="space-y-2 mt-1 max-h-80 overflow-y-auto pr-1">${materialItems}</div>
@@ -535,7 +550,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
             const isToday = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}` === dateKey;
 
             const hasAgenda = (existingNote.trim() !== '' || globalEvent);
-            // Sesuai catatan: Kalendar akademik yang ada kegiatannya diganti warna orange muda (bg-amber-100/90)
+            // Kalendar akademik yang ada kegiatannya diganti warna orange muda (bg-amber-100/90)
             const cellBgClass = hasAgenda ? 'bg-amber-100/90 border-amber-300 backdrop-blur-md shadow-sm' : (isToday ? 'bg-white/90 border-tangerine ring-2 ring-tangerine/20 shadow-md backdrop-blur-md' : 'bg-white/50 border-white/70 backdrop-blur-md');
 
             let eventHtml = '';
@@ -581,11 +596,10 @@ app.get('/calendar', checkAuth, async (req, res) => {
         <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-deepgreen/90 backdrop-blur-md text-white p-6 rounded-[2rem] shadow-sm border border-white/30">
             <div>
                 <h2 class="text-xl sm:text-2xl font-bold text-white">Kalendar Akademik 2026/2027</h2>
-                <p class="text-xs sm:text-sm text-white/90">Catatan jadwal pribadi siswa dan libur nasional.</p>
             </div>
             <form method="GET" class="flex flex-wrap items-center gap-2 sm:space-x-3 w-full md:w-auto">
-                <select name="month" onchange="this.form.submit()" class="border border-white/40 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/90 backdrop-blur-sm outline-none focus:ring-2 focus:ring-white cursor-pointer text-earthtext">${monthOptions}</select>
-                <input type="number" name="year" value="${year}" onchange="this.form.submit()" class="border border-white/40 px-3 py-2.5 rounded-2xl text-sm font-bold w-28 bg-white/90 backdrop-blur-sm outline-none focus:ring-2 focus:ring-white text-earthtext">
+                <select name="month" onchange="this.form.submit()" class="border border-white/40 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/90 backdrop-blur-sm outline-none focus:ring-2 focus:ring-white cursor-pointer text-earthtext shadow-md">${monthOptions}</select>
+                <input type="number" name="year" value="${year}" onchange="this.form.submit()" class="border border-white/40 px-3 py-2.5 rounded-2xl text-sm font-bold w-28 bg-white/90 backdrop-blur-sm outline-none focus:ring-2 focus:ring-white text-earthtext shadow-md">
             </form>
         </div>
 
@@ -660,20 +674,22 @@ app.get('/kas', checkAuth, async (req, res) => {
         };
 
         let rows = '', checkboxes = '';
+        let rowIdx = 0;
         
         const kaosFound = userKas.find(k => String(k.month || '').trim().toLowerCase().includes('kaos'));
         const kaosAmount = getRowAmount(kaosFound, true);
         const isKaosPaid = isPaid(kaosFound?.status);
         
         if (period !== 'sem2') {
+            const trBg = rowIdx % 2 === 0 ? 'bg-white/10' : 'bg-white/30';
+            rowIdx++;
             rows += `
-            <tr class="border-b border-white/20 hover:bg-white/20 transition">
+            <tr class="${trBg} border-b border-white/20 hover:bg-white/40 transition">
                 <td class="py-4 px-3 sm:px-4 font-bold text-earthtext">Iuran Kaos</td>
                 <td class="py-4 px-3 text-sm text-earthtext/80 whitespace-nowrap">Rp ${kaosAmount.toLocaleString()}</td>
                 <td class="py-4 px-3 text-center whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-bold ${isKaosPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${isKaosPaid ? 'Lunas' : 'Belum Bayar'}</span></td>
             </tr>`;
             if (!isKaosPaid) {
-                // Tanda centang putih/clean dengan accent hijau tua (#215F47)
                 checkboxes += `
                 <label class="flex items-center justify-between gap-3 p-3.5 bg-white/60 backdrop-blur-sm rounded-2xl cursor-pointer hover:bg-white/90 border border-white/75 transition shadow-sm">
                     <div class="flex items-center gap-3">
@@ -690,8 +706,11 @@ app.get('/kas', checkAuth, async (req, res) => {
             const paid = isPaid(found?.status);
             const rowAmount = getRowAmount(found, false);
             
+            const trBg = rowIdx % 2 === 0 ? 'bg-white/10' : 'bg-white/30';
+            rowIdx++;
+
             rows += `
-            <tr class="border-b border-white/20 hover:bg-white/20 transition">
+            <tr class="${trBg} border-b border-white/20 hover:bg-white/40 transition">
                 <td class="py-4 px-3 sm:px-4 font-bold text-earthtext">${m}</td>
                 <td class="py-4 px-3 text-sm text-earthtext/80 whitespace-nowrap">Rp ${rowAmount.toLocaleString()}</td>
                 <td class="py-4 px-3 text-center whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-bold ${paid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${paid ? 'Lunas' : 'Belum Bayar'}</span></td>
@@ -712,7 +731,7 @@ app.get('/kas', checkAuth, async (req, res) => {
         const content = `
         <div class="mb-6 bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-[2rem] shadow-sm border border-white/70">
             <h2 class="text-2xl font-bold mb-4 text-earthtext">Iuran Kas Siswa</h2>
-            <select onchange="window.location.href='?period=' + this.value" class="w-full p-3.5 border border-white/70 rounded-2xl mb-6 bg-white/70 backdrop-blur-md text-earthtext font-bold text-sm outline-none focus:ring-2 focus:ring-tangerine">
+            <select onchange="window.location.href='?period=' + this.value" class="w-full p-3.5 border border-white/70 rounded-2xl mb-6 bg-white/70 backdrop-blur-md text-earthtext font-bold text-sm outline-none focus:ring-2 focus:ring-tangerine shadow-md">
                 <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>Semester 1 (Juli - Desember 2026)</option>
                 <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>Semester 2 (Januari - Juni 2027)</option>
                 <option value="all" ${period === 'all' ? 'selected' : ''}>Semua Periode</option>
@@ -904,7 +923,7 @@ app.get('/finances', checkAuth, async (req, res) => {
 
         let pageOptions = '';
         for (let i = 1; i <= totalPages; i++) {
-            pageOptions += `<option value="?page=${i}&search=${encodeURIComponent(search)}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" ${i === page ? 'selected' : ''}>Halaman ${i} dari ${totalPages}</option>`;
+            pageOptions += `<option value="?page=${i}&search=${encodeURIComponent(search)}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" ${i === page ? 'selected' : ''}>Halaman ${i}</option>`;
         }
 
         const content = `
@@ -917,30 +936,30 @@ app.get('/finances', checkAuth, async (req, res) => {
             <div class="bg-red-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-red-200"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Pengeluaran</span><h3 class="text-xl font-bold text-red-800 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
         </div>
 
-        <!-- Sesuai catatan: Saldo akhir kas kelas, warnanya hijau tua aja (bg-deepgreen/90) -->
-        <div class="bg-deepgreen/90 backdrop-blur-md text-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/40 mb-6">
+        <!-- Saldo Akhir Kas Kelas: background gradient, teks (Total Masuk - Pengeluaran) dihapus -->
+        <div class="bg-gradient-to-r from-deepgreen via-[#3A7A61] to-sagegreen backdrop-blur-md text-white p-6 rounded-[2rem] shadow-md border border-white/30 mb-6">
             <div>
-                <span class="text-xs font-bold uppercase tracking-wider text-white/90">Saldo Akhir Kas Kelas (Total Masuk - Pengeluaran)</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-white/90">Saldo Akhir Kas Kelas</span>
                 <h3 class="text-2xl sm:text-3xl font-bold text-white mt-1">Rp ${balance.toLocaleString()}</h3>
             </div>
         </div>
 
-        <!-- Sesuai catatan: Besaran kotak di filter laporan keuangan disamakan panjangnya (w-full) -->
-        <div class="bg-white/50 backdrop-blur-md p-5 sm:p-6 rounded-[2rem] shadow-sm border border-white/70 mb-6">
+        <!-- Filter laporan keuangan diperjelas dengan shadow-md -->
+        <div class="bg-white/50 backdrop-blur-md p-5 sm:p-6 rounded-[2rem] shadow-md border border-white/70 mb-6">
             <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                 <div>
                     <label class="block text-xs font-bold text-earthtext/80 uppercase mb-1">Cari Nama / Keterangan</label>
-                    <input type="text" name="search" value="${search}" placeholder="Cari nama siswa, kaos, dll..." class="w-full border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
+                    <input type="text" name="search" value="${search}" placeholder="Cari nama siswa, kaos, dll..." class="w-full border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext shadow-sm">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/80 uppercase mb-1">Bulan Kas</label>
-                    <select name="monthFilter" class="w-full border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
+                    <select name="monthFilter" class="w-full border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext shadow-sm">
                         ${monthOptions}
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/80 uppercase mb-1">Jenis</label>
-                    <select name="type" class="w-full border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
+                    <select name="type" class="w-full border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext shadow-sm">
                         <option value="all" ${typeFilter === 'all' ? 'selected' : ''}>Semua</option>
                         <option value="income" ${typeFilter === 'income' ? 'selected' : ''}>Pemasukan</option>
                         <option value="expense" ${typeFilter === 'expense' ? 'selected' : ''}>Pengeluaran</option>
@@ -948,15 +967,15 @@ app.get('/finances', checkAuth, async (req, res) => {
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/80 uppercase mb-1">Dari Tanggal</label>
-                    <input type="date" name="start_date" value="${startDate}" class="w-full border border-white/70 px-3 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
+                    <input type="date" name="start_date" value="${startDate}" class="w-full border border-white/70 px-3 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext shadow-sm">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/80 uppercase mb-1">Sampai Tanggal</label>
-                    <input type="date" name="end_date" value="${endDate}" class="w-full border border-white/70 px-3 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
+                    <input type="date" name="end_date" value="${endDate}" class="w-full border border-white/70 px-3 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext shadow-sm">
                 </div>
                 <div class="flex gap-2 w-full">
                     <button type="submit" class="flex-1 bg-deepgreen hover:bg-sagegreen text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-sm transition">Filter</button>
-                    <a href="/finances" class="flex-1 bg-white/50 hover:bg-white/80 text-deepgreen px-4 py-2.5 rounded-2xl text-sm font-bold transition flex items-center justify-center border border-white/70">Reset</a>
+                    <a href="/finances" class="flex-1 bg-white/50 hover:bg-white/80 text-deepgreen px-4 py-2.5 rounded-2xl text-sm font-bold transition flex items-center justify-center border border-white/70 shadow-sm">Reset</a>
                 </div>
             </form>
         </div>
@@ -975,7 +994,7 @@ app.get('/finances', checkAuth, async (req, res) => {
             </table>
         </div>
 
-        <!-- Sesuai catatan: Bisa pilih mau lihat halaman berapa langsung menggunakan dropdown -->
+        <!-- Pemilihan halaman berupa angka aja ("Halaman X") -->
         <div class="flex justify-center items-center gap-3 mb-6 flex-wrap">
             <a href="?page=1&search=${encodeURIComponent(search)}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white/60 border border-white/75 rounded-2xl text-sm font-bold text-deepgreen hover:bg-white/90 backdrop-blur-sm shadow-sm">First</a>
             ${page > 1 ? `<a href="?page=${page-1}&search=${encodeURIComponent(search)}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white/60 border border-white/75 rounded-2xl text-sm font-bold text-deepgreen hover:bg-white/90 backdrop-blur-sm shadow-sm">Prev</a>` : ''}
@@ -1056,11 +1075,16 @@ app.get('/announcements', checkAuth, async (req, res) => {
             }
 
             const contentText = String(a.content || '').replace(/\\n/g, '\n');
+            const formattedDate = formatDateID(a.date); // Menjadi misal: 27 Agustus 2026
+
+            // Bagian pengumuman: tanggal memakai format teks bulan lengkap, ikon toa diganti kalender kecil
             cards += `
             <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70 mb-5">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
-                    <h3 class="font-bold text-lg text-earthtext flex items-center space-x-2"><span>📢</span><span>${a.title}</span></h3>
-                    <span class="text-xs font-bold bg-white/70 backdrop-blur-sm text-earthtext px-3 py-1 rounded-full border border-white/75">${formatDateID(a.date)}</span>
+                    <h3 class="font-bold text-lg text-earthtext">${a.title}</h3>
+                    <span class="text-xs font-bold bg-white/70 backdrop-blur-sm text-earthtext/80 px-3 py-1 rounded-full border border-white/75 flex items-center space-x-1.5 shadow-sm">
+                        <span>🗓️</span><span>${formattedDate}</span>
+                    </span>
                 </div>
                 <p class="text-earthtext/85 text-sm leading-relaxed whitespace-pre-wrap break-words font-medium">${contentText}</p>
                 ${imageHtml}
@@ -1070,7 +1094,7 @@ app.get('/announcements', checkAuth, async (req, res) => {
 
         let pageOptions = '';
         for (let i = 1; i <= totalPages; i++) {
-            pageOptions += `<option value="?page=${i}&search=${encodeURIComponent(search)}&filter=${filter}" ${i === page ? 'selected' : ''}>Halaman ${i} dari ${totalPages}</option>`;
+            pageOptions += `<option value="?page=${i}&search=${encodeURIComponent(search)}&filter=${filter}" ${i === page ? 'selected' : ''}>Halaman ${i}</option>`;
         }
 
         const content = `
@@ -1078,14 +1102,14 @@ app.get('/announcements', checkAuth, async (req, res) => {
             <h2 class="text-xl sm:text-2xl font-bold text-earthtext">Pengumuman Sekolah</h2>
             <p class="text-xs sm:text-sm text-earthtext/80">Informasi dan pengumuman resmi dari pihak sekolah untuk walimurid kelas 2A.</p>
         </div>
-        <div class="bg-white/50 backdrop-blur-md p-4 rounded-[2rem] shadow-sm border border-white/70 mb-6">
+        <div class="bg-white/50 backdrop-blur-md p-4 rounded-[2rem] shadow-md border border-white/70 mb-6">
             <form method="GET" class="flex flex-wrap gap-3 items-center">
-                <input type="text" name="search" value="${search}" placeholder="Cari judul/isi pengumuman..." class="border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine flex-grow text-earthtext">
-                <select name="filter" class="border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext">
+                <input type="text" name="search" value="${search}" placeholder="Cari judul/isi pengumuman..." class="border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine flex-grow text-earthtext shadow-sm">
+                <select name="filter" class="border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext shadow-sm">
                     <option value="all" ${filter === 'all' ? 'selected' : ''}>Semua Waktu</option>
                     <option value="weekly" ${filter === 'weekly' ? 'selected' : ''}>Minggu Ini</option>
                 </select>
-                <button type="submit" class="bg-deepgreen text-white px-5 py-2.5 rounded-2xl text-sm font-bold hover:bg-sagegreen transition">Cari</button>
+                <button type="submit" class="bg-deepgreen text-white px-5 py-2.5 rounded-2xl text-sm font-bold hover:bg-sagegreen transition shadow-sm">Cari</button>
             </form>
         </div>
         <div class="space-y-4">${cards || '<div class="bg-white/50 backdrop-blur-md p-8 rounded-[2rem] text-center text-earthtext/60 border border-white/70 font-bold">Tidak ada pengumuman yang ditemukan.</div>'}</div>
@@ -1110,11 +1134,11 @@ app.get('/change-password', checkAuth, (req, res) => {
         <form action="/change-password" method="POST" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/80 mb-1">Password Lama</label>
-                <input type="password" name="oldPassword" required class="w-full px-4 py-2.5 border border-white/70 rounded-2xl outline-none focus:ring-2 focus:ring-tangerine bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                <input type="password" name="oldPassword" required class="w-full px-4 py-2.5 border border-white/70 rounded-2xl outline-none focus:ring-2 focus:ring-tangerine bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
             </div>
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/80 mb-1">Password Baru</label>
-                <input type="password" name="newPassword" required class="w-full px-4 py-2.5 border border-white/70 rounded-2xl outline-none focus:ring-2 focus:ring-tangerine bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                <input type="password" name="newPassword" required class="w-full px-4 py-2.5 border border-white/70 rounded-2xl outline-none focus:ring-2 focus:ring-tangerine bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
             </div>
             <button type="submit" class="w-full bg-deepgreen text-white py-3 rounded-2xl font-bold hover:bg-sagegreen transition shadow-md">Simpan Password Baru</button>
         </form>
@@ -1197,7 +1221,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                     <input type="hidden" name="user_id" value="${targetUserId}">
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Pilih Nama Siswa:</label>
-                        <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border border-white/70 p-3 rounded-2xl w-full sm:w-72 bg-white/70 backdrop-blur-md font-bold text-sm outline-none focus:ring-2 focus:ring-tangerine text-earthtext">${studentOptions}</select>
+                        <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border border-white/70 p-3 rounded-2xl w-full sm:w-72 bg-white/70 backdrop-blur-md font-bold text-sm outline-none focus:ring-2 focus:ring-tangerine text-earthtext shadow-sm">${studentOptions}</select>
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -1216,22 +1240,22 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                 <form action="/admin/add-transaction" method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Tanggal</label>
-                        <input type="date" name="date" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                        <input type="date" name="date" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Tipe</label>
-                        <select name="type" class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                        <select name="type" class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
                             <option value="income">Pemasukan</option>
                             <option value="expense">Pengeluaran</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Keterangan</label>
-                        <input type="text" name="desc" placeholder="Contoh: Beli alat kelas" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                        <input type="text" name="desc" placeholder="Contoh: Beli alat kelas" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Jumlah (Rp)</label>
-                        <input type="number" name="amount" placeholder="50000" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                        <input type="number" name="amount" placeholder="50000" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
                     </div>
                     <div class="w-full">
                         <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-2.5 px-4 rounded-2xl font-bold text-sm h-[42px] shadow-sm">Simpan Transaksi</button>
@@ -1246,7 +1270,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Pilih Bulan / Ujian</label>
-                            <select name="month" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                            <select name="month" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
                                 <option value="Juni 2026">Juni 2026</option>
                                 <option value="Juli 2026">Juli 2026</option>
                                 <option value="Agustus 2026">Agustus 2026</option>
@@ -1265,7 +1289,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Mata Pelajaran</label>
-                            <select name="subject" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                            <select name="subject" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
                                 <option value="Matematika">Matematika</option>
                                 <option value="Bahasa Inggris">Bahasa Inggris</option>
                                 <option value="Seni">Seni</option>
@@ -1279,11 +1303,11 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Judul Materi / Bab</label>
-                        <input type="text" name="title" placeholder="Contoh: Bab 1 Penjumlahan & Pengurangan" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                        <input type="text" name="title" placeholder="Contoh: Bab 1 Penjumlahan & Pengurangan" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Link Google Drive File</label>
-                        <input type="url" name="link" placeholder="https://drive.google.com/file/d/..." required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                        <input type="url" name="link" placeholder="https://drive.google.com/file/d/..." required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
                     </div>
                     <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-3 rounded-2xl font-bold text-sm shadow-sm transition">Simpan Materi Sumatif</button>
                 </form>
@@ -1296,15 +1320,15 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                     <form action="/admin/add-event" method="POST" class="space-y-3">
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Tanggal</label>
-                            <input type="date" name="date" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                            <input type="date" name="date" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Judul Agenda</label>
-                            <input type="text" name="title" placeholder="Contoh: Ujian Tengah Semester" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                            <input type="text" name="title" placeholder="Contoh: Ujian Tengah Semester" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Keterangan</label>
-                            <input type="text" name="description" placeholder="Keterangan singkat kegiatan" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                            <input type="text" name="description" placeholder="Keterangan singkat kegiatan" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
                         </div>
                         <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-2.5 rounded-2xl font-bold text-sm shadow-sm">Simpan Kalender</button>
                     </form>
@@ -1314,11 +1338,11 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                     <h3 class="font-bold text-lg text-earthtext mb-3">📢 Buat Pengumuman Sekolah</h3>
                     <form action="/admin/add-announcement" method="POST" class="space-y-3">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <input type="date" name="date" required class="border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold">
-                            <input type="text" name="title" placeholder="Judul Pengumuman" required class="border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                            <input type="date" name="date" required class="border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
+                            <input type="text" name="title" placeholder="Judul Pengumuman" required class="border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
                         </div>
-                        <textarea name="content" rows="2" placeholder="Isi pengumuman..." required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md resize-none text-earthtext font-bold"></textarea>
-                        <input type="url" name="lampiran" placeholder="Link Google Drive (Opsional)" class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold">
+                        <textarea name="content" rows="2" placeholder="Isi pengumuman..." required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md resize-none text-earthtext font-bold shadow-sm"></textarea>
+                        <input type="url" name="lampiran" placeholder="Link Google Drive (Opsional)" class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
                         <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-2.5 rounded-2xl font-bold text-sm shadow-sm">Publikasikan</button>
                     </form>
                 </div>
