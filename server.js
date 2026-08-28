@@ -655,7 +655,7 @@ app.get('/kas', checkAuth, async (req, res) => {
             return isKaos ? 68000 : 25000;
         };
 
-        let allKasRows = [];
+        let kasCardsHtml = '';
         let checkboxes = '';
         
         const kaosFound = userKas.find(k => String(k.month || '').trim().toLowerCase().includes('kaos'));
@@ -663,12 +663,17 @@ app.get('/kas', checkAuth, async (req, res) => {
         const isKaosPaid = isPaid(kaosFound?.status);
         
         if (period !== 'sem2') {
-            allKasRows.push(`
-            <tr class="bg-white/40 hover:bg-white/60 transition shadow-[inset_0_1px_3px_rgba(255,255,255,0.8)]">
-                <td class="py-4 px-3 sm:px-4 font-bold text-earthtext whitespace-nowrap">Iuran Kaos</td>
-                <td class="py-4 px-3 text-sm text-earthtext/80 whitespace-nowrap">Rp ${kaosAmount.toLocaleString()}</td>
-                <td class="py-4 px-3 text-center whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-bold ${isKaosPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${isKaosPaid ? 'Lunas' : 'Belum Bayar'}</span></td>
-            </tr>`);
+            const cardBg = isKaosPaid ? 'bg-amber-100/80 border-amber-200' : 'bg-red-100/80 border-red-200';
+            kasCardsHtml += `
+            <div class="flex items-center justify-between p-4 ${cardBg} rounded-2xl border shadow-[0_4px_10px_rgba(0,0,0,0.05),inset_0_2px_3px_rgba(255,255,255,0.9)] transition">
+                <div>
+                    <span class="font-bold text-sm text-earthtext whitespace-nowrap block">Iuran Kaos</span>
+                    <span class="text-xs text-earthtext/80 whitespace-nowrap">Rp ${kaosAmount.toLocaleString()}</span>
+                </div>
+                <div>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold ${isKaosPaid ? 'bg-green-200 text-green-900' : 'bg-red-200 text-red-900'}">${isKaosPaid ? 'Lunas' : 'Belum Bayar'}</span>
+                </div>
+            </div>`;
 
             if (!isKaosPaid) {
                 checkboxes += `
@@ -686,13 +691,18 @@ app.get('/kas', checkAuth, async (req, res) => {
             const found = userKas.find(k => String(k.month || '').trim().toLowerCase() === m.split(' ')[0].toLowerCase());
             const paid = isPaid(found?.status);
             const rowAmount = getRowAmount(found, false);
+            const cardBg = paid ? 'bg-amber-100/80 border-amber-200' : 'bg-red-100/80 border-red-200';
             
-            allKasRows.push(`
-            <tr class="bg-white/40 hover:bg-white/60 transition shadow-[inset_0_1px_3px_rgba(255,255,255,0.8)]">
-                <td class="py-4 px-3 sm:px-4 font-bold text-earthtext whitespace-nowrap">${m}</td>
-                <td class="py-4 px-3 text-sm text-earthtext/80 whitespace-nowrap">Rp ${rowAmount.toLocaleString()}</td>
-                <td class="py-4 px-3 text-center whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-bold ${paid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${paid ? 'Lunas' : 'Belum Bayar'}</span></td>
-            </tr>`);
+            kasCardsHtml += `
+            <div class="flex items-center justify-between p-4 ${cardBg} rounded-2xl border shadow-[0_4px_10px_rgba(0,0,0,0.05),inset_0_2px_3px_rgba(255,255,255,0.9)] transition">
+                <div>
+                    <span class="font-bold text-sm text-earthtext whitespace-nowrap block">${m}</span>
+                    <span class="text-xs text-earthtext/80 whitespace-nowrap">Rp ${rowAmount.toLocaleString()}</span>
+                </div>
+                <div>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold ${paid ? 'bg-green-200 text-green-900' : 'bg-red-200 text-red-900'}">${paid ? 'Lunas' : 'Belum Bayar'}</span>
+                </div>
+            </div>`;
             
             if (!paid) {
                 checkboxes += `
@@ -706,9 +716,6 @@ app.get('/kas', checkAuth, async (req, res) => {
             }
         });
 
-        // 3D Shadow recessed divider between each row and below kaos
-        const tableRows = allKasRows.join(`<tr class="h-2"><td colspan="3"><div class="h-2 w-full bg-black/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.12)] rounded-full my-1"></div></td></tr>`);
-
         const content = `
         <div class="mb-6 bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-[2rem] shadow-sm border border-white/70">
             <h2 class="text-2xl font-bold mb-4 text-earthtext">Iuran Kas Siswa</h2>
@@ -719,8 +726,8 @@ app.get('/kas', checkAuth, async (req, res) => {
             </select>
             
             <div class="grid lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 overflow-x-auto bg-white/50 backdrop-blur-md rounded-2xl shadow-sm border border-white/70 p-4">
-                    <table class="w-full text-left border-collapse">${tableRows}</table>
+                <div class="lg:col-span-2 space-y-3 bg-white/50 backdrop-blur-md rounded-[2rem] shadow-sm border border-white/70 p-4 max-h-[500px] overflow-y-auto">
+                    ${kasCardsHtml}
                 </div>
                 
                 <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70 flex flex-col justify-between">
