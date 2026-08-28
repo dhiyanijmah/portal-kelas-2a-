@@ -1,3 +1,4 @@
+const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -42,7 +43,6 @@ const formatDateID = (dateStr) => {
     }
 };
 
-// Fungsi login kilat menggunakan GET agar sesuai dengan Apps Script doGet
 async function verifyLogin(first_name, password) {
     try {
         const params = new URLSearchParams({
@@ -361,7 +361,7 @@ app.get('/dashboard', checkAuth, (req, res) => {
     res.send(layout('Dashboard', content));
 });
 
-// --- HALAMAN MATERI SUMATIF (Tanpa Icon Mapel) ---
+// --- HALAMAN MATERI SUMATIF (Tanpa Icon Mapel, Filter Tanpa Icon, Bulan/Tahun lengkap & nowrap) ---
 app.get('/summative', checkAuth, async (req, res) => {
     try {
         const db = await fetchDb();
@@ -394,13 +394,14 @@ app.get('/summative', checkAuth, async (req, res) => {
             return 'bg-white/50 backdrop-blur-md border border-white/70';
         };
 
+        // Filter tanpa icon
         let periodSelect = `
         <div class="mb-4">
             <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3.5 border border-white/70 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md text-earthtext outline-none focus:ring-2 focus:ring-tangerine shadow-md">
-                <option value="month" ${period === 'month' ? 'selected' : ''}>🔍 Filter: Pilih Bulan Tertentu</option>
-                <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>📚 Tampilkan Semester 1 (Agustus - Ujian Smt)</option>
-                <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>📚 Tampilkan Semester 2 (Januari - UKK)</option>
-                <option value="all" ${period === 'all' ? 'selected' : ''}>📂 Tampilkan Semua Periode (Semua Bulan)</option>
+                <option value="month" ${period === 'month' ? 'selected' : ''}>Filter: Pilih Bulan Tertentu</option>
+                <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>Tampilkan Semester 1 (Agustus - Ujian Smt)</option>
+                <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>Tampilkan Semester 2 (Januari - UKK)</option>
+                <option value="all" ${period === 'all' ? 'selected' : ''}>Tampilkan Semua Periode (Semua Bulan)</option>
             </select>
         </div>`;
 
@@ -408,6 +409,7 @@ app.get('/summative', checkAuth, async (req, res) => {
         if (period === 'month') {
             allMonthsList.forEach(m => {
                 const isActive = m === selectedMonth;
+                // Bulan dan tahun lengkap, whitespace-nowrap agar tidak dienter
                 monthTabs += `<a href="/summative?period=month&month=${encodeURIComponent(m)}" class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition whitespace-nowrap shadow-sm ${isActive ? 'bg-deepgreen text-white shadow' : 'bg-white/50 text-earthtext border border-white/70 hover:bg-white/80 backdrop-blur-sm'}">${m}</a>`;
             });
             monthTabs = `<div class="flex overflow-x-auto gap-2 pb-3 mb-4">${monthTabs}</div>`;
@@ -438,7 +440,7 @@ app.get('/summative', checkAuth, async (req, res) => {
                     }
                     const downloadUrl = fileId ? `https://drive.google.com/uc?export=download&id=${fileId}` : rawUrl;
 
-                    let monthBadge = period !== 'month' ? `<span class="text-[10px] bg-sagegreen/20 text-deepgreen px-2.5 py-0.5 rounded-full mt-1 inline-block font-bold">${mat.month || '-'}</span>` : '';
+                    let monthBadge = period !== 'month' ? `<span class="text-[10px] bg-sagegreen/20 text-deepgreen px-2.5 py-0.5 rounded-full mt-1 inline-block font-bold whitespace-nowrap">${mat.month || '-'}</span>` : '';
 
                     materialItems += `
                     <div class="p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/70 mb-2.5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -457,7 +459,7 @@ app.get('/summative', checkAuth, async (req, res) => {
 
             const cardBgColor = getSubjectBgColor(subj);
 
-            // Tanpa icon mapel sesuai permintaan revisi
+            // Tanpa icon mapel
             subjectCards += `
             <div class="${cardBgColor} p-6 rounded-[2rem] shadow-sm border border-white/70 flex flex-col backdrop-blur-md">
                 <div class="mb-4">
@@ -563,7 +565,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
                 <div class="mt-2">
                     <textarea name="notes[${dateKey}]" rows="2" class="w-full text-xs p-2.5 border border-white/70 rounded-2xl resize-none focus:ring-2 focus:ring-tangerine outline-none bg-white/70 backdrop-blur-sm transition text-earthtext font-medium" placeholder="Catatan pribadi...">${existingNote}</textarea>
                 </div>
-            </div>`;
+            `;
         }
 
         const monthsList = [
@@ -656,7 +658,9 @@ app.get('/kas', checkAuth, async (req, res) => {
             return isKaos ? 68000 : 25000;
         };
 
-        let rows = '', checkboxes = '';
+        let lunasRows = '';
+        let belumRows = '';
+        let checkboxes = '';
         let rowIdx = 0;
         
         const kaosFound = userKas.find(k => String(k.month || '').trim().toLowerCase().includes('kaos'));
@@ -664,20 +668,20 @@ app.get('/kas', checkAuth, async (req, res) => {
         const isKaosPaid = isPaid(kaosFound?.status);
         
         if (period !== 'sem2') {
-            const trBg = rowIdx % 2 === 0 ? 'bg-white/10' : 'bg-white/30';
-            rowIdx++;
-            rows += `
-            <tr class="${trBg} border-b-2 border-emerald-900/25 hover:bg-white/40 transition">
-                <td class="py-4 px-3 sm:px-4 font-bold text-earthtext">Iuran Kaos</td>
+            const rowHtml = `
+            <tr class="border-b border-white/20 hover:bg-white/40 transition">
+                <td class="py-4 px-3 sm:px-4 font-bold text-earthtext whitespace-nowrap">Iuran Kaos</td>
                 <td class="py-4 px-3 text-sm text-earthtext/80 whitespace-nowrap">Rp ${kaosAmount.toLocaleString()}</td>
                 <td class="py-4 px-3 text-center whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-bold ${isKaosPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${isKaosPaid ? 'Lunas' : 'Belum Bayar'}</span></td>
             </tr>`;
+            if (isKaosPaid) lunasRows += rowHtml; else belumRows += rowHtml;
+
             if (!isKaosPaid) {
                 checkboxes += `
                 <label class="flex items-center justify-between gap-3 p-3.5 bg-white/60 backdrop-blur-sm rounded-2xl cursor-pointer hover:bg-white/90 border border-white/75 transition shadow-sm">
                     <div class="flex items-center gap-3">
                         <input type="checkbox" class="w-4 h-4 calc-item accent-[#215F47]" data-price="${kaosAmount}" onchange="calcTotal()">
-                        <span class="text-sm font-bold text-earthtext">Iuran Kaos</span>
+                        <span class="text-sm font-bold text-earthtext whitespace-nowrap">Iuran Kaos</span>
                     </div>
                     <span class="text-xs font-bold text-earthtext/70 whitespace-nowrap">Rp ${kaosAmount.toLocaleString()}</span>
                 </label>`;
@@ -689,27 +693,31 @@ app.get('/kas', checkAuth, async (req, res) => {
             const paid = isPaid(found?.status);
             const rowAmount = getRowAmount(found, false);
             
-            const trBg = rowIdx % 2 === 0 ? 'bg-white/10' : 'bg-white/30';
-            rowIdx++;
-
-            rows += `
-            <tr class="${trBg} border-b border-white/30 hover:bg-white/40 transition">
-                <td class="py-4 px-3 sm:px-4 font-bold text-earthtext">${m}</td>
+            const rowHtml = `
+            <tr class="border-b border-white/20 hover:bg-white/40 transition">
+                <td class="py-4 px-3 sm:px-4 font-bold text-earthtext whitespace-nowrap">${m}</td>
                 <td class="py-4 px-3 text-sm text-earthtext/80 whitespace-nowrap">Rp ${rowAmount.toLocaleString()}</td>
                 <td class="py-4 px-3 text-center whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-bold ${paid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${paid ? 'Lunas' : 'Belum Bayar'}</span></td>
             </tr>`;
+            if (paid) lunasRows += rowHtml; else belumRows += rowHtml;
             
             if (!paid) {
                 checkboxes += `
                 <label class="flex items-center justify-between gap-3 p-3.5 bg-white/60 backdrop-blur-sm rounded-2xl cursor-pointer hover:bg-white/90 border border-white/75 transition shadow-sm">
                     <div class="flex items-center gap-3">
                         <input type="checkbox" class="w-4 h-4 calc-item accent-[#215F47]" data-price="${rowAmount}" onchange="calcTotal()">
-                        <span class="text-sm font-bold text-earthtext">${m}</span>
+                        <span class="text-sm font-bold text-earthtext whitespace-nowrap">${m}</span>
                     </div>
                     <span class="text-xs font-bold text-earthtext/70 whitespace-nowrap">Rp ${rowAmount.toLocaleString()}</span>
                 </label>`;
             }
         });
+
+        let tableRows = lunasRows;
+        if (lunasRows && belumRows) {
+            tableRows += `<tr><td colspan="3" class="py-2 px-3"><div class="border-t border-dashed border-earthtext/25 my-1"></div></td></tr>`;
+        }
+        tableRows += belumRows;
 
         const content = `
         <div class="mb-6 bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-[2rem] shadow-sm border border-white/70">
@@ -722,7 +730,7 @@ app.get('/kas', checkAuth, async (req, res) => {
             
             <div class="grid lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 overflow-x-auto bg-white/50 backdrop-blur-md rounded-2xl shadow-sm border border-white/70 p-2">
-                    <table class="w-full text-left">${rows}</table>
+                    <table class="w-full text-left">${tableRows}</table>
                 </div>
                 
                 <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70 flex flex-col justify-between">
@@ -1057,11 +1065,12 @@ app.get('/announcements', checkAuth, async (req, res) => {
             const contentText = String(a.content || '').replace(/\\n/g, '\n');
             const formattedDate = formatDateID(a.date);
 
+            // Tanggal di bagian pengumuman kecil dan dikasih icon calendar sebelumnya
             cards += `
             <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70 mb-5">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
                     <h3 class="font-bold text-lg text-earthtext">${a.title}</h3>
-                    <span class="text-[10px] font-bold bg-white/70 backdrop-blur-sm text-earthtext/80 px-2.5 py-0.5 rounded-full border border-white/75 flex items-center space-x-1 shadow-sm">
+                    <span class="text-[10px] font-bold bg-white/70 backdrop-blur-sm text-earthtext/80 px-2.5 py-0.5 rounded-full border border-white/75 flex items-center space-x-1 shadow-sm whitespace-nowrap">
                         <span>🗓️</span><span>${formattedDate}</span>
                     </span>
                 </div>
@@ -1415,8 +1424,8 @@ app.post('/admin/add-summative', checkAuth, async (req, res) => {
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 ```eof
 
-Silakan jalankan perintah Git untuk memperbarui repository Anda:
+Silakan jalankan perintah Git berikut di terminal Anda untuk memperbarui repository:
 ```bash
 git add .
-git commit -m "UI: Hapus icon pada setiap mata pelajaran di halaman materi sumatif"
+git commit -m "UI: Tambah garis pemisah lunas/belum pada kas, hilangkan enter bulan tahun, kecilkan tanggal pengumuman dengan ikon, dan bersihkan ikon filter sumatif"
 git push origin main
