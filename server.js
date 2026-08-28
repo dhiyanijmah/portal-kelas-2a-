@@ -125,12 +125,12 @@ const layout = (title, content) => `
                         sans: ['Quicksand', 'sans-serif'],
                     },
                     colors: {
-                        appbg: '#fbf8f2',
-                        cardbg: '#ffffff',
-                        primaryyellow: '#ffb703',
-                        vibrantorange: '#fb8500',
-                        earthtext: '#3a322c',
-                        softsand: '#f4ede2',
+                        deepgreen: '#215F47',
+                        sagegreen: '#4B8A6C',
+                        softorange: '#E89A5B',
+                        cream: '#F7F4ED',
+                        earthtext: '#2C3B32',
+                        cardbg: '#FFFFFF',
                     }
                 }
             }
@@ -141,28 +141,28 @@ const layout = (title, content) => `
         #loading-overlay { transition: opacity 0.3s ease; }
     </style>
 </head>
-<body class="bg-appbg text-earthtext min-h-screen flex flex-col selection:bg-primaryyellow selection:text-earthtext">
-    <div id="loading-overlay" class="fixed inset-0 bg-appbg/90 backdrop-blur-md flex flex-col items-center justify-center z-[9999]" style="display: none;">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-vibrantorange"></div>
-        <p class="mt-4 text-earthtext font-bold text-lg animate-pulse">Memuat halaman...</p>
+<body class="bg-cream text-earthtext min-h-screen flex flex-col selection:bg-softorange selection:text-white">
+    <div id="loading-overlay" class="fixed inset-0 bg-cream/90 backdrop-blur-md flex flex-col items-center justify-center z-[9999]" style="display: none;">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-deepgreen"></div>
+        <p class="mt-4 text-deepgreen font-bold text-lg animate-pulse">Memuat halaman...</p>
     </div>
 
-    <nav class="bg-primaryyellow/90 backdrop-blur-md sticky top-0 z-50 border-b border-primaryyellow/20 shadow-sm">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center text-earthtext">
-            <a href="/dashboard" class="font-bold text-base sm:text-lg flex items-center space-x-2 hover:opacity-80 transition">
-                <span class="bg-white/80 p-2 rounded-2xl shadow-sm text-lg">🦒</span>
+    <nav class="bg-deepgreen sticky top-0 z-50 border-b border-sagegreen/30 shadow-md">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center text-white">
+            <a href="/dashboard" class="font-bold text-base sm:text-lg flex items-center space-x-2.5 hover:text-cream transition">
+                <span class="bg-sagegreen/40 p-2 rounded-2xl text-lg shadow-sm">🎖️</span>
                 <span>Portal Walimurid Kelas 2A</span>
             </a>
-            <a href="/logout" class="bg-white/80 hover:bg-red-500 hover:text-white text-red-600 px-4 py-2 rounded-2xl text-xs font-bold transition shadow-sm border border-red-200">Keluar</a>
+            <a href="/logout" class="bg-red-500/20 hover:bg-red-500 text-red-100 px-4 py-2 rounded-2xl text-xs font-bold transition shadow-sm border border-red-500/30">Keluar</a>
         </div>
     </nav>
 
     <main class="max-w-4xl mx-auto p-4 sm:p-6 flex-grow w-full">
-        <div class="bg-cardbg text-earthtext rounded-[2.5rem] p-6 sm:p-8 shadow-xl border border-primaryyellow/10 min-h-[75vh] flex flex-col justify-between">
+        <div class="bg-cardbg text-earthtext rounded-[2.5rem] p-6 sm:p-8 shadow-xl border border-deepgreen/10 min-h-[75vh] flex flex-col justify-between">
             <div>
                 ${content}
             </div>
-            <footer class="text-center pt-8 mt-12 text-xs text-earthtext/50 border-t border-softsand font-semibold">
+            <footer class="text-center pt-8 mt-12 text-xs text-earthtext/50 border-t border-cream font-semibold">
                 Portal Walimurid Kelas 2A &copy; 2026 Dhiya
             </footer>
         </div>
@@ -218,40 +218,40 @@ app.get('/login', (req, res) => {
                             sans: ['Quicksand', 'sans-serif'],
                         },
                         colors: {
-                            appbg: '#fbf8f2',
-                            cardbg: '#ffffff',
-                            primaryyellow: '#ffb703',
-                            vibrantorange: '#fb8500',
-                            earthtext: '#3a322c',
-                            softsand: '#f4ede2',
+                            deepgreen: '#215F47',
+                            sagegreen: '#4B8A6C',
+                            softorange: '#E89A5B',
+                            cream: '#F7F4ED',
+                            earthtext: '#2C3B32',
+                            cardbg: '#FFFFFF',
                         }
                     }
                 }
             }
         </script>
     </head>
-    <body class="bg-appbg flex items-center justify-center min-h-screen px-4 font-sans">
-        <div id="login-loading" class="fixed inset-0 bg-appbg/90 backdrop-blur-md flex flex-col items-center justify-center z-[9999]" style="display: none;">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-vibrantorange"></div>
-            <p class="mt-4 text-earthtext font-bold text-lg animate-pulse">Memuat halaman...</p>
+    <body class="bg-cream flex items-center justify-center min-h-screen px-4 font-sans">
+        <div id="login-loading" class="fixed inset-0 bg-cream/90 backdrop-blur-md flex flex-col items-center justify-center z-[9999]" style="display: none;">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-deepgreen"></div>
+            <p class="mt-4 text-deepgreen font-bold text-lg animate-pulse">Memuat halaman...</p>
         </div>
 
-        <div class="bg-cardbg p-6 sm:p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-primaryyellow/20 text-earthtext">
+        <div class="bg-cardbg p-6 sm:p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-deepgreen/15 text-earthtext">
             <div class="text-center mb-6">
-                <span class="bg-primaryyellow/20 text-earthtext p-4 rounded-3xl text-3xl inline-block mb-3 shadow-sm">🦒</span>
-                <h1 class="text-xl sm:text-2xl font-bold text-earthtext">Portal Walimurid Kelas 2A</h1>
+                <span class="bg-deepgreen/10 text-deepgreen p-4 rounded-3xl text-3xl inline-block mb-3 shadow-sm">🎖️</span>
+                <h1 class="text-xl sm:text-2xl font-bold text-deepgreen">Portal Walimurid Kelas 2A</h1>
                 <p class="text-xs sm:text-sm text-earthtext/70 mt-1">Assalamualaikum, selamat datang Ayah Bunda. Mohon masukkan Username dan Password</p>
             </div>
             <form action="/login" method="POST" class="space-y-4" onsubmit="document.getElementById('login-loading').style.display='flex';">
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/80 mb-1">Username</label>
-                    <input type="text" name="first_name" required class="w-full px-4 py-3 border border-softsand rounded-2xl focus:ring-2 focus:ring-vibrantorange outline-none text-base bg-softsand/40 transition shadow-sm font-semibold" placeholder="Nama depan siswa">
+                    <input type="text" name="first_name" required class="w-full px-4 py-3 border border-deepgreen/20 rounded-2xl focus:ring-2 focus:ring-softorange outline-none text-base bg-cream/50 transition shadow-sm font-semibold text-earthtext" placeholder="Nama depan siswa">
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/80 mb-1">Password</label>
-                    <input type="password" name="password" required class="w-full px-4 py-3 border border-softsand rounded-2xl focus:ring-2 focus:ring-vibrantorange outline-none text-base bg-softsand/40 transition shadow-sm font-semibold" placeholder="Password akun">
+                    <input type="password" name="password" required class="w-full px-4 py-3 border border-deepgreen/20 rounded-2xl focus:ring-2 focus:ring-softorange outline-none text-base bg-cream/50 transition shadow-sm font-semibold text-earthtext" placeholder="Password akun">
                 </div>
-                <button type="submit" class="w-full bg-vibrantorange hover:bg-[#e07600] text-white py-3.5 rounded-2xl font-bold shadow-lg transition text-base tracking-wide">Masuk Portal</button>
+                <button type="submit" class="w-full bg-softorange hover:bg-[#d88949] text-white py-3.5 rounded-2xl font-bold shadow-md transition text-base tracking-wide">Sign In</button>
             </form>
         </div>
     </body></html>`);
@@ -285,54 +285,54 @@ app.get('/logout', (req, res) => {
 
 app.get('/dashboard', checkAuth, (req, res) => {
     const content = `
-    <div class="mb-6 bg-gradient-to-r from-primaryyellow to-vibrantorange text-white p-6 sm:p-8 rounded-[2rem] shadow-lg flex justify-between items-center border border-white/20">
+    <div class="mb-6 bg-gradient-to-r from-deepgreen to-sagegreen text-white p-6 sm:p-8 rounded-[2rem] shadow-lg flex justify-between items-center border border-white/15">
         <div>
-            <span class="text-[10px] uppercase tracking-widest bg-white/25 px-3 py-1 rounded-full font-bold text-white">Dashboard Wali Murid</span>
+            <span class="text-[10px] uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full font-bold text-white">Dashboard Wali Murid</span>
             <h2 class="text-2xl sm:text-3xl font-bold mt-2 text-white">Assalamualaikum, ${String(req.user.first_name)}</h2>
         </div>
-        <div class="text-4xl sm:text-5xl bg-white/20 p-4 rounded-3xl backdrop-blur-sm hidden sm:block shadow-inner">🦒</div>
+        <div class="text-4xl sm:text-5xl bg-white/15 p-4 rounded-3xl backdrop-blur-sm hidden sm:block shadow-inner">🎖️</div>
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <a href="/calendar" class="bg-softsand/40 hover:bg-softsand p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-primaryyellow/20 flex items-center space-x-4 group">
-            <div class="bg-primaryyellow text-earthtext p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📅</div>
+        <a href="/calendar" class="bg-cream/40 hover:bg-cream p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🗓️</div>
             <div>
-                <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-vibrantorange transition">Kalendar Akademik</h3>
+                <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Kalendar Akademik</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Agenda kelas & jadwal pribadi siswa.</p>
             </div>
         </a>
-        <a href="/kas" class="bg-softsand/40 hover:bg-softsand p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-primaryyellow/20 flex items-center space-x-4 group">
-            <div class="bg-primaryyellow text-earthtext p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">💵</div>
+        <a href="/kas" class="bg-cream/40 hover:bg-cream p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">💰</div>
             <div>
-                <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-vibrantorange transition">Iuran Kas Siswa</h3>
+                <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Iuran Kas Siswa</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Pembayaran kas pribadi setiap siswa.</p>
             </div>
         </a>
-        <a href="/finances" class="bg-softsand/40 hover:bg-softsand p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-primaryyellow/20 flex items-center space-x-4 group">
-            <div class="bg-amber-200 text-amber-900 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📊</div>
+        <a href="/finances" class="bg-cream/40 hover:bg-cream p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+            <div class="bg-amber-100 text-amber-800 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📊</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-amber-700 transition">Laporan Keuangan</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Rincian income & expense kelas 2A.</p>
             </div>
         </a>
-        <a href="/announcements" class="bg-softsand/40 hover:bg-softsand p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-primaryyellow/20 flex items-center space-x-4 group">
-            <div class="bg-sky-200 text-sky-900 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📢</div>
+        <a href="/announcements" class="bg-cream/40 hover:bg-cream p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+            <div class="bg-sky-100 text-sky-800 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔔</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-sky-700 transition">Pengumuman</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Informasi resmi dari sekolah.</p>
             </div>
         </a>
-        <a href="/summative" class="bg-softsand/40 hover:bg-softsand p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-primaryyellow/20 flex items-center space-x-4 group">
-            <div class="bg-primaryyellow text-earthtext p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📚</div>
+        <a href="/summative" class="bg-cream/40 hover:bg-cream p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📘</div>
             <div>
-                <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-vibrantorange transition">Materi Sumatif</h3>
+                <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Materi Sumatif</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Kisi-kisi dan materi bulanan lengkap.</p>
             </div>
         </a>
-        <a href="/change-password" class="bg-softsand/40 hover:bg-softsand p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-primaryyellow/20 flex items-center space-x-4 group">
-            <div class="bg-primaryyellow text-earthtext p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔑</div>
+        <a href="/change-password" class="bg-cream/40 hover:bg-cream p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔒</div>
             <div>
-                <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-vibrantorange transition">Ganti Password</h3>
+                <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Ganti Password</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Ubah kata sandi akun Anda.</p>
             </div>
         </a>
@@ -369,7 +369,7 @@ app.get('/summative', checkAuth, async (req, res) => {
 
         let periodSelect = `
         <div class="mb-4">
-            <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3.5 border border-softsand rounded-2xl text-sm font-bold bg-softsand/40 text-earthtext outline-none focus:ring-2 focus:ring-vibrantorange shadow-sm">
+            <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3.5 border border-deepgreen/20 rounded-2xl text-sm font-bold bg-cream/50 text-earthtext outline-none focus:ring-2 focus:ring-softorange shadow-sm">
                 <option value="month" ${period === 'month' ? 'selected' : ''}>🔍 Filter: Pilih Bulan Tertentu</option>
                 <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>📚 Tampilkan Semester 1 (Agustus - Ujian Smt)</option>
                 <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>📚 Tampilkan Semester 2 (Januari - UKK)</option>
@@ -381,7 +381,7 @@ app.get('/summative', checkAuth, async (req, res) => {
         if (period === 'month') {
             allMonthsList.forEach(m => {
                 const isActive = m === selectedMonth;
-                monthTabs += `<a href="/summative?period=month&month=${encodeURIComponent(m)}" class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition whitespace-nowrap shadow-sm ${isActive ? 'bg-vibrantorange text-white' : 'bg-softsand/40 text-earthtext border border-softsand hover:bg-softsand'}">${m}</a>`;
+                monthTabs += `<a href="/summative?period=month&month=${encodeURIComponent(m)}" class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition whitespace-nowrap shadow-sm ${isActive ? 'bg-deepgreen text-white' : 'bg-cream/60 text-earthtext border border-deepgreen/15 hover:bg-cream'}">${m}</a>`;
             });
             monthTabs = `<div class="flex overflow-x-auto gap-2 pb-3 mb-4">${monthTabs}</div>`;
         }
@@ -411,17 +411,17 @@ app.get('/summative', checkAuth, async (req, res) => {
                     }
                     const downloadUrl = fileId ? `https://drive.google.com/uc?export=download&id=${fileId}` : rawUrl;
 
-                    let monthBadge = period !== 'month' ? `<span class="text-[10px] bg-primaryyellow/30 text-earthtext px-2.5 py-0.5 rounded-full mt-1 inline-block font-bold">${mat.month || '-'}</span>` : '';
+                    let monthBadge = period !== 'month' ? `<span class="text-[10px] bg-sagegreen/20 text-deepgreen px-2.5 py-0.5 rounded-full mt-1 inline-block font-bold">${mat.month || '-'}</span>` : '';
 
                     materialItems += `
-                    <div class="p-4 bg-softsand/30 rounded-2xl border border-softsand mb-2.5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div class="p-4 bg-cream/40 rounded-2xl border border-deepgreen/15 mb-2.5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
                             <span class="font-bold text-sm text-earthtext block">📄 ${mat.title}</span>
                             ${monthBadge}
                         </div>
                         <div class="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                             <a href="${rawUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-emerald-50 text-emerald-800 border border-emerald-200 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-100 transition">Buka Drive</a>
-                            <a href="${downloadUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-vibrantorange text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-[#e07600] transition">Download</a>
+                            <a href="${downloadUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-softorange text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-[#d88949] transition">Download</a>
                         </div>
                     </div>`;
                 });
@@ -430,9 +430,9 @@ app.get('/summative', checkAuth, async (req, res) => {
             }
 
             subjectCards += `
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-primaryyellow/20 flex flex-col">
+            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/15 flex flex-col">
                 <div class="flex items-center space-x-3 mb-4">
-                    <div class="bg-primaryyellow/20 text-earthtext p-3 rounded-2xl text-xl shadow-sm">📖</div>
+                    <div class="bg-sagegreen/20 text-deepgreen p-3 rounded-2xl text-xl shadow-sm">📖</div>
                     <h3 class="font-bold text-base text-earthtext">${subj}</h3>
                 </div>
                 <div class="space-y-2 mt-1 max-h-80 overflow-y-auto pr-1">${materialItems}</div>
@@ -452,7 +452,7 @@ app.get('/summative', checkAuth, async (req, res) => {
             ${subjectCards}
         </div>
 
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-vibrantorange hover:text-earthtext text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-softorange text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
 
         res.send(layout('Materi Sumatif', content));
     } catch (e) {
@@ -492,7 +492,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
         
         let calendarCells = '';
         for (let i = 0; i < firstDayIndex; i++) {
-            calendarCells += `<div class="bg-softsand/20 min-h-[150px] rounded-3xl border border-dashed border-softsand"></div>`;
+            calendarCells += `<div class="bg-cream/30 min-h-[150px] rounded-3xl border border-dashed border-deepgreen/20"></div>`;
         }
 
         for (let d = 1; d <= totalDays; d++) {
@@ -506,7 +506,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
             const isToday = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}` === dateKey;
 
             const hasAgenda = (existingNote.trim() !== '' || globalEvent);
-            const cellBgClass = hasAgenda ? 'bg-amber-50 border-amber-200' : (isToday ? 'bg-white border-vibrantorange ring-2 ring-vibrantorange/20 shadow-md' : 'bg-white border-softsand');
+            const cellBgClass = hasAgenda ? 'bg-amber-50 border-amber-200' : (isToday ? 'bg-white border-softorange ring-2 ring-softorange/20 shadow-md' : 'bg-white border-deepgreen/15');
 
             let eventHtml = '';
             if (globalEvent) {
@@ -528,12 +528,12 @@ app.get('/calendar', checkAuth, async (req, res) => {
             <div class="${cellBgClass} p-3.5 rounded-[2rem] border shadow-sm flex flex-col justify-between min-h-[170px] transition">
                 <div>
                     <div class="flex justify-between items-center mb-2">
-                        <span class="font-bold text-sm ${isToday ? 'bg-vibrantorange text-white w-7 h-7 rounded-full flex items-center justify-center' : (isSunday || holidayName ? 'text-red-600 font-extrabold' : 'text-earthtext')}">${d}</span>
+                        <span class="font-bold text-sm ${isToday ? 'bg-softorange text-white w-7 h-7 rounded-full flex items-center justify-center' : (isSunday || holidayName ? 'text-red-600 font-extrabold' : 'text-earthtext')}">${d}</span>
                     </div>
                     ${eventHtml}
                 </div>
                 <div class="mt-2">
-                    <textarea name="notes[${dateKey}]" rows="2" class="w-full text-xs p-2.5 border border-softsand rounded-2xl resize-none focus:ring-2 focus:ring-vibrantorange outline-none bg-softsand/30 focus:bg-white transition" placeholder="Catatan pribadi...">${existingNote}</textarea>
+                    <textarea name="notes[${dateKey}]" rows="2" class="w-full text-xs p-2.5 border border-deepgreen/20 rounded-2xl resize-none focus:ring-2 focus:ring-softorange outline-none bg-cream/40 focus:bg-white transition" placeholder="Catatan pribadi...">${existingNote}</textarea>
                 </div>
             </div>`;
         }
@@ -548,14 +548,14 @@ app.get('/calendar', checkAuth, async (req, res) => {
         let monthOptions = monthsList.map(mObj => `<option value="${mObj.v}" ${mObj.v === month ? 'selected' : ''}>${mObj.n}</option>`).join('');
 
         const content = `
-        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-softsand/40 p-6 rounded-[2rem] shadow-sm border border-primaryyellow/20">
+        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-cream/50 p-6 rounded-[2rem] shadow-sm border border-deepgreen/15">
             <div>
                 <h2 class="text-xl sm:text-2xl font-bold text-earthtext">Kalendar Akademik 2026/2027</h2>
                 <p class="text-xs sm:text-sm text-earthtext/70">Agenda kelas, libur nasional, dan catatan jadwal pribadi siswa.</p>
             </div>
             <form method="GET" class="flex flex-wrap items-center gap-2 sm:space-x-3 w-full md:w-auto">
-                <select name="month" onchange="this.form.submit()" class="border border-softsand px-4 py-2.5 rounded-2xl text-sm font-bold bg-white outline-none focus:ring-2 focus:ring-vibrantorange cursor-pointer text-earthtext">${monthOptions}</select>
-                <input type="number" name="year" value="${year}" onchange="this.form.submit()" class="border border-softsand px-3 py-2.5 rounded-2xl text-sm font-bold w-28 bg-white outline-none focus:ring-2 focus:ring-vibrantorange text-earthtext">
+                <select name="month" onchange="this.form.submit()" class="border border-deepgreen/25 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white outline-none focus:ring-2 focus:ring-softorange cursor-pointer text-earthtext">${monthOptions}</select>
+                <input type="number" name="year" value="${year}" onchange="this.form.submit()" class="border border-deepgreen/25 px-3 py-2.5 rounded-2xl text-sm font-bold w-28 bg-white outline-none focus:ring-2 focus:ring-softorange text-earthtext">
             </form>
         </div>
 
@@ -563,9 +563,9 @@ app.get('/calendar', checkAuth, async (req, res) => {
             <input type="hidden" name="year" value="${year}">
             <input type="hidden" name="month" value="${month}">
             
-            <div class="bg-white rounded-[2rem] shadow-sm border border-primaryyellow/20 p-4 sm:p-6 overflow-x-auto">
+            <div class="bg-white rounded-[2rem] shadow-sm border border-deepgreen/15 p-4 sm:p-6 overflow-x-auto">
                 <div class="min-w-[1000px]">
-                    <div class="grid grid-cols-7 gap-3 mb-3 text-center font-bold text-xs text-vibrantorange uppercase tracking-wider">
+                    <div class="grid grid-cols-7 gap-3 mb-3 text-center font-bold text-xs text-deepgreen uppercase tracking-wider">
                         <div class="text-red-600 font-bold">Sun</div>
                         <div>Mon</div>
                         <div>Tue</div>
@@ -581,12 +581,12 @@ app.get('/calendar', checkAuth, async (req, res) => {
             </div>
 
             <div class="mt-6 flex justify-end">
-                <button type="submit" class="w-full sm:w-auto bg-vibrantorange hover:bg-[#e07600] text-white px-8 py-3.5 rounded-2xl font-bold text-sm shadow-md transition">💾 Simpan jadwal pribadi siswa</button>
+                <button type="submit" class="w-full sm:w-auto bg-deepgreen hover:bg-[#184a36] text-white px-8 py-3.5 rounded-2xl font-bold text-sm shadow-md transition">💾 Simpan jadwal pribadi siswa</button>
             </div>
         </form>
 
         <div class="mt-6">
-            <a href="/dashboard" class="inline-flex items-center text-vibrantorange hover:text-earthtext text-sm font-bold">&larr; Kembali ke Beranda</a>
+            <a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-softorange text-sm font-bold">&larr; Kembali ke Beranda</a>
         </div>`;
 
         res.send(layout('Kalendar Akademik', content));
@@ -637,15 +637,15 @@ app.get('/kas', checkAuth, async (req, res) => {
         
         if (period !== 'sem2') {
             rows += `
-            <tr class="border-b border-softsand hover:bg-softsand/30">
+            <tr class="border-b border-deepgreen/10 hover:bg-cream/50">
                 <td class="py-4 px-4 font-bold text-earthtext">Iuran Kaos</td>
                 <td class="py-4 px-3 text-sm text-earthtext/70">Rp ${kaosAmount.toLocaleString()}</td>
                 <td class="py-4 px-3 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold ${isKaosPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${isKaosPaid ? 'Lunas' : 'Belum Bayar'}</span></td>
             </tr>`;
             if (!isKaosPaid) {
                 checkboxes += `
-                <label class="flex items-center gap-3 p-3 bg-softsand/30 rounded-2xl cursor-pointer hover:bg-softsand border border-softsand">
-                    <input type="checkbox" class="w-5 h-5 calc-item accent-vibrantorange" data-price="${kaosAmount}" onchange="calcTotal()">
+                <label class="flex items-center gap-3 p-3 bg-cream/50 rounded-2xl cursor-pointer hover:bg-cream border border-deepgreen/15">
+                    <input type="checkbox" class="w-5 h-5 calc-item accent-softorange" data-price="${kaosAmount}" onchange="calcTotal()">
                     <span class="text-sm font-bold text-earthtext">Iuran Kaos (Rp ${kaosAmount.toLocaleString()})</span>
                 </label>`;
             }
@@ -657,7 +657,7 @@ app.get('/kas', checkAuth, async (req, res) => {
             const rowAmount = getRowAmount(found, false);
             
             rows += `
-            <tr class="border-b border-softsand hover:bg-softsand/30">
+            <tr class="border-b border-deepgreen/10 hover:bg-cream/50">
                 <td class="py-4 px-4 font-bold text-earthtext">${m}</td>
                 <td class="py-4 px-3 text-sm text-earthtext/70">Rp ${rowAmount.toLocaleString()}</td>
                 <td class="py-4 px-3 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold ${paid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${paid ? 'Lunas' : 'Belum Bayar'}</span></td>
@@ -665,48 +665,48 @@ app.get('/kas', checkAuth, async (req, res) => {
             
             if (!paid) {
                 checkboxes += `
-                <label class="flex items-center gap-3 p-3 bg-softsand/30 rounded-2xl cursor-pointer hover:bg-softsand border border-softsand">
-                    <input type="checkbox" class="w-5 h-5 calc-item accent-vibrantorange" data-price="${rowAmount}" onchange="calcTotal()">
+                <label class="flex items-center gap-3 p-3 bg-cream/50 rounded-2xl cursor-pointer hover:bg-cream border border-deepgreen/15">
+                    <input type="checkbox" class="w-5 h-5 calc-item accent-softorange" data-price="${rowAmount}" onchange="calcTotal()">
                     <span class="text-sm font-bold text-earthtext">${m} (Rp ${rowAmount.toLocaleString()})</span>
                 </label>`;
             }
         });
 
         const content = `
-        <div class="mb-6 bg-white p-6 sm:p-8 rounded-[2rem] shadow-sm border border-primaryyellow/20">
+        <div class="mb-6 bg-white p-6 sm:p-8 rounded-[2rem] shadow-sm border border-deepgreen/15">
             <h2 class="text-2xl font-bold mb-4 text-earthtext">Iuran Kas Siswa</h2>
-            <select onchange="window.location.href='?period=' + this.value" class="w-full p-3.5 border border-softsand rounded-2xl mb-6 bg-softsand/40 text-earthtext font-bold text-sm outline-none focus:ring-2 focus:ring-vibrantorange">
+            <select onchange="window.location.href='?period=' + this.value" class="w-full p-3.5 border border-deepgreen/20 rounded-2xl mb-6 bg-cream/50 text-earthtext font-bold text-sm outline-none focus:ring-2 focus:ring-softorange">
                 <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>Semester 1 (Juli - Desember 2026)</option>
                 <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>Semester 2 (Januari - Juni 2027)</option>
                 <option value="all" ${period === 'all' ? 'selected' : ''}>Semua Periode</option>
             </select>
             
             <div class="grid lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 overflow-x-auto bg-white rounded-2xl shadow-sm border border-softsand">
+                <div class="lg:col-span-2 overflow-x-auto bg-white rounded-2xl shadow-sm border border-deepgreen/15">
                     <table class="w-full text-left">${rows}</table>
                 </div>
                 
-                <div class="bg-softsand/30 p-6 rounded-[2rem] shadow-sm border border-primaryyellow/20 flex flex-col justify-between">
+                <div class="bg-cream/40 p-6 rounded-[2rem] shadow-sm border border-deepgreen/15 flex flex-col justify-between">
                     <div>
                         <h3 class="font-bold mb-3 text-earthtext">🧮 Kalkulator Pembayaran</h3>
                         <p class="text-xs mb-4 text-earthtext/70">Centang item di bawah untuk menghitung total pembayaran:</p>
                         
-                        <label class="flex items-center gap-3 p-3 bg-primaryyellow/20 border border-primaryyellow/30 rounded-2xl mb-3 cursor-pointer font-bold text-earthtext">
-                            <input type="checkbox" id="selectAll" class="w-5 h-5 accent-vibrantorange" onchange="selectAll(this)"> Pilih Semua
+                        <label class="flex items-center gap-3 p-3 bg-sagegreen/20 border border-sagegreen/30 rounded-2xl mb-3 cursor-pointer font-bold text-deepgreen">
+                            <input type="checkbox" id="selectAll" class="w-5 h-5 accent-softorange" onchange="selectAll(this)"> Pilih Semua
                         </label>
                         
                         <div class="space-y-2.5 max-h-[300px] overflow-y-auto mb-4 pr-1">${checkboxes}</div>
                     </div>
 
                     <div>
-                        <div class="pt-4 border-t border-softsand font-bold text-earthtext">Total Pembayaran: Rp <span id="totalDisplay">0</span></div>
+                        <div class="pt-4 border-t border-deepgreen/15 font-bold text-earthtext">Total Pembayaran: Rp <span id="totalDisplay">0</span></div>
                         
-                        <div class="mt-6 p-4 bg-white rounded-2xl text-xs sm:text-sm border border-softsand text-earthtext shadow-sm">
-                            <p class="mb-2 font-bold text-vibrantorange">Info Pembayaran:</p>
+                        <div class="mt-6 p-4 bg-white rounded-2xl text-xs sm:text-sm border border-deepgreen/15 text-earthtext shadow-sm">
+                            <p class="mb-2 font-bold text-softorange">Info Pembayaran:</p>
                             <p>BCA: 0971149581</p>
                             <p>BNI: 286855891</p>
                             <p>a.n. Nisa Syakrina</p>
-                            <p class="mt-3">Konfirmasi ke Mba Nisa:<br><a href="https://wa.me/6285800327444" target="_blank" class="text-vibrantorange font-bold underline hover:text-earthtext">+62 858-0032-7444</a></p>
+                            <p class="mt-3">Konfirmasi ke Mba Nisa:<br><a href="https://wa.me/6285800327444" target="_blank" class="text-softorange font-bold underline hover:text-deepgreen">+62 858-0032-7444</a></p>
                         </div>
                     </div>
                 </div>
@@ -725,7 +725,7 @@ app.get('/kas', checkAuth, async (req, res) => {
             }
         </script>
 
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-vibrantorange hover:text-earthtext text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-softorange text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
         
         res.send(layout('Iuran Kas', content));
     } catch (e) { res.status(500).send("Error"); }
@@ -840,7 +840,7 @@ app.get('/finances', checkAuth, async (req, res) => {
                 : '<span class="text-red-800 bg-red-100 border border-red-200 px-2.5 py-0.5 rounded-full text-[11px] font-bold">Pengeluaran</span>';
             
             rows += `
-            <tr class="border-b border-softsand hover:bg-softsand/30 transition align-top">
+            <tr class="border-b border-deepgreen/10 hover:bg-cream/50 transition align-top">
                 <td class="py-3.5 px-3 sm:px-6 text-xs text-earthtext/70 text-center whitespace-nowrap w-[120px] font-semibold">${tx.date}</td>
                 <td class="py-3.5 px-3 sm:px-6 font-bold text-earthtext text-xs sm:text-sm text-left break-words max-w-[180px] sm:max-w-md">${tx.desc}</td>
                 <td class="py-3.5 px-3 sm:px-6 text-center whitespace-nowrap w-[100px]">${badge}</td>
@@ -861,34 +861,34 @@ app.get('/finances', checkAuth, async (req, res) => {
         <div class="mb-6"><h2 class="text-xl sm:text-2xl font-bold text-earthtext">Laporan Keuangan</h2><p class="text-xs sm:text-sm text-earthtext/70">Rincian pemasukan kas, kaos, transaksi lainnya, dan pengeluaran kelas 2A.</p></div>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-primaryyellow/20 border-l-4 border-l-blue-500"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Total Kas</span><h3 class="text-xl font-bold text-blue-600 mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
-            <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-primaryyellow/20 border-l-4 border-l-green-500"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Total Kaos</span><h3 class="text-xl font-bold text-green-600 mt-1">Rp ${totalKaos.toLocaleString()}</h3></div>
-            <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-primaryyellow/20 border-l-4 border-l-amber-500"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pendapatan Lain</span><h3 class="text-xl font-bold text-amber-600 mt-1">Rp ${totalLainnya.toLocaleString()}</h3></div>
-            <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-primaryyellow/20 border-l-4 border-l-red-500"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pengeluaran</span><h3 class="text-xl font-bold text-red-600 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
+            <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-blue-500"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Total Kas</span><h3 class="text-xl font-bold text-blue-600 mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
+            <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-green-500"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Total Kaos</span><h3 class="text-xl font-bold text-green-600 mt-1">Rp ${totalKaos.toLocaleString()}</h3></div>
+            <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-amber-500"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pendapatan Lain</span><h3 class="text-xl font-bold text-amber-600 mt-1">Rp ${totalLainnya.toLocaleString()}</h3></div>
+            <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-red-500"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pengeluaran</span><h3 class="text-xl font-bold text-red-600 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
         </div>
 
-        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-primaryyellow/20 mb-6 bg-gradient-to-r from-primaryyellow/20 to-vibrantorange/10">
+        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/15 mb-6 bg-gradient-to-r from-deepgreen/10 to-sagegreen/10">
             <div>
-                <span class="text-xs font-bold uppercase tracking-wider text-vibrantorange">Saldo Akhir Kas Kelas (Total Masuk - Pengeluaran)</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-deepgreen">Saldo Akhir Kas Kelas (Total Masuk - Pengeluaran)</span>
                 <h3 class="text-2xl sm:text-3xl font-bold text-earthtext mt-1">Rp ${balance.toLocaleString()}</h3>
             </div>
         </div>
 
-        <div class="bg-white p-5 sm:p-6 rounded-[2rem] shadow-sm border border-primaryyellow/20 mb-6">
+        <div class="bg-white p-5 sm:p-6 rounded-[2rem] shadow-sm border border-deepgreen/15 mb-6">
             <form method="GET" class="flex flex-wrap items-end gap-4">
                 <div class="flex-grow min-w-[200px]">
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Cari Nama / Keterangan</label>
-                    <input type="text" name="search" value="${search}" placeholder="Cari nama siswa, kaos, dll..." class="w-full border border-softsand px-4 py-2.5 rounded-2xl text-sm font-bold bg-softsand/30 outline-none focus:ring-2 focus:ring-vibrantorange text-earthtext">
+                    <input type="text" name="search" value="${search}" placeholder="Cari nama siswa, kaos, dll..." class="w-full border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-softorange text-earthtext">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Bulan Kas</label>
-                    <select name="monthFilter" class="border border-softsand px-4 py-2.5 rounded-2xl text-sm font-bold bg-softsand/30 outline-none focus:ring-2 focus:ring-vibrantorange text-earthtext">
+                    <select name="monthFilter" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-softorange text-earthtext">
                         ${monthOptions}
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Jenis</label>
-                    <select name="type" class="border border-softsand px-4 py-2.5 rounded-2xl text-sm font-bold bg-softsand/30 outline-none focus:ring-2 focus:ring-vibrantorange text-earthtext">
+                    <select name="type" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-softorange text-earthtext">
                         <option value="all" ${typeFilter === 'all' ? 'selected' : ''}>Semua</option>
                         <option value="income" ${typeFilter === 'income' ? 'selected' : ''}>Pemasukan</option>
                         <option value="expense" ${typeFilter === 'expense' ? 'selected' : ''}>Pengeluaran</option>
@@ -896,23 +896,23 @@ app.get('/finances', checkAuth, async (req, res) => {
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Dari Tanggal</label>
-                    <input type="date" name="start_date" value="${startDate}" class="border border-softsand px-3 py-2.5 rounded-2xl text-sm font-bold bg-softsand/30 outline-none focus:ring-2 focus:ring-vibrantorange text-earthtext">
+                    <input type="date" name="start_date" value="${startDate}" class="border border-deepgreen/20 px-3 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-softorange text-earthtext">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-earthtext/70 uppercase mb-1">Sampai Tanggal</label>
-                    <input type="date" name="end_date" value="${endDate}" class="border border-softsand px-3 py-2.5 rounded-2xl text-sm font-bold bg-softsand/30 outline-none focus:ring-2 focus:ring-vibrantorange text-earthtext">
+                    <input type="date" name="end_date" value="${endDate}" class="border border-deepgreen/20 px-3 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-softorange text-earthtext">
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="bg-vibrantorange hover:bg-[#e07600] text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-sm transition">Filter</button>
-                    <a href="/finances" class="bg-softsand hover:bg-softsand/80 text-earthtext px-4 py-2.5 rounded-2xl text-sm font-bold transition flex items-center justify-center">Reset</a>
+                    <button type="submit" class="bg-softorange hover:bg-[#d88949] text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-sm transition">Filter</button>
+                    <a href="/finances" class="bg-deepgreen/10 hover:bg-deepgreen/20 text-deepgreen px-4 py-2.5 rounded-2xl text-sm font-bold transition flex items-center justify-center">Reset</a>
                 </div>
             </form>
         </div>
 
-        <div class="bg-white rounded-[2rem] shadow-sm border border-primaryyellow/20 overflow-x-auto mb-6">
+        <div class="bg-white rounded-[2rem] shadow-sm border border-deepgreen/15 overflow-x-auto mb-6">
             <table class="w-full min-w-[600px]">
                 <thead>
-                    <tr class="bg-softsand/40 text-earthtext/70 text-xs uppercase tracking-wider border-b border-softsand font-bold">
+                    <tr class="bg-cream/60 text-earthtext/70 text-xs uppercase tracking-wider border-b border-deepgreen/15 font-bold">
                         <th class="py-3 px-3 sm:px-6 text-center w-[120px]">Tanggal</th>
                         <th class="py-3 px-3 sm:px-6 text-left">Keterangan</th>
                         <th class="py-3 px-3 sm:px-6 text-center w-[100px]">Tipe</th>
@@ -924,14 +924,14 @@ app.get('/finances', checkAuth, async (req, res) => {
         </div>
 
         <div class="flex justify-center items-center gap-2 mb-6 flex-wrap">
-            <a href="?page=1&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white border border-softsand rounded-2xl text-sm font-bold text-vibrantorange hover:bg-softsand/30">First</a>
-            ${page > 1 ? `<a href="?page=${page-1}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white border border-softsand rounded-2xl text-sm font-bold text-vibrantorange hover:bg-softsand/30">Prev</a>` : ''}
+            <a href="?page=1&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white border border-deepgreen/20 rounded-2xl text-sm font-bold text-deepgreen hover:bg-cream/50">First</a>
+            ${page > 1 ? `<a href="?page=${page-1}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white border border-deepgreen/20 rounded-2xl text-sm font-bold text-deepgreen hover:bg-cream/50">Prev</a>` : ''}
             <span class="px-4 py-2 text-sm font-bold text-earthtext/70">Halaman ${page} dari ${totalPages}</span>
-            ${page < totalPages ? `<a href="?page=${page+1}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white border border-softsand rounded-2xl text-sm font-bold text-vibrantorange hover:bg-softsand/30">Next</a>` : ''}
-            <a href="?page=${totalPages}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white border border-softsand rounded-2xl text-sm font-bold text-vibrantorange hover:bg-softsand/30">Last (${totalPages})</a>
+            ${page < totalPages ? `<a href="?page=${page+1}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white border border-deepgreen/20 rounded-2xl text-sm font-bold text-deepgreen hover:bg-cream/50">Next</a>` : ''}
+            <a href="?page=${totalPages}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white border border-deepgreen/20 rounded-2xl text-sm font-bold text-deepgreen hover:bg-cream/50">Last (${totalPages})</a>
         </div>
 
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-vibrantorange hover:text-earthtext text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-softorange text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
         
         res.send(layout('Laporan Keuangan', content));
     } catch (e) { 
@@ -984,28 +984,28 @@ app.get('/announcements', checkAuth, async (req, res) => {
                 if (fileId) {
                     const embedUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
                     const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-                    imageHtml = `<div class="mt-4"><img src="${embedUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-2xl max-h-80 w-auto object-cover border border-softsand" onerror="this.parentElement.style.display='none'"></div>`;
+                    imageHtml = `<div class="mt-4"><img src="${embedUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-2xl max-h-80 w-auto object-cover border border-deepgreen/15" onerror="this.parentElement.style.display='none'"></div>`;
                     actionButtonsHtml = `
                     <div class="mt-3 flex flex-wrap gap-2">
                         <a href="${rawUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold border border-emerald-200 transition"><span>📁</span><span>Buka di Google Drive</span></a>
-                        <a href="${downloadUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-vibrantorange hover:bg-[#e07600] text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
+                        <a href="${downloadUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-softorange hover:bg-[#d88949] text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
                     </div>`;
                 } else {
-                    imageHtml = `<div class="mt-4"><img src="${rawUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-2xl max-h-80 w-auto object-cover border border-softsand" onerror="this.parentElement.style.display='none'"></div>`;
+                    imageHtml = `<div class="mt-4"><img src="${rawUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-2xl max-h-80 w-auto object-cover border border-deepgreen/15" onerror="this.parentElement.style.display='none'"></div>`;
                     actionButtonsHtml = `
                     <div class="mt-3 flex flex-wrap gap-2">
                         <a href="${rawUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold border border-emerald-200 transition"><span>🔗</span><span>Buka Link</span></a>
-                        <a href="${rawUrl}" download target="_blank" class="inline-flex items-center space-x-2 bg-vibrantorange hover:bg-[#e07600] text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
+                        <a href="${rawUrl}" download target="_blank" class="inline-flex items-center space-x-2 bg-softorange hover:bg-[#d88949] text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
                     </div>`;
                 }
             }
 
             const contentText = String(a.content || '').replace(/\\n/g, '\n');
             cards += `
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm border-l-4 border-l-vibrantorange border border-primaryyellow/20 mb-5">
+            <div class="bg-white p-6 rounded-[2rem] shadow-sm border-l-4 border-l-softorange border border-deepgreen/15 mb-5">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
                     <h3 class="font-bold text-lg text-earthtext flex items-center space-x-2"><span>📢</span><span>${a.title}</span></h3>
-                    <span class="text-xs font-bold bg-softsand text-earthtext px-3 py-1 rounded-full border border-softsand">${formatDateID(a.date)}</span>
+                    <span class="text-xs font-bold bg-cream text-earthtext px-3 py-1 rounded-full border border-deepgreen/15">${formatDateID(a.date)}</span>
                 </div>
                 <p class="text-earthtext/80 text-sm leading-relaxed whitespace-pre-wrap break-words font-medium">${contentText}</p>
                 ${imageHtml}
@@ -1018,43 +1018,43 @@ app.get('/announcements', checkAuth, async (req, res) => {
             <h2 class="text-xl sm:text-2xl font-bold text-earthtext">Pengumuman Sekolah</h2>
             <p class="text-xs sm:text-sm text-earthtext/70">Informasi dan pengumuman resmi dari pihak sekolah untuk walimurid kelas 2A.</p>
         </div>
-        <div class="bg-white p-4 rounded-[2rem] shadow-sm border border-primaryyellow/20 mb-6">
+        <div class="bg-white p-4 rounded-[2rem] shadow-sm border border-deepgreen/15 mb-6">
             <form method="GET" class="flex flex-wrap gap-3 items-center">
-                <input type="text" name="search" value="${search}" placeholder="Cari judul/isi pengumuman..." class="border border-softsand px-4 py-2.5 rounded-2xl text-sm font-bold bg-softsand/30 outline-none focus:ring-2 focus:ring-vibrantorange flex-grow text-earthtext">
-                <select name="filter" class="border border-softsand px-4 py-2.5 rounded-2xl text-sm font-bold bg-softsand/30 outline-none focus:ring-2 focus:ring-vibrantorange text-earthtext">
+                <input type="text" name="search" value="${search}" placeholder="Cari judul/isi pengumuman..." class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-softorange flex-grow text-earthtext">
+                <select name="filter" class="border border-deepgreen/20 px-4 py-2.5 rounded-2xl text-sm font-bold bg-cream/50 outline-none focus:ring-2 focus:ring-softorange text-earthtext">
                     <option value="all" ${filter === 'all' ? 'selected' : ''}>Semua Waktu</option>
                     <option value="weekly" ${filter === 'weekly' ? 'selected' : ''}>Minggu Ini</option>
                 </select>
-                <button type="submit" class="bg-vibrantorange text-white px-5 py-2.5 rounded-2xl text-sm font-bold hover:bg-[#e07600] transition">Cari</button>
+                <button type="submit" class="bg-softorange text-white px-5 py-2.5 rounded-2xl text-sm font-bold hover:bg-[#d88949] transition">Cari</button>
             </form>
         </div>
-        <div class="space-y-4">${cards || '<div class="bg-white p-8 rounded-[2rem] text-center text-earthtext/50 border border-primaryyellow/20 font-bold">Tidak ada pengumuman yang ditemukan.</div>'}</div>
+        <div class="space-y-4">${cards || '<div class="bg-white p-8 rounded-[2rem] text-center text-earthtext/50 border border-deepgreen/15 font-bold">Tidak ada pengumuman yang ditemukan.</div>'}</div>
         <div class="mt-6 flex justify-center items-center gap-2">
-            ${page > 1 ? `<a href="?page=${page-1}&search=${search}&filter=${filter}" class="px-4 py-2 bg-white border border-softsand rounded-2xl text-sm font-bold text-vibrantorange hover:bg-softsand">Prev</a>` : ''}
+            ${page > 1 ? `<a href="?page=${page-1}&search=${search}&filter=${filter}" class="px-4 py-2 bg-white border border-deepgreen/20 rounded-2xl text-sm font-bold text-deepgreen hover:bg-cream">Prev</a>` : ''}
             <span class="px-4 py-2 text-sm font-bold text-earthtext/70">Halaman ${page} dari ${totalPages}</span>
-            ${page < totalPages ? `<a href="?page=${page+1}&search=${search}&filter=${filter}" class="px-4 py-2 bg-white border border-softsand rounded-2xl text-sm font-bold text-vibrantorange hover:bg-softsand">Next</a>` : ''}
+            ${page < totalPages ? `<a href="?page=${page+1}&search=${search}&filter=${filter}" class="px-4 py-2 bg-white border border-deepgreen/20 rounded-2xl text-sm font-bold text-deepgreen hover:bg-cream">Next</a>` : ''}
         </div>
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-vibrantorange hover:text-earthtext text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-softorange text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
         res.send(layout('Pengumuman', content));
     } catch (e) { res.status(500).send("Error"); }
 });
 
 app.get('/change-password', checkAuth, (req, res) => {
     const context = `
-    <div class="max-w-md mx-auto bg-white p-8 rounded-[2rem] shadow-sm border border-primaryyellow/20">
+    <div class="max-w-md mx-auto bg-white p-8 rounded-[2rem] shadow-sm border border-deepgreen/15">
         <h2 class="text-xl font-bold text-earthtext mb-6">Ganti Password</h2>
         <form action="/change-password" method="POST" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/70 mb-1">Password Lama</label>
-                <input type="password" name="oldPassword" required class="w-full px-4 py-2.5 border border-softsand rounded-2xl outline-none focus:ring-2 focus:ring-vibrantorange bg-softsand/30 text-earthtext font-bold">
+                <input type="password" name="oldPassword" required class="w-full px-4 py-2.5 border border-deepgreen/20 rounded-2xl outline-none focus:ring-2 focus:ring-softorange bg-cream/50 text-earthtext font-bold">
             </div>
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/70 mb-1">Password Baru</label>
-                <input type="password" name="newPassword" required class="w-full px-4 py-2.5 border border-softsand rounded-2xl outline-none focus:ring-2 focus:ring-vibrantorange bg-softsand/30 text-earthtext font-bold">
+                <input type="password" name="newPassword" required class="w-full px-4 py-2.5 border border-deepgreen/20 rounded-2xl outline-none focus:ring-2 focus:ring-softorange bg-cream/50 text-earthtext font-bold">
             </div>
-            <button type="submit" class="w-full bg-vibrantorange text-white py-3 rounded-2xl font-bold hover:bg-[#e07600] transition shadow-md">Simpan Password Baru</button>
+            <button type="submit" class="w-full bg-softorange text-white py-3 rounded-2xl font-bold hover:bg-[#d88949] transition shadow-md">Simpan Password Baru</button>
         </form>
-        <div class="mt-6"><a href="/dashboard" class="text-vibrantorange font-bold hover:text-earthtext">&larr; Kembali ke Beranda</a></div>
+        <div class="mt-6"><a href="/dashboard" class="text-deepgreen font-bold hover:text-softorange">&larr; Kembali ke Beranda</a></div>
     </div>`;
     res.send(layout('Ganti Password', context));
 });
@@ -1106,8 +1106,8 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
             const labelName = m === 'Kaos' ? `Iuran Kaos (Rp ${amt.toLocaleString()})` : `${m} (Rp ${amt.toLocaleString()})`;
             
             checkboxesHtml += `
-            <label class="flex items-center space-x-3 p-3 bg-white border border-softsand rounded-2xl cursor-pointer hover:bg-softsand/40 transition">
-                <input type="checkbox" name="months" value="${m}" ${isPaid ? 'checked' : ''} class="w-5 h-5 accent-vibrantorange">
+            <label class="flex items-center space-x-3 p-3 bg-white border border-deepgreen/15 rounded-2xl cursor-pointer hover:bg-cream/50 transition">
+                <input type="checkbox" name="months" value="${m}" ${isPaid ? 'checked' : ''} class="w-5 h-5 accent-softorange">
                 <span class="text-sm font-bold text-earthtext">${labelName}</span>
             </label>`;
         });
@@ -1116,16 +1116,16 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
 
         const content = `
         <div class="max-w-6xl mx-auto space-y-8 pb-12">
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-primaryyellow/25 flex justify-between items-center">
+            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/20 flex justify-between items-center">
                 <div>
-                    <h2 class="text-2xl font-bold text-earthtext">Panel Utama Admin Kelas 2A</h2>
+                    <h2 class="text-2xl font-bold text-deepgreen">Panel Utama Admin Kelas 2A</h2>
                     <p class="text-xs sm:text-sm text-earthtext/70">Kelola data kas, transaksi keuangan, agenda kalender, materi sumatif, dan backup database.</p>
                 </div>
                 <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-2xl text-sm font-bold transition shadow-sm">Logout</a>
             </div>
 
             <!-- 1. BULK UPDATE STATUS KAS & KAOS -->
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-primaryyellow/25">
+            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/20">
                 <h3 class="font-bold text-lg text-earthtext mb-2">💵 Kelola Status Pembayaran Kas & Kaos Siswa (Bulk Update)</h3>
                 <p class="text-xs text-earthtext/60 mb-4">Pilih siswa, lalu centang bulan/item yang sudah lunas dan klik Simpan.</p>
                 
@@ -1133,52 +1133,52 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                     <input type="hidden" name="user_id" value="${targetUserId}">
                     <div class="mb-4">
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Pilih Nama Siswa:</label>
-                        <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border border-softsand p-3 rounded-2xl w-full sm:w-72 bg-softsand/40 font-bold text-sm outline-none focus:ring-2 focus:ring-vibrantorange text-earthtext">${studentOptions}</select>
+                        <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border border-deepgreen/20 p-3 rounded-2xl w-full sm:w-72 bg-cream/50 font-bold text-sm outline-none focus:ring-2 focus:ring-softorange text-earthtext">${studentOptions}</select>
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
                         ${checkboxesHtml}
                     </div>
 
-                    <button type="submit" class="bg-vibrantorange hover:bg-[#e07600] text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-md transition">💾 Simpan Perubahan Kas (Bulk)</button>
+                    <button type="submit" class="bg-softorange hover:bg-[#d88949] text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-md transition">💾 Simpan Perubahan Kas (Bulk)</button>
                 </form>
             </div>
 
             <!-- 2. TAMBAH TRANSAKSI -->
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-primaryyellow/25">
+            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/20">
                 <h3 class="font-bold text-lg text-earthtext mb-4">📊 Tambah Transaksi Keuangan (Pemasukan / Pengeluaran)</h3>
                 <form action="/admin/add-transaction" method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Tanggal</label>
-                        <input type="date" name="date" required class="w-full border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 text-earthtext font-bold">
+                        <input type="date" name="date" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Tipe</label>
-                        <select name="type" class="w-full border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 text-earthtext font-bold">
+                        <select name="type" class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                             <option value="income">Pemasukan</option>
                             <option value="expense">Pengeluaran</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Keterangan</label>
-                        <input type="text" name="desc" placeholder="Contoh: Beli alat kelas" required class="w-full border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 text-earthtext font-bold">
+                        <input type="text" name="desc" placeholder="Contoh: Beli alat kelas" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Jumlah (Rp)</label>
-                        <input type="number" name="amount" placeholder="50000" required class="w-full border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 text-earthtext font-bold">
+                        <input type="number" name="amount" placeholder="50000" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                     </div>
-                    <button type="submit" class="bg-vibrantorange hover:bg-[#e07600] text-white py-2.5 px-4 rounded-2xl font-bold text-sm h-[42px] shadow-sm">Simpan Transaksi</button>
+                    <button type="submit" class="bg-softorange hover:bg-[#d88949] text-white py-2.5 px-4 rounded-2xl font-bold text-sm h-[42px] shadow-sm">Simpan Transaksi</button>
                 </form>
             </div>
 
             <!-- 3. TAMBAH MATERI SUMATIF -->
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-primaryyellow/25">
+            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/20">
                 <h3 class="font-bold text-lg text-earthtext mb-3">📚 Unggah Materi Sumatif</h3>
                 <form action="/admin/add-summative" method="POST" class="space-y-3">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Pilih Bulan / Ujian</label>
-                            <select name="month" required class="w-full border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 text-earthtext font-bold">
+                            <select name="month" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                                 <option value="Juni 2026">Juni 2026</option>
                                 <option value="Juli 2026">Juli 2026</option>
                                 <option value="Agustus 2026">Agustus 2026</option>
@@ -1197,7 +1197,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Mata Pelajaran</label>
-                            <select name="subject" required class="w-full border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 text-earthtext font-bold">
+                            <select name="subject" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                                 <option value="Matematika">Matematika</option>
                                 <option value="Bahasa Inggris">Bahasa Inggris</option>
                                 <option value="Seni">Seni</option>
@@ -1211,47 +1211,47 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Judul Materi / Bab</label>
-                        <input type="text" name="title" placeholder="Contoh: Bab 1 Penjumlahan & Pengurangan" required class="w-full border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 text-earthtext font-bold">
+                        <input type="text" name="title" placeholder="Contoh: Bab 1 Penjumlahan & Pengurangan" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Link Google Drive File</label>
-                        <input type="url" name="link" placeholder="https://drive.google.com/file/d/..." required class="w-full border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 text-earthtext font-bold">
+                        <input type="url" name="link" placeholder="https://drive.google.com/file/d/..." required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                     </div>
-                    <button type="submit" class="w-full bg-vibrantorange hover:bg-[#e07600] text-white py-3 rounded-2xl font-bold text-sm shadow-sm transition">Simpan Materi Sumatif</button>
+                    <button type="submit" class="w-full bg-softorange hover:bg-[#d88949] text-white py-3 rounded-2xl font-bold text-sm shadow-sm transition">Simpan Materi Sumatif</button>
                 </form>
             </div>
 
             <!-- 4. TAMBAH KALENDER & PENGUMUMAN -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-primaryyellow/25">
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/20">
                     <h3 class="font-bold text-lg text-earthtext mb-3">📅 Tambah Agenda Kalender Kelas</h3>
                     <form action="/admin/add-event" method="POST" class="space-y-3">
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Tanggal</label>
-                            <input type="date" name="date" required class="w-full border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 text-earthtext font-bold">
+                            <input type="date" name="date" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Judul Agenda</label>
-                            <input type="text" name="title" placeholder="Contoh: Ujian Tengah Semester" required class="w-full border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 text-earthtext font-bold">
+                            <input type="text" name="title" placeholder="Contoh: Ujian Tengah Semester" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Keterangan</label>
-                            <input type="text" name="description" placeholder="Keterangan singkat kegiatan" required class="w-full border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 text-earthtext font-bold">
+                            <input type="text" name="description" placeholder="Keterangan singkat kegiatan" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                         </div>
-                        <button type="submit" class="w-full bg-vibrantorange hover:bg-[#e07600] text-white py-2.5 rounded-2xl font-bold text-sm shadow-sm">Simpan Kalender</button>
+                        <button type="submit" class="w-full bg-softorange hover:bg-[#d88949] text-white py-2.5 rounded-2xl font-bold text-sm shadow-sm">Simpan Kalender</button>
                     </form>
                 </div>
 
-                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-primaryyellow/25">
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/20">
                     <h3 class="font-bold text-lg text-earthtext mb-3">📢 Buat Pengumuman Sekolah</h3>
                     <form action="/admin/add-announcement" method="POST" class="space-y-3">
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="date" name="date" required class="border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 text-earthtext font-bold">
-                            <input type="text" name="title" placeholder="Judul Pengumuman" required class="border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 text-earthtext font-bold">
+                            <input type="date" name="date" required class="border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                            <input type="text" name="title" placeholder="Judul Pengumuman" required class="border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                         </div>
-                        <textarea name="content" rows="2" placeholder="Isi pengumuman..." required class="w-full border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 resize-none text-earthtext font-bold"></textarea>
-                        <input type="url" name="lampiran" placeholder="Link Google Drive (Opsional)" class="w-full border border-softsand p-2.5 rounded-2xl text-sm bg-softsand/40 text-earthtext font-bold">
-                        <button type="submit" class="w-full bg-vibrantorange hover:bg-[#e07600] text-white py-2.5 rounded-2xl font-bold text-sm shadow-sm">Publikasikan</button>
+                        <textarea name="content" rows="2" placeholder="Isi pengumuman..." required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 resize-none text-earthtext font-bold"></textarea>
+                        <input type="url" name="lampiran" placeholder="Link Google Drive (Opsional)" class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
+                        <button type="submit" class="w-full bg-softorange hover:bg-[#d88949] text-white py-2.5 rounded-2xl font-bold text-sm shadow-sm">Publikasikan</button>
                     </form>
                 </div>
             </div>
