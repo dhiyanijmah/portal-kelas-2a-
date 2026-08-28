@@ -116,27 +116,52 @@ const layout = (title, content) => `
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${title}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        moss: '#2C3424',
+                        cypress: '#4C583E',
+                        cedar: '#959581',
+                        olive: '#768064',
+                        aloe: '#DADED8',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         #loading-overlay { transition: opacity 0.3s ease; }
     </style>
 </head>
-<body class="bg-[#f0f4f1] text-[#1e293b] min-h-screen flex flex-col font-sans">
-    <div id="loading-overlay" class="fixed inset-0 bg-[#f0f4f1] flex flex-col items-center justify-center z-[9999]" style="display: none;">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-[#2f6636]"></div>
-        <p class="mt-4 text-[#2f6636] font-bold text-lg animate-pulse">Mohon tunggu sebentar...</p>
+<body class="bg-moss text-slate-100 min-h-screen flex flex-col font-sans selection:bg-olive selection:text-white">
+    <div id="loading-overlay" class="fixed inset-0 bg-moss/90 backdrop-blur-md flex flex-col items-center justify-center z-[9999]" style="display: none;">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-aloe"></div>
+        <p class="mt-4 text-aloe font-bold text-lg animate-pulse">Mohon tunggu sebentar...</p>
     </div>
 
-    <nav class="bg-[#2f6636] text-white shadow-md">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
-            <a href="/dashboard" class="font-bold text-base sm:text-xl flex items-center space-x-2"><span>🌿</span><span>Portal Walimurid Kelas 2A</span></a>
-            <a href="/logout" class="bg-[#244f2b] hover:bg-[#1b3d21] px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition shadow-sm">Keluar</a>
+    <nav class="bg-cypress/90 backdrop-blur-md sticky top-0 z-50 border-b border-olive/30 shadow-lg">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+            <a href="/dashboard" class="font-bold text-base sm:text-lg flex items-center space-x-2 text-aloe hover:text-white transition">
+                <span class="bg-olive/40 p-2 rounded-2xl">🌿</span>
+                <span>Portal Walimurid Kelas 2A</span>
+            </a>
+            <a href="/logout" class="bg-red-500/20 hover:bg-red-500 text-red-200 hover:text-white px-4 py-2 rounded-2xl text-xs font-semibold transition border border-red-500/30">Keluar</a>
         </div>
     </nav>
-    <main class="max-w-6xl mx-auto p-4 sm:p-6 flex-grow w-full">
-        ${content}
+
+    <main class="max-w-4xl mx-auto p-4 sm:p-6 flex-grow w-full">
+        <div class="bg-aloe text-slate-900 rounded-[2.5rem] p-6 sm:p-8 shadow-2xl border border-white/20 min-h-[75vh] flex flex-col justify-between">
+            <div>
+                ${content}
+            </div>
+            <footer class="text-center pt-8 mt-12 text-xs text-slate-600 border-t border-slate-300/60 font-medium">
+                Portal Walimurid Kelas 2A &copy; 2026 Dhiya
+            </footer>
+        </div>
     </main>
-    <footer class="text-center py-6 text-xs text-[#4b5563] border-t border-[#e2e8f0] bg-[#e6ede8]">Portal Walimurid Kelas 2A &copy; 2026 Dhiya</footer>
     
     <script>
         window.addEventListener('load', function() {
@@ -180,28 +205,44 @@ app.get('/login', (req, res) => {
         <title>Login - Portal Walimurid Kelas 2A</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23e57373%22><path d=%22M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z%22/></svg>">
         <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            moss: '#2C3424',
+                            cypress: '#4C583E',
+                            cedar: '#959581',
+                            olive: '#768064',
+                            aloe: '#DADED8',
+                        }
+                    }
+                }
+            }
+        </script>
     </head>
-    <body class="bg-[#f0f4f1] flex items-center justify-center min-h-screen px-4">
-        <div id="login-loading" class="fixed inset-0 bg-[#f0f4f1] flex flex-col items-center justify-center z-[9999]" style="display: none;">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-[#2f6636]"></div>
-            <p class="mt-4 text-[#2f6636] font-bold text-lg animate-pulse">Mohon tunggu sebentar...</p>
+    <body class="bg-moss flex items-center justify-center min-h-screen px-4 font-sans">
+        <div id="login-loading" class="fixed inset-0 bg-moss/90 backdrop-blur-md flex flex-col items-center justify-center z-[9999]" style="display: none;">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-aloe"></div>
+            <p class="mt-4 text-aloe font-bold text-lg animate-pulse">Mohon tunggu sebentar...</p>
         </div>
 
-        <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-md border border-[#cbd5e1]">
+        <div class="bg-aloe p-6 sm:p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-white/20 text-slate-900">
             <div class="text-center mb-6">
-                <h1 class="text-xl sm:text-2xl font-bold text-[#2f6636] mt-2">Portal Walimurid Kelas 2A</h1>
-                <p class="text-xs sm:text-sm text-[#4b5563] mt-1">Assalamualaikum, selamat datang Ayah Bunda. Mohon untuk mengisikan Username dan Password</p>
+                <span class="bg-cypress/10 text-cypress p-3 rounded-2xl text-2xl inline-block mb-3">🌿</span>
+                <h1 class="text-xl sm:text-2xl font-black text-cypress">Portal Walimurid Kelas 2A</h1>
+                <p class="text-xs sm:text-sm text-slate-600 mt-1">Assalamualaikum, selamat datang Ayah Bunda. Mohon masukkan Username dan Password</p>
             </div>
             <form action="/login" method="POST" class="space-y-4" onsubmit="document.getElementById('login-loading').style.display='flex';">
                 <div>
-                    <label class="block text-sm font-semibold text-[#1e293b] mb-1">Username</label>
-                    <input type="text" name="first_name" required class="w-full px-4 py-3 border border-[#cbd5e1] rounded-xl focus:ring-2 focus:ring-[#2f6636] outline-none text-base transition" placeholder="Input nama depan siswa">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Username</label>
+                    <input type="text" name="first_name" required class="w-full px-4 py-3 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cypress outline-none text-base bg-white transition shadow-sm" placeholder="Nama depan siswa">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-[#1e293b] mb-1">Password</label>
-                    <input type="password" name="password" required class="w-full px-4 py-3 border border-[#cbd5e1] rounded-xl focus:ring-2 focus:ring-[#2f6636] outline-none text-base transition" placeholder="Input password">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Password</label>
+                    <input type="password" name="password" required class="w-full px-4 py-3 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cypress outline-none text-base bg-white transition shadow-sm" placeholder="Password akun">
                 </div>
-                <button type="submit" class="w-full bg-[#2f6636] text-white py-3 rounded-xl font-bold hover:bg-[#244f2b] shadow-md transition text-base">Masuk</button>
+                <button type="submit" class="w-full bg-cypress hover:bg-olive text-aloe py-3.5 rounded-2xl font-bold shadow-lg transition text-base tracking-wide">Masuk Portal</button>
             </form>
         </div>
     </body></html>`);
@@ -235,53 +276,55 @@ app.get('/logout', (req, res) => {
 
 app.get('/dashboard', checkAuth, (req, res) => {
     const content = `
-    <div class="mb-8 bg-gradient-to-r from-[#2f6636] to-[#40824b] text-white p-6 rounded-2xl shadow-md flex justify-between items-center">
+    <div class="mb-6 bg-gradient-to-r from-cypress to-olive text-aloe p-6 sm:p-8 rounded-3xl shadow-xl flex justify-between items-center border border-olive/30">
         <div>
-            <h2 class="text-2xl sm:text-3xl font-bold">Assalamualaikum, Ayah/Bunda ${String(req.user.first_name)}</h2>
+            <span class="text-[10px] uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full font-bold">Dashboard Wali Murid</span>
+            <h2 class="text-2xl sm:text-3xl font-black mt-2 text-white">Assalamualaikum, ${String(req.user.first_name)}</h2>
         </div>
-        <div class="text-4xl hidden sm:block">🌿</div>
+        <div class="text-4xl sm:text-5xl bg-white/10 p-4 rounded-3xl backdrop-blur-sm hidden sm:block">🌿</div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <a href="/calendar" class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-[#cbd5e1] flex items-center space-x-4 sm:space-x-5 group">
-            <div class="bg-[#e8f5e9] text-[#2f6636] p-3 sm:p-4 rounded-xl text-2xl sm:text-3xl group-hover:bg-[#2f6636] group-hover:text-white transition">📅</div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <a href="/calendar" class="bg-white p-5 sm:p-6 rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300 border border-slate-200 flex items-center space-x-4 group">
+            <div class="bg-cypress/10 text-cypress p-4 rounded-2xl text-2xl group-hover:bg-cypress group-hover:text-aloe transition">📅</div>
             <div>
-                <h3 class="font-bold text-base sm:text-lg text-[#1e293b] group-hover:text-[#2f6636] transition">Kalendar Akademik</h3>
-                <p class="text-xs sm:text-sm text-[#4b5563]">Agenda kelas dan catatan jadwal pribadi siswa.</p>
+                <h3 class="font-bold text-base sm:text-lg text-slate-800 group-hover:text-cypress transition">Kalendar Akademik</h3>
+                <p class="text-xs sm:text-sm text-slate-500">Agenda kelas & jadwal pribadi siswa.</p>
             </div>
         </a>
-        <a href="/kas" class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-[#cbd5e1] flex items-center space-x-4 sm:space-x-5 group">
-            <div class="bg-[#e8f5e9] text-[#2f6636] p-3 sm:p-4 rounded-xl text-2xl sm:text-3xl group-hover:bg-[#2f6636] group-hover:text-white transition">💵</div>
+        <a href="/kas" class="bg-white p-5 sm:p-6 rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300 border border-slate-200 flex items-center space-x-4 group">
+            <div class="bg-cypress/10 text-cypress p-4 rounded-2xl text-2xl group-hover:bg-cypress group-hover:text-aloe transition">💵</div>
             <div>
-                <h3 class="font-bold text-base sm:text-lg text-[#1e293b] group-hover:text-[#2f6636] transition">Iuran Kas Siswa</h3>
-                <p class="text-xs sm:text-sm text-[#4b5563]">Pembayaran kas pribadi setiap siswa.</p>
+                <h3 class="font-bold text-base sm:text-lg text-slate-800 group-hover:text-cypress transition">Iuran Kas Siswa</h3>
+                <p class="text-xs sm:text-sm text-slate-500">Pembayaran kas pribadi setiap siswa.</p>
             </div>
         </a>
-        <a href="/finances" class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-[#cbd5e1] flex items-center space-x-4 sm:space-x-5 group">
-            <div class="bg-[#fef3c7] text-[#d97706] p-3 sm:p-4 rounded-xl text-2xl sm:text-3xl group-hover:bg-[#d97706] group-hover:text-white transition">📊</div>
+        <a href="/finances" class="bg-white p-5 sm:p-6 rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300 border border-slate-200 flex items-center space-x-4 group">
+            <div class="bg-amber-100 text-amber-700 p-4 rounded-2xl text-2xl group-hover:bg-amber-600 group-hover:text-white transition">📊</div>
             <div>
-                <h3 class="font-bold text-base sm:text-lg text-[#1e293b] group-hover:text-[#d97706] transition">Laporan Keuangan</h3>
-                <p class="text-xs sm:text-sm text-[#4b5563]">Laporan income & expense kelas 2A 2026/2027.</p>
+                <h3 class="font-bold text-base sm:text-lg text-slate-800 group-hover:text-amber-700 transition">Laporan Keuangan</h3>
+                <p class="text-xs sm:text-sm text-slate-500">Rincian income & expense kelas 2A.</p>
             </div>
         </a>
-        <a href="/announcements" class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-[#cbd5e1] flex items-center space-x-4 sm:space-x-5 group">
-            <div class="bg-[#e0f2fe] text-[#0284c7] p-3 sm:p-4 rounded-xl text-2xl sm:text-3xl group-hover:bg-[#0284c7] group-hover:text-white transition">📢</div>
+        <a href="/announcements" class="bg-white p-5 sm:p-6 rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300 border border-slate-200 flex items-center space-x-4 group">
+            <div class="bg-sky-100 text-sky-700 p-4 rounded-2xl text-2xl group-hover:bg-sky-600 group-hover:text-white transition">📢</div>
             <div>
-                <h3 class="font-bold text-base sm:text-lg text-[#1e293b] group-hover:text-[#0284c7] transition">Pengumuman</h3>
-                <p class="text-xs sm:text-sm text-[#4b5563]">Pengumuman dari pihak sekolah.</p>
+                <h3 class="font-bold text-base sm:text-lg text-slate-800 group-hover:text-sky-700 transition">Pengumuman</h3>
+                <p class="text-xs sm:text-sm text-slate-500">Informasi resmi dari sekolah.</p>
             </div>
         </a>
-        <a href="/summative" class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-[#cbd5e1] flex items-center space-x-4 sm:space-x-5 group">
-            <div class="bg-[#e8f5e9] text-[#2f6636] p-3 sm:p-4 rounded-xl text-2xl sm:text-3xl group-hover:bg-[#2f6636] group-hover:text-white transition">📚</div>
+        <a href="/summative" class="bg-white p-5 sm:p-6 rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300 border border-slate-200 flex items-center space-x-4 group">
+            <div class="bg-cypress/10 text-cypress p-4 rounded-2xl text-2xl group-hover:bg-cypress group-hover:text-aloe transition">📚</div>
             <div>
-                <h3 class="font-bold text-base sm:text-lg text-[#1e293b] group-hover:text-[#2f6636] transition">Materi Sumatif</h3>
-                <p class="text-xs sm:text-sm text-[#4b5563]">Kisi-kisi dan materi sumatif bulanan lengkap.</p>
+                <h3 class="font-bold text-base sm:text-lg text-slate-800 group-hover:text-cypress transition">Materi Sumatif</h3>
+                <p class="text-xs sm:text-sm text-slate-500">Kisi-kisi dan materi bulanan lengkap.</p>
             </div>
         </a>
-        <a href="/change-password" class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-[#cbd5e1] flex items-center space-x-4 sm:space-x-5 group">
-            <div class="bg-[#e8f5e9] text-[#2f6636] p-3 sm:p-4 rounded-xl text-2xl sm:text-3xl group-hover:bg-[#2f6636] group-hover:text-white transition">🔑</div>
+        <a href="/change-password" class="bg-white p-5 sm:p-6 rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300 border border-slate-200 flex items-center space-x-4 group">
+            <div class="bg-cypress/10 text-cypress p-4 rounded-2xl text-2xl group-hover:bg-cypress group-hover:text-aloe transition">🔑</div>
             <div>
-                <h3 class="font-bold text-base sm:text-lg text-[#1e293b] group-hover:text-[#2f6636] transition">Ganti Password</h3>
-                <p class="text-xs sm:text-sm text-[#4b5563]">Ubah kata sandi akun Anda.</p>
+                <h3 class="font-bold text-base sm:text-lg text-slate-800 group-hover:text-cypress transition">Ganti Password</h3>
+                <p class="text-xs sm:text-sm text-slate-500">Ubah kata sandi akun Anda.</p>
             </div>
         </a>
     </div>`;
@@ -317,7 +360,7 @@ app.get('/summative', checkAuth, async (req, res) => {
 
         let periodSelect = `
         <div class="mb-4">
-            <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3 border border-[#cbd5e1] rounded-xl text-sm font-semibold bg-white outline-none focus:ring-2 focus:ring-[#2f6636] shadow-sm">
+            <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3.5 border border-slate-300 rounded-2xl text-sm font-bold bg-white text-slate-800 outline-none focus:ring-2 focus:ring-cypress shadow-sm">
                 <option value="month" ${period === 'month' ? 'selected' : ''}>🔍 Filter: Pilih Bulan Tertentu</option>
                 <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>📚 Tampilkan Semester 1 (Agustus - Ujian Smt)</option>
                 <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>📚 Tampilkan Semester 2 (Januari - UKK)</option>
@@ -329,7 +372,7 @@ app.get('/summative', checkAuth, async (req, res) => {
         if (period === 'month') {
             allMonthsList.forEach(m => {
                 const isActive = m === selectedMonth;
-                monthTabs += `<a href="/summative?period=month&month=${encodeURIComponent(m)}" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${isActive ? 'bg-[#2f6636] text-white shadow-sm' : 'bg-white text-[#4b5563] border border-[#cbd5e1] hover:bg-gray-50'}">${m}</a>`;
+                monthTabs += `<a href="/summative?period=month&month=${encodeURIComponent(m)}" class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition whitespace-nowrap shadow-sm ${isActive ? 'bg-cypress text-aloe' : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'}">${m}</a>`;
             });
             monthTabs = `<div class="flex overflow-x-auto gap-2 pb-3 mb-4">${monthTabs}</div>`;
         }
@@ -359,38 +402,38 @@ app.get('/summative', checkAuth, async (req, res) => {
                     }
                     const downloadUrl = fileId ? `https://drive.google.com/uc?export=download&id=${fileId}` : rawUrl;
 
-                    let monthBadge = period !== 'month' ? `<span class="text-[10px] bg-[#e0f2fe] text-[#0369a1] px-2 py-0.5 rounded mt-1 inline-block border border-[#bae6fd] font-bold">${mat.month || '-'}</span>` : '';
+                    let monthBadge = period !== 'month' ? `<span class="text-[10px] bg-sky-100 text-sky-800 px-2.5 py-0.5 rounded-full mt-1 inline-block font-bold">${mat.month || '-'}</span>` : '';
 
                     materialItems += `
-                    <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 mb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div class="p-4 bg-white rounded-2xl border border-slate-200 mb-2.5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
-                            <span class="font-bold text-sm text-[#1e293b] block">📄 ${mat.title}</span>
+                            <span class="font-bold text-sm text-slate-800 block">📄 ${mat.title}</span>
                             ${monthBadge}
                         </div>
                         <div class="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                            <a href="${rawUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-[#f0fdf4] text-[#166534] border border-[#bbf7d0] px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#dcfce7]">Buka Drive</a>
-                            <a href="${downloadUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-[#2f6636] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#244f2b]">Download</a>
+                            <a href="${rawUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-emerald-50 text-emerald-700 border border-emerald-200 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-100 transition">Buka Drive</a>
+                            <a href="${downloadUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-cypress text-aloe px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-olive transition">Download</a>
                         </div>
                     </div>`;
                 });
             } else {
-                materialItems = `<p class="text-xs text-gray-400 italic">Materi belum diunggah untuk periode ini.</p>`;
+                materialItems = `<p class="text-xs text-slate-400 italic p-3">Materi belum diunggah untuk periode ini.</p>`;
             }
 
             subjectCards += `
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] flex flex-col">
-                <div class="flex items-center space-x-3 mb-3">
-                    <div class="bg-emerald-50 text-[#2f6636] p-2.5 rounded-xl text-xl">📖</div>
-                    <h3 class="font-bold text-base text-[#1e293b]">${subj}</h3>
+            <div class="bg-white/70 backdrop-blur-sm p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="bg-cypress/10 text-cypress p-3 rounded-2xl text-xl">📖</div>
+                    <h3 class="font-bold text-base text-slate-800">${subj}</h3>
                 </div>
-                <div class="space-y-2 mt-2 max-h-80 overflow-y-auto pr-1">${materialItems}</div>
+                <div class="space-y-2 mt-1 max-h-80 overflow-y-auto pr-1">${materialItems}</div>
             </div>`;
         });
 
         const content = `
-        <div class="mb-4">
-            <h2 class="text-xl sm:text-2xl font-bold text-[#1e293b]">Materi & Kisi-kisi Sumatif</h2>
-            <p class="text-xs sm:text-sm text-[#4b5563]">Pilih periode atau bulan spesifik untuk melihat dan mendownload materi.</p>
+        <div class="mb-6">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-800">Materi & Kisi-kisi Sumatif</h2>
+            <p class="text-xs sm:text-sm text-slate-600">Pilih periode atau bulan spesifik untuk melihat dan mendownload materi.</p>
         </div>
 
         ${periodSelect}
@@ -400,7 +443,7 @@ app.get('/summative', checkAuth, async (req, res) => {
             ${subjectCards}
         </div>
 
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-[#2f6636] hover:text-[#1e293b] text-sm font-semibold">&larr; Kembali ke Beranda</a></div>`;
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-cypress hover:text-slate-900 text-sm font-semibold">&larr; Kembali ke Beranda</a></div>`;
 
         res.send(layout('Materi Sumatif', content));
     } catch (e) {
@@ -440,7 +483,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
         
         let calendarCells = '';
         for (let i = 0; i < firstDayIndex; i++) {
-            calendarCells += `<div class="bg-[#f8fafc] min-h-[150px] rounded-2xl border border-dashed border-[#cbd5e1]"></div>`;
+            calendarCells += `<div class="bg-slate-100/50 min-h-[150px] rounded-3xl border border-dashed border-slate-300"></div>`;
         }
 
         for (let d = 1; d <= totalDays; d++) {
@@ -454,34 +497,34 @@ app.get('/calendar', checkAuth, async (req, res) => {
             const isToday = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}` === dateKey;
 
             const hasAgenda = (existingNote.trim() !== '' || globalEvent);
-            const cellBgClass = hasAgenda ? 'bg-[#e8f5e9] border-[#a3e635]' : (isToday ? 'bg-white border-[#2f6636] ring-2 ring-[#a3e635]/30 shadow-md' : 'bg-white border-[#cbd5e1]');
+            const cellBgClass = hasAgenda ? 'bg-emerald-50 border-emerald-300' : (isToday ? 'bg-white border-cypress ring-2 ring-cypress/20 shadow-md' : 'bg-white border-slate-200');
 
             let eventHtml = '';
             if (globalEvent) {
                 eventHtml += `
-                <div class="mb-1 p-1.5 bg-[#dcfce7] border border-[#bbf7d0] rounded-xl shadow-sm">
-                    <span class="text-[10px] font-bold text-[#166534] uppercase block tracking-wider">📌 ${globalEvent.title}</span>
-                    <p class="text-[11px] text-[#14532d] mt-0.5 leading-tight">${globalEvent.description}</p>
+                <div class="mb-1 p-2 bg-emerald-100/70 border border-emerald-200 rounded-2xl shadow-sm">
+                    <span class="text-[10px] font-bold text-emerald-800 uppercase block tracking-wider">📌 ${globalEvent.title}</span>
+                    <p class="text-[11px] text-emerald-900 mt-0.5 leading-tight">${globalEvent.description}</p>
                 </div>`;
             }
             if (holidayName) {
                 eventHtml += `
-                <div class="mb-1 p-1.5 bg-[#fee2e2] border border-[#fecaca] rounded-xl shadow-sm">
-                    <span class="text-[10px] font-bold text-[#991b1b] uppercase block tracking-wider">🔴 Libur Nasional</span>
-                    <p class="text-[11px] text-[#7f1d1d] mt-0.5 leading-tight">${holidayName}</p>
+                <div class="mb-1 p-2 bg-red-50 border border-red-200 rounded-2xl shadow-sm">
+                    <span class="text-[10px] font-bold text-red-700 uppercase block tracking-wider">🔴 Libur Nasional</span>
+                    <p class="text-[11px] text-red-800 mt-0.5 leading-tight">${holidayName}</p>
                 </div>`;
             }
 
             calendarCells += `
-            <div class="${cellBgClass} p-3.5 rounded-2xl border shadow-sm flex flex-col justify-between min-h-[170px] transition">
+            <div class="${cellBgClass} p-3.5 rounded-3xl border shadow-sm flex flex-col justify-between min-h-[170px] transition">
                 <div>
                     <div class="flex justify-between items-center mb-2">
-                        <span class="font-bold text-sm ${isToday ? 'bg-[#2f6636] text-white w-7 h-7 rounded-full flex items-center justify-center' : (isSunday || holidayName ? 'text-red-600 font-extrabold' : 'text-[#1e293b]')}">${d}</span>
+                        <span class="font-bold text-sm ${isToday ? 'bg-cypress text-aloe w-7 h-7 rounded-full flex items-center justify-center' : (isSunday || holidayName ? 'text-red-600 font-extrabold' : 'text-slate-800')}">${d}</span>
                     </div>
                     ${eventHtml}
                 </div>
                 <div class="mt-2">
-                    <textarea name="notes[${dateKey}]" rows="2" class="w-full text-xs p-2 border border-[#cbd5e1] rounded-xl resize-none focus:ring-2 focus:ring-[#2f6636] outline-none bg-white/80 focus:bg-white transition" placeholder="Catatan pribadi...">${existingNote}</textarea>
+                    <textarea name="notes[${dateKey}]" rows="2" class="w-full text-xs p-2.5 border border-slate-300 rounded-2xl resize-none focus:ring-2 focus:ring-cypress outline-none bg-white/90 focus:bg-white transition" placeholder="Catatan pribadi...">${existingNote}</textarea>
                 </div>
             </div>`;
         }
@@ -496,14 +539,14 @@ app.get('/calendar', checkAuth, async (req, res) => {
         let monthOptions = monthsList.map(mObj => `<option value="${mObj.v}" ${mObj.v === month ? 'selected' : ''}>${mObj.n}</option>`).join('');
 
         const content = `
-        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
+        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
             <div>
-                <h2 class="text-xl sm:text-2xl font-bold text-[#1e293b]">Kalendar Akademik Tahun Ajaran 2026/2027</h2>
-                <p class="text-xs sm:text-sm text-[#4b5563]">Agenda kelas, libur nasional, dan catatan jadwal pribadi siswa.</p>
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-800">Kalendar Akademik 2026/2027</h2>
+                <p class="text-xs sm:text-sm text-slate-600">Agenda kelas, libur nasional, dan catatan jadwal pribadi siswa.</p>
             </div>
             <form method="GET" class="flex flex-wrap items-center gap-2 sm:space-x-3 w-full md:w-auto">
-                <select name="month" onchange="this.form.submit()" class="border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636] cursor-pointer">${monthOptions}</select>
-                <input type="number" name="year" value="${year}" onchange="this.form.submit()" class="border border-[#cbd5e1] px-3 py-2 rounded-xl text-sm font-medium w-28 bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                <select name="month" onchange="this.form.submit()" class="border border-slate-300 px-4 py-2.5 rounded-2xl text-sm font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-cypress cursor-pointer">${monthOptions}</select>
+                <input type="number" name="year" value="${year}" onchange="this.form.submit()" class="border border-slate-300 px-3 py-2.5 rounded-2xl text-sm font-medium w-28 bg-slate-50 outline-none focus:ring-2 focus:ring-cypress">
             </form>
         </div>
 
@@ -511,9 +554,9 @@ app.get('/calendar', checkAuth, async (req, res) => {
             <input type="hidden" name="year" value="${year}">
             <input type="hidden" name="month" value="${month}">
             
-            <div class="bg-white rounded-2xl shadow-sm border border-[#cbd5e1] p-4 sm:p-6 overflow-x-auto">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-4 sm:p-6 overflow-x-auto">
                 <div class="min-w-[1000px]">
-                    <div class="grid grid-cols-7 gap-3 mb-3 text-center font-black text-xs text-[#2f6636] uppercase tracking-wider">
+                    <div class="grid grid-cols-7 gap-3 mb-3 text-center font-black text-xs text-cypress uppercase tracking-wider">
                         <div class="text-red-600 font-bold">Sun</div>
                         <div class="font-bold">Mon</div>
                         <div class="font-bold">Tue</div>
@@ -529,12 +572,12 @@ app.get('/calendar', checkAuth, async (req, res) => {
             </div>
 
             <div class="mt-6 flex justify-end">
-                <button type="submit" class="w-full sm:w-auto bg-[#2f6636] hover:bg-[#244f2b] text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md transition">💾 Simpan jadwal pribadi siswa</button>
+                <button type="submit" class="w-full sm:w-auto bg-cypress hover:bg-olive text-aloe px-8 py-3.5 rounded-2xl font-bold text-sm shadow-md transition">💾 Simpan jadwal pribadi siswa</button>
             </div>
         </form>
 
         <div class="mt-6">
-            <a href="/dashboard" class="inline-flex items-center text-[#2f6636] hover:text-[#1e293b] text-sm font-semibold">&larr; Kembali ke Beranda</a>
+            <a href="/dashboard" class="inline-flex items-center text-cypress hover:text-slate-900 text-sm font-semibold">&larr; Kembali ke Beranda</a>
         </div>`;
 
         res.send(layout('Kalendar Akademik', content));
@@ -585,16 +628,16 @@ app.get('/kas', checkAuth, async (req, res) => {
         
         if (period !== 'sem2') {
             rows += `
-            <tr class="border-b border-[#cbd5e1] hover:bg-[#f8fafc]">
-                <td class="py-4 px-4 font-semibold">Iuran Kaos</td>
-                <td class="py-4 px-3 text-sm">Rp ${kaosAmount.toLocaleString()}</td>
-                <td class="py-4 px-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${isKaosPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${isKaosPaid ? 'Lunas' : 'Belum Bayar'}</span></td>
+            <tr class="border-b border-slate-200 hover:bg-slate-50">
+                <td class="py-4 px-4 font-semibold text-slate-800">Iuran Kaos</td>
+                <td class="py-4 px-3 text-sm text-slate-600">Rp ${kaosAmount.toLocaleString()}</td>
+                <td class="py-4 px-3 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold ${isKaosPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${isKaosPaid ? 'Lunas' : 'Belum Bayar'}</span></td>
             </tr>`;
             if (!isKaosPaid) {
                 checkboxes += `
-                <label class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100">
-                    <input type="checkbox" class="w-5 h-5 calc-item accent-[#2f6636]" data-price="${kaosAmount}" onchange="calcTotal()">
-                    <span class="text-sm font-medium">Iuran Kaos (Rp ${kaosAmount.toLocaleString()})</span>
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-slate-100 border border-slate-200">
+                    <input type="checkbox" class="w-5 h-5 calc-item accent-cypress" data-price="${kaosAmount}" onchange="calcTotal()">
+                    <span class="text-sm font-medium text-slate-800">Iuran Kaos (Rp ${kaosAmount.toLocaleString()})</span>
                 </label>`;
             }
         }
@@ -605,53 +648,57 @@ app.get('/kas', checkAuth, async (req, res) => {
             const rowAmount = getRowAmount(found, false);
             
             rows += `
-            <tr class="border-b border-[#cbd5e1] hover:bg-[#f8fafc]">
-                <td class="py-4 px-4 font-semibold">${m}</td>
-                <td class="py-4 px-3 text-sm">Rp ${rowAmount.toLocaleString()}</td>
-                <td class="py-4 px-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${paid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${paid ? 'Lunas' : 'Belum Bayar'}</span></td>
+            <tr class="border-b border-slate-200 hover:bg-slate-50">
+                <td class="py-4 px-4 font-semibold text-slate-800">${m}</td>
+                <td class="py-4 px-3 text-sm text-slate-600">Rp ${rowAmount.toLocaleString()}</td>
+                <td class="py-4 px-3 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold ${paid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${paid ? 'Lunas' : 'Belum Bayar'}</span></td>
             </tr>`;
             
             if (!paid) {
                 checkboxes += `
-                <label class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100">
-                    <input type="checkbox" class="w-5 h-5 calc-item accent-[#2f6636]" data-price="${rowAmount}" onchange="calcTotal()">
-                    <span class="text-sm font-medium">${m} (Rp ${rowAmount.toLocaleString()})</span>
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl cursor-pointer hover:bg-slate-100 border border-slate-200">
+                    <input type="checkbox" class="w-5 h-5 calc-item accent-cypress" data-price="${rowAmount}" onchange="calcTotal()">
+                    <span class="text-sm font-medium text-slate-800">${m} (Rp ${rowAmount.toLocaleString()})</span>
                 </label>`;
             }
         });
 
         const content = `
-        <div class="mb-6 bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
-            <h2 class="text-2xl font-bold mb-4">Iuran Kas Siswa</h2>
-            <select onchange="window.location.href='?period=' + this.value" class="w-full p-3 border rounded-xl mb-4">
+        <div class="mb-6 bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-bold mb-4 text-slate-800">Iuran Kas Siswa</h2>
+            <select onchange="window.location.href='?period=' + this.value" class="w-full p-3.5 border border-slate-300 rounded-2xl mb-6 bg-slate-50 text-slate-800 font-semibold text-sm outline-none focus:ring-2 focus:ring-cypress">
                 <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>Semester 1 (Juli - Desember 2026)</option>
                 <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>Semester 2 (Januari - Juni 2027)</option>
                 <option value="all" ${period === 'all' ? 'selected' : ''}>Semua Periode</option>
             </select>
             
             <div class="grid lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 overflow-x-auto bg-white rounded-xl shadow-sm border">
+                <div class="lg:col-span-2 overflow-x-auto bg-white rounded-2xl shadow-sm border border-slate-200">
                     <table class="w-full text-left">${rows}</table>
                 </div>
                 
-                <div class="bg-white p-5 rounded-xl shadow-sm border">
-                    <h3 class="font-bold mb-3">🧮 Kalkulator Pembayaran</h3>
-                    <p class="text-xs mb-4 text-gray-600">Centang item di bawah untuk menghitung total pembayaran yang ingin dibayarkan:</p>
-                    
-                    <label class="flex items-center gap-3 p-3 bg-green-50 rounded-xl mb-3 cursor-pointer font-bold text-[#2f6636]">
-                        <input type="checkbox" id="selectAll" class="w-5 h-5" onchange="selectAll(this)"> Pilih Semua
-                    </label>
-                    
-                    <div class="space-y-2 max-h-[300px] overflow-y-auto mb-4">${checkboxes}</div>
-                    
-                    <div class="pt-4 border-t font-bold">Total Pembayaran: Rp <span id="totalDisplay">0</span></div>
-                    
-                    <div class="mt-6 p-4 bg-gray-50 rounded-xl text-sm border">
-                        <p class="mb-2 font-bold">Info Pembayaran:</p>
-                        <p>BCA: 0971149581</p>
-                        <p>BNI: 286855891</p>
-                        <p>a.n. Nisa Syakrina</p>
-                        <p class="mt-3">Konfirmasi ke Mba Nisa:<br><a href="https://wa.me/6285800327444" target="_blank" class="text-[#2f6636] font-bold underline hover:text-[#244f2b]">+62 858-0032-7444</a></p>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold mb-3 text-slate-800">🧮 Kalkulator Pembayaran</h3>
+                        <p class="text-xs mb-4 text-slate-600">Centang item di bawah untuk menghitung total pembayaran:</p>
+                        
+                        <label class="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded-2xl mb-3 cursor-pointer font-bold text-cypress">
+                            <input type="checkbox" id="selectAll" class="w-5 h-5 accent-cypress" onchange="selectAll(this)"> Pilih Semua
+                        </label>
+                        
+                        <div class="space-y-2.5 max-h-[300px] overflow-y-auto mb-4 pr-1">${checkboxes}</div>
+                    </div>
+
+                    <div>
+                        <div class="pt-4 border-t border-slate-200 font-bold text-slate-800">Total Pembayaran: Rp <span id="totalDisplay">0</span></div>
+                        
+                        <div class="mt-6 p-4 bg-slate-50 rounded-2xl text-xs sm:text-sm border border-slate-200 text-slate-700">
+                            <p class="mb-2 font-bold">Info Pembayaran:</p>
+                            <p>BCA: 0971149581</p>
+                            <p>BNI: 286855891</p>
+                            <p>a.n. Nisa Syakrina</p>
+                            <p class="mt-3">Konfirmasi ke Mba Nisa:<br><a href="https://wa.me/6285800327444" target="_blank" class="text-cypress font-bold underline hover:text-slate-900">+62 858-0032-7444</a></p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -669,7 +716,7 @@ app.get('/kas', checkAuth, async (req, res) => {
             }
         </script>
 
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-[#2f6636] hover:text-[#1e293b] text-sm font-semibold">&larr; Kembali ke Beranda</a></div>`;
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-cypress hover:text-slate-900 text-sm font-semibold">&larr; Kembali ke Beranda</a></div>`;
         
         res.send(layout('Iuran Kas', content));
     } catch (e) { res.status(500).send("Error"); }
@@ -780,15 +827,15 @@ app.get('/finances', checkAuth, async (req, res) => {
         paginatedTxs.forEach(tx => {
             const isIncome = tx.type === 'income';
             const badge = isIncome 
-                ? '<span class="text-[#166534] bg-[#dcfce7] border border-[#bbf7d0] px-2.5 py-0.5 rounded-full text-[11px] font-bold">Pemasukan</span>' 
-                : '<span class="text-[#991b1b] bg-[#fee2e2] border border-[#fecaca] px-2.5 py-0.5 rounded-full text-[11px] font-bold">Pengeluaran</span>';
+                ? '<span class="text-emerald-800 bg-emerald-100 border border-emerald-200 px-2.5 py-0.5 rounded-full text-[11px] font-bold">Pemasukan</span>' 
+                : '<span class="text-red-800 bg-red-100 border border-red-200 px-2.5 py-0.5 rounded-full text-[11px] font-bold">Pengeluaran</span>';
             
             rows += `
-            <tr class="border-b border-[#cbd5e1] hover:bg-[#f8fafc] transition align-top">
-                <td class="py-3 px-3 sm:px-6 text-xs text-[#4b5563] text-center whitespace-nowrap w-[120px]">${tx.date}</td>
-                <td class="py-3 px-3 sm:px-6 font-medium text-[#1e293b] text-xs sm:text-sm text-left break-words max-w-[180px] sm:max-w-md">${tx.desc}</td>
-                <td class="py-3 px-3 sm:px-6 text-center whitespace-nowrap w-[100px]">${badge}</td>
-                <td class="py-3 px-3 sm:px-6 font-bold text-[#1e293b] text-xs sm:text-sm text-left whitespace-nowrap w-[160px] sm:w-[200px]">Rp ${tx.amount.toLocaleString()}</td>
+            <tr class="border-b border-slate-200 hover:bg-slate-50 transition align-top">
+                <td class="py-3.5 px-3 sm:px-6 text-xs text-slate-600 text-center whitespace-nowrap w-[120px]">${tx.date}</td>
+                <td class="py-3.5 px-3 sm:px-6 font-medium text-slate-800 text-xs sm:text-sm text-left break-words max-w-[180px] sm:max-w-md">${tx.desc}</td>
+                <td class="py-3.5 px-3 sm:px-6 text-center whitespace-nowrap w-[100px]">${badge}</td>
+                <td class="py-3.5 px-3 sm:px-6 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap w-[160px] sm:w-[200px]">Rp ${tx.amount.toLocaleString()}</td>
             </tr>`;
         });
 
@@ -802,80 +849,80 @@ app.get('/finances', checkAuth, async (req, res) => {
         });
 
         const content = `
-        <div class="mb-6"><h2 class="text-xl sm:text-2xl font-bold text-[#1e293b]">Laporan Keuangan</h2><p class="text-xs sm:text-sm text-[#4b5563]">Rincian pemasukan kas, kaos, transaksi lainnya, dan pengeluaran kelas 2A (Waktu Jakarta).</p></div>
+        <div class="mb-6"><h2 class="text-xl sm:text-2xl font-bold text-slate-800">Laporan Keuangan</h2><p class="text-xs sm:text-sm text-slate-600">Rincian pemasukan kas, kaos, transaksi lainnya, dan pengeluaran kelas 2A.</p></div>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] border-l-4 border-l-blue-500"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Pendapatan Kas</span><h3 class="text-xl font-black text-blue-600 mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] border-l-4 border-l-green-500"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Pendapatan Kaos</span><h3 class="text-xl font-black text-green-600 mt-1">Rp ${totalKaos.toLocaleString()}</h3></div>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] border-l-4 border-l-amber-500"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Pendapatan Lainnya</span><h3 class="text-xl font-black text-amber-600 mt-1">Rp ${totalLainnya.toLocaleString()}</h3></div>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#cbd5e1] border-l-4 border-l-red-500"><span class="text-xs font-bold uppercase tracking-wider text-[#4b5563]">Total Pengeluaran</span><h3 class="text-xl font-black text-red-600 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 border-l-4 border-l-blue-500"><span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Kas</span><h3 class="text-xl font-black text-blue-600 mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 border-l-4 border-l-green-500"><span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Kaos</span><h3 class="text-xl font-black text-green-600 mt-1">Rp ${totalKaos.toLocaleString()}</h3></div>
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 border-l-4 border-l-amber-500"><span class="text-xs font-bold uppercase tracking-wider text-slate-500">Pendapatan Lain</span><h3 class="text-xl font-black text-amber-600 mt-1">Rp ${totalLainnya.toLocaleString()}</h3></div>
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 border-l-4 border-l-red-500"><span class="text-xs font-bold uppercase tracking-wider text-slate-500">Pengeluaran</span><h3 class="text-xl font-black text-red-600 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
         </div>
 
-        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-[#cbd5e1] mb-6 bg-gradient-to-r from-emerald-50 to-green-50">
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 mb-6 bg-gradient-to-r from-emerald-50 to-green-50">
             <div>
-                <span class="text-xs font-bold uppercase tracking-wider text-[#2f6636]">Saldo Akhir Kas Kelas (Total Masuk - Pengeluaran)</span>
-                <h3 class="text-2xl sm:text-3xl font-black text-[#2f6636] mt-1">Rp ${balance.toLocaleString()}</h3>
+                <span class="text-xs font-bold uppercase tracking-wider text-cypress">Saldo Akhir Kas Kelas (Total Masuk - Pengeluaran)</span>
+                <h3 class="text-2xl sm:text-3xl font-black text-cypress mt-1">Rp ${balance.toLocaleString()}</h3>
             </div>
         </div>
 
-        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-[#cbd5e1] mb-6">
+        <div class="bg-white p-5 sm:p-6 rounded-3xl shadow-sm border border-slate-200 mb-6">
             <form method="GET" class="flex flex-wrap items-end gap-4">
                 <div class="flex-grow min-w-[200px]">
-                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Cari Nama / Keterangan</label>
-                    <input type="text" name="search" value="${search}" placeholder="Cari nama siswa, kaos, dll..." class="w-full border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Cari Nama / Keterangan</label>
+                    <input type="text" name="search" value="${search}" placeholder="Cari nama siswa, kaos, dll..." class="w-full border border-slate-300 px-4 py-2.5 rounded-2xl text-sm font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-cypress">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Cek Kas Berdasarkan Bulan</label>
-                    <select name="monthFilter" class="border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Bulan Kas</label>
+                    <select name="monthFilter" class="border border-slate-300 px-4 py-2.5 rounded-2xl text-sm font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-cypress">
                         ${monthOptions}
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Jenis</label>
-                    <select name="type" class="border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Jenis</label>
+                    <select name="type" class="border border-slate-300 px-4 py-2.5 rounded-2xl text-sm font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-cypress">
                         <option value="all" ${typeFilter === 'all' ? 'selected' : ''}>Semua</option>
                         <option value="income" ${typeFilter === 'income' ? 'selected' : ''}>Pemasukan</option>
                         <option value="expense" ${typeFilter === 'expense' ? 'selected' : ''}>Pengeluaran</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Dari Tanggal</label>
-                    <input type="date" name="start_date" value="${startDate}" class="border border-[#cbd5e1] px-3 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Dari Tanggal</label>
+                    <input type="date" name="start_date" value="${startDate}" class="border border-slate-300 px-3 py-2.5 rounded-2xl text-sm font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-cypress">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-[#4b5563] uppercase mb-1">Sampai Tanggal</label>
-                    <input type="date" name="end_date" value="${endDate}" class="border border-[#cbd5e1] px-3 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Sampai Tanggal</label>
+                    <input type="date" name="end_date" value="${endDate}" class="border border-slate-300 px-3 py-2.5 rounded-2xl text-sm font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-cypress">
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="bg-[#2f6636] hover:bg-[#244f2b] text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition">Filter</button>
-                    <a href="/finances" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center justify-center">Reset</a>
+                    <button type="submit" class="bg-cypress hover:bg-olive text-aloe px-5 py-2.5 rounded-2xl text-sm font-bold shadow-sm transition">Filter</button>
+                    <a href="/finances" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2.5 rounded-2xl text-sm font-bold transition flex items-center justify-center">Reset</a>
                 </div>
             </form>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-[#cbd5e1] overflow-x-auto mb-6">
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-x-auto mb-6">
             <table class="w-full min-w-[600px]">
                 <thead>
-                    <tr class="bg-[#f1f5f9] text-[#4b5563] text-xs uppercase tracking-wider border-b border-[#cbd5e1]">
+                    <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
                         <th class="py-3 px-3 sm:px-6 text-center w-[120px]">Tanggal</th>
                         <th class="py-3 px-3 sm:px-6 text-left">Keterangan</th>
                         <th class="py-3 px-3 sm:px-6 text-center w-[100px]">Tipe</th>
                         <th class="py-3 px-3 sm:px-6 text-left w-[160px] sm:w-[200px]">Jumlah</th>
                     </tr>
                 </thead>
-                <tbody>${rows || `<tr><td colspan="4" class="text-center py-8 text-gray-500 text-sm">Tidak ada data keuangan yang ditemukan.</td></tr>`}</tbody>
+                <tbody>${rows || `<tr><td colspan="4" class="text-center py-8 text-slate-500 text-sm">Tidak ada data keuangan yang ditemukan.</td></tr>`}</tbody>
             </table>
         </div>
 
         <div class="flex justify-center items-center gap-2 mb-6 flex-wrap">
-            <a href="?page=1&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">First</a>
-            ${page > 1 ? `<a href="?page=${page-1}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Prev</a>` : ''}
-            <span class="px-4 py-2 text-sm font-bold text-[#4b5563]">Halaman ${page} dari ${totalPages}</span>
-            ${page < totalPages ? `<a href="?page=${page+1}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Next</a>` : ''}
-            <a href="?page=${totalPages}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Last (${totalPages})</a>
+            <a href="?page=1&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white border border-slate-300 rounded-2xl text-sm font-bold text-cypress hover:bg-slate-50">First</a>
+            ${page > 1 ? `<a href="?page=${page-1}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white border border-slate-300 rounded-2xl text-sm font-bold text-cypress hover:bg-slate-50">Prev</a>` : ''}
+            <span class="px-4 py-2 text-sm font-bold text-slate-600">Halaman ${page} dari ${totalPages}</span>
+            ${page < totalPages ? `<a href="?page=${page+1}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white border border-slate-300 rounded-2xl text-sm font-bold text-cypress hover:bg-slate-50">Next</a>` : ''}
+            <a href="?page=${totalPages}&search=${search}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white border border-slate-300 rounded-2xl text-sm font-bold text-cypress hover:bg-slate-50">Last (${totalPages})</a>
         </div>
 
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-[#2f6636] hover:text-[#1e293b] text-sm font-semibold">&larr; Kembali ke Beranda</a></div>`;
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-cypress hover:text-slate-900 text-sm font-semibold">&larr; Kembali ke Beranda</a></div>`;
         
         res.send(layout('Laporan Keuangan', content));
     } catch (e) { 
@@ -928,30 +975,30 @@ app.get('/announcements', checkAuth, async (req, res) => {
                 if (fileId) {
                     const embedUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
                     const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-                    imageHtml = `<div class="mt-4"><img src="${embedUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-xl max-h-80 w-auto object-cover border border-[#cbd5e1]" onerror="this.parentElement.style.display='none'"></div>`;
+                    imageHtml = `<div class="mt-4"><img src="${embedUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-2xl max-h-80 w-auto object-cover border border-slate-200" onerror="this.parentElement.style.display='none'"></div>`;
                     actionButtonsHtml = `
                     <div class="mt-3 flex flex-wrap gap-2">
-                        <a href="${rawUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-[#f0fdf4] hover:bg-[#dcfce7] text-[#166534] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border border-[#bbf7d0] transition"><span>📁</span><span>Buka di Google Drive</span></a>
-                        <a href="${downloadUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-[#2f6636] hover:bg-[#244f2b] text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
+                        <a href="${rawUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold border border-emerald-200 transition"><span>📁</span><span>Buka di Google Drive</span></a>
+                        <a href="${downloadUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-cypress hover:bg-olive text-aloe px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
                     </div>`;
                 } else {
-                    imageHtml = `<div class="mt-4"><img src="${rawUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-xl max-h-80 w-auto object-cover border border-[#cbd5e1]" onerror="this.parentElement.style.display='none'"></div>`;
+                    imageHtml = `<div class="mt-4"><img src="${rawUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-2xl max-h-80 w-auto object-cover border border-slate-200" onerror="this.parentElement.style.display='none'"></div>`;
                     actionButtonsHtml = `
                     <div class="mt-3 flex flex-wrap gap-2">
-                        <a href="${rawUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-[#f0fdf4] hover:bg-[#dcfce7] text-[#166534] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border border-[#bbf7d0] transition"><span>🔗</span><span>Buka Link</span></a>
-                        <a href="${rawUrl}" download target="_blank" class="inline-flex items-center space-x-2 bg-[#2f6636] hover:bg-[#244f2b] text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
+                        <a href="${rawUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold border border-emerald-200 transition"><span>🔗</span><span>Buka Link</span></a>
+                        <a href="${rawUrl}" download target="_blank" class="inline-flex items-center space-x-2 bg-cypress hover:bg-olive text-aloe px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
                     </div>`;
                 }
             }
 
             const contentText = String(a.content || '').replace(/\\n/g, '\n');
             cards += `
-            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-[#2f6636] border border-[#cbd5e1] mb-5">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border-l-4 border-l-cypress border border-slate-200 mb-5">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
-                    <h3 class="font-bold text-lg text-[#1e293b] flex items-center space-x-2"><span>📢</span><span>${a.title}</span></h3>
-                    <span class="text-xs font-semibold bg-[#f1f5f9] text-[#4b5563] px-3 py-1 rounded-full border border-[#cbd5e1]">${formatDateID(a.date)}</span>
+                    <h3 class="font-bold text-lg text-slate-800 flex items-center space-x-2"><span>📢</span><span>${a.title}</span></h3>
+                    <span class="text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200">${formatDateID(a.date)}</span>
                 </div>
-                <p class="text-[#1e293b] text-sm leading-relaxed whitespace-pre-wrap break-words">${contentText}</p>
+                <p class="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap break-words">${contentText}</p>
                 ${imageHtml}
                 ${actionButtonsHtml}
             </div>`;
@@ -959,46 +1006,46 @@ app.get('/announcements', checkAuth, async (req, res) => {
 
         const content = `
         <div class="mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-[#1e293b]">Pengumuman Sekolah</h2>
-            <p class="text-xs sm:text-sm text-[#4b5563]">Informasi dan pengumuman resmi dari pihak sekolah untuk walimurid kelas 2A.</p>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-800">Pengumuman Sekolah</h2>
+            <p class="text-xs sm:text-sm text-slate-600">Informasi dan pengumuman resmi dari pihak sekolah untuk walimurid kelas 2A.</p>
         </div>
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-[#cbd5e1] mb-6">
+        <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 mb-6">
             <form method="GET" class="flex flex-wrap gap-3 items-center">
-                <input type="text" name="search" value="${search}" placeholder="Cari judul/isi pengumuman..." class="border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636] flex-grow">
-                <select name="filter" class="border border-[#cbd5e1] px-4 py-2 rounded-xl text-sm font-medium bg-[#f8fafc] outline-none focus:ring-2 focus:ring-[#2f6636]">
+                <input type="text" name="search" value="${search}" placeholder="Cari judul/isi pengumuman..." class="border border-slate-300 px-4 py-2.5 rounded-2xl text-sm font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-cypress flex-grow">
+                <select name="filter" class="border border-slate-300 px-4 py-2.5 rounded-2xl text-sm font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-cypress">
                     <option value="all" ${filter === 'all' ? 'selected' : ''}>Semua Waktu</option>
                     <option value="weekly" ${filter === 'weekly' ? 'selected' : ''}>Minggu Ini</option>
                 </select>
-                <button type="submit" class="bg-[#2f6636] text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-[#244f2b] transition">Cari</button>
+                <button type="submit" class="bg-cypress text-aloe px-5 py-2.5 rounded-2xl text-sm font-bold hover:bg-olive transition">Cari</button>
             </form>
         </div>
-        <div class="space-y-4">${cards || '<div class="bg-white p-8 rounded-2xl text-center text-gray-500 border border-[#cbd5e1]">Tidak ada pengumuman yang ditemukan.</div>'}</div>
+        <div class="space-y-4">${cards || '<div class="bg-white p-8 rounded-3xl text-center text-slate-500 border border-slate-200">Tidak ada pengumuman yang ditemukan.</div>'}</div>
         <div class="mt-6 flex justify-center items-center gap-2">
-            ${page > 1 ? `<a href="?page=${page-1}&search=${search}&filter=${filter}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Prev</a>` : ''}
-            <span class="px-4 py-2 text-sm font-bold text-[#4b5563]">Halaman ${page} dari ${totalPages}</span>
-            ${page < totalPages ? `<a href="?page=${page+1}&search=${search}&filter=${filter}" class="px-4 py-2 bg-white border border-[#cbd5e1] rounded-xl text-sm font-bold text-[#2f6636] hover:bg-[#f8fafc]">Next</a>` : ''}
+            ${page > 1 ? `<a href="?page=${page-1}&search=${search}&filter=${filter}" class="px-4 py-2 bg-white border border-slate-300 rounded-2xl text-sm font-bold text-cypress hover:bg-slate-50">Prev</a>` : ''}
+            <span class="px-4 py-2 text-sm font-bold text-slate-600">Halaman ${page} dari ${totalPages}</span>
+            ${page < totalPages ? `<a href="?page=${page+1}&search=${search}&filter=${filter}" class="px-4 py-2 bg-white border border-slate-300 rounded-2xl text-sm font-bold text-cypress hover:bg-slate-50">Next</a>` : ''}
         </div>
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-[#2f6636] hover:text-[#1e293b] text-sm font-semibold">&larr; Kembali ke Beranda</a></div>`;
+        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-cypress hover:text-slate-900 text-sm font-semibold">&larr; Kembali ke Beranda</a></div>`;
         res.send(layout('Pengumuman', content));
     } catch (e) { res.status(500).send("Error"); }
 });
 
 app.get('/change-password', checkAuth, (req, res) => {
     const context = `
-    <div class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-sm border border-[#cbd5e1]">
-        <h2 class="text-xl font-bold text-[#1e293b] mb-6">Ganti Password</h2>
+    <div class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+        <h2 class="text-xl font-bold text-slate-800 mb-6">Ganti Password</h2>
         <form action="/change-password" method="POST" class="space-y-4">
             <div>
-                <label class="block text-sm font-semibold text-[#1e293b]">Password Lama</label>
-                <input type="password" name="oldPassword" required class="w-full px-4 py-2 border border-[#cbd5e1] rounded-xl outline-none focus:ring-2 focus:ring-[#2f6636]">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Password Lama</label>
+                <input type="password" name="oldPassword" required class="w-full px-4 py-2.5 border border-slate-300 rounded-2xl outline-none focus:ring-2 focus:ring-cypress bg-slate-50">
             </div>
             <div>
-                <label class="block text-sm font-semibold text-[#1e293b]">Password Baru</label>
-                <input type="password" name="newPassword" required class="w-full px-4 py-2 border border-[#cbd5e1] rounded-xl outline-none focus:ring-2 focus:ring-[#2f6636]">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Password Baru</label>
+                <input type="password" name="newPassword" required class="w-full px-4 py-2.5 border border-slate-300 rounded-2xl outline-none focus:ring-2 focus:ring-cypress bg-slate-50">
             </div>
-            <button type="submit" class="w-full bg-[#2f6636] text-white py-3 rounded-xl font-bold hover:bg-[#244f2b]">Simpan Password Baru</button>
+            <button type="submit" class="w-full bg-cypress text-aloe py-3 rounded-2xl font-bold hover:bg-olive transition">Simpan Password Baru</button>
         </form>
-        <div class="mt-6"><a href="/dashboard" class="text-[#2f6636] font-semibold">&larr; Kembali ke Beranda</a></div>
+        <div class="mt-6"><a href="/dashboard" class="text-cypress font-semibold hover:text-slate-900">&larr; Kembali ke Beranda</a></div>
     </div>`;
     res.send(layout('Ganti Password', context));
 });
@@ -1050,9 +1097,9 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
             const labelName = m === 'Kaos' ? `Iuran Kaos (Rp ${amt.toLocaleString()})` : `${m} (Rp ${amt.toLocaleString()})`;
             
             checkboxesHtml += `
-            <label class="flex items-center space-x-3 p-3 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-100 transition">
-                <input type="checkbox" name="months" value="${m}" ${isPaid ? 'checked' : ''} class="w-5 h-5 accent-[#2f6636]">
-                <span class="text-sm font-semibold text-[#1e293b]">${labelName}</span>
+            <label class="flex items-center space-x-3 p-3 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-100 transition">
+                <input type="checkbox" name="months" value="${m}" ${isPaid ? 'checked' : ''} class="w-5 h-5 accent-cypress">
+                <span class="text-sm font-semibold text-slate-800">${labelName}</span>
             </label>`;
         });
 
@@ -1060,69 +1107,69 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
 
         const content = `
         <div class="max-w-6xl mx-auto space-y-8 pb-12">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1] flex justify-between items-center">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex justify-between items-center">
                 <div>
-                    <h2 class="text-2xl font-bold text-[#1e293b]">Panel Utama Admin Kelas 2A</h2>
-                    <p class="text-xs sm:text-sm text-[#4b5563]">Kelola data kas, transaksi keuangan, agenda kalender, materi sumatif, dan backup database langsung dari sini.</p>
+                    <h2 class="text-2xl font-bold text-slate-800">Panel Utama Admin Kelas 2A</h2>
+                    <p class="text-xs sm:text-sm text-slate-600">Kelola data kas, transaksi keuangan, agenda kalender, materi sumatif, dan backup database.</p>
                 </div>
-                <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition">Logout</a>
+                <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-2xl text-sm font-bold transition">Logout</a>
             </div>
 
             <!-- 1. BULK UPDATE STATUS KAS & KAOS -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
-                <h3 class="font-bold text-lg text-[#1e293b] mb-2">💵 Kelola Status Pembayaran Kas & Kaos Siswa (Bulk Update)</h3>
-                <p class="text-xs text-gray-500 mb-4">Pilih siswa, lalu centang bulan/item yang sudah lunas dan klik Simpan.</p>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <h3 class="font-bold text-lg text-slate-800 mb-2">💵 Kelola Status Pembayaran Kas & Kaos Siswa (Bulk Update)</h3>
+                <p class="text-xs text-slate-500 mb-4">Pilih siswa, lalu centang bulan/item yang sudah lunas dan klik Simpan.</p>
                 
                 <form action="/admin/update-kas-bulk" method="POST">
                     <input type="hidden" name="user_id" value="${targetUserId}">
                     <div class="mb-4">
-                        <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Pilih Nama Siswa:</label>
-                        <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border p-2.5 rounded-xl w-full sm:w-72 bg-white font-medium text-sm">${studentOptions}</select>
+                        <label class="block text-xs font-bold uppercase mb-1 text-slate-600">Pilih Nama Siswa:</label>
+                        <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border border-slate-300 p-3 rounded-2xl w-full sm:w-72 bg-slate-50 font-medium text-sm outline-none focus:ring-2 focus:ring-cypress">${studentOptions}</select>
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
                         ${checkboxesHtml}
                     </div>
 
-                    <button type="submit" class="bg-[#2f6636] hover:bg-[#244f2b] text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md transition">💾 Simpan Perubahan Kas (Bulk)</button>
+                    <button type="submit" class="bg-cypress hover:bg-olive text-aloe px-6 py-3 rounded-2xl font-bold text-sm shadow-md transition">💾 Simpan Perubahan Kas (Bulk)</button>
                 </form>
             </div>
 
             <!-- 2. TAMBAH TRANSAKSI -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
-                <h3 class="font-bold text-lg text-[#1e293b] mb-4">📊 Tambah Transaksi Keuangan (Pemasukan / Pengeluaran)</h3>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <h3 class="font-bold text-lg text-slate-800 mb-4">📊 Tambah Transaksi Keuangan (Pemasukan / Pengeluaran)</h3>
                 <form action="/admin/add-transaction" method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
                     <div>
-                        <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Tanggal</label>
-                        <input type="date" name="date" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                        <label class="block text-xs font-bold uppercase mb-1 text-slate-600">Tanggal</label>
+                        <input type="date" name="date" required class="w-full border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Tipe</label>
-                        <select name="type" class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                        <label class="block text-xs font-bold uppercase mb-1 text-slate-600">Tipe</label>
+                        <select name="type" class="w-full border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50">
                             <option value="income">Pemasukan</option>
                             <option value="expense">Pengeluaran</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Keterangan</label>
-                        <input type="text" name="desc" placeholder="Contoh: Beli alat kelas" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                        <label class="block text-xs font-bold uppercase mb-1 text-slate-600">Keterangan</label>
+                        <input type="text" name="desc" placeholder="Contoh: Beli alat kelas" required class="w-full border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Jumlah (Rp)</label>
-                        <input type="number" name="amount" placeholder="50000" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                        <label class="block text-xs font-bold uppercase mb-1 text-slate-600">Jumlah (Rp)</label>
+                        <input type="number" name="amount" placeholder="50000" required class="w-full border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50">
                     </div>
-                    <button type="submit" class="bg-[#2f6636] hover:bg-[#244f2b] text-white py-2 px-4 rounded-xl font-bold text-sm h-[41px]">Simpan Transaksi</button>
+                    <button type="submit" class="bg-cypress hover:bg-olive text-aloe py-2.5 px-4 rounded-2xl font-bold text-sm h-[42px]">Simpan Transaksi</button>
                 </form>
             </div>
 
             <!-- 3. TAMBAH MATERI SUMATIF -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
-                <h3 class="font-bold text-lg text-[#1e293b] mb-3">📚 Unggah Materi Sumatif</h3>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <h3 class="font-bold text-lg text-slate-800 mb-3">📚 Unggah Materi Sumatif</h3>
                 <form action="/admin/add-summative" method="POST" class="space-y-3">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Pilih Bulan / Ujian</label>
-                            <select name="month" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                            <label class="block text-xs font-bold uppercase mb-1 text-slate-600">Pilih Bulan / Ujian</label>
+                            <select name="month" required class="w-full border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50">
                                 <option value="Juni 2026">Juni 2026</option>
                                 <option value="Juli 2026">Juli 2026</option>
                                 <option value="Agustus 2026">Agustus 2026</option>
@@ -1140,8 +1187,8 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Mata Pelajaran</label>
-                            <select name="subject" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                            <label class="block text-xs font-bold uppercase mb-1 text-slate-600">Mata Pelajaran</label>
+                            <select name="subject" required class="w-full border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50">
                                 <option value="Matematika">Matematika</option>
                                 <option value="Bahasa Inggris">Bahasa Inggris</option>
                                 <option value="Seni">Seni</option>
@@ -1154,59 +1201,59 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Judul Materi / Bab</label>
-                        <input type="text" name="title" placeholder="Contoh: Bab 1 Penjumlahan & Pengurangan" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                        <label class="block text-xs font-bold uppercase mb-1 text-slate-600">Judul Materi / Bab</label>
+                        <input type="text" name="title" placeholder="Contoh: Bab 1 Penjumlahan & Pengurangan" required class="w-full border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Link Google Drive File</label>
-                        <input type="url" name="link" placeholder="https://drive.google.com/file/d/..." required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                        <label class="block text-xs font-bold uppercase mb-1 text-slate-600">Link Google Drive File</label>
+                        <input type="url" name="link" placeholder="https://drive.google.com/file/d/..." required class="w-full border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50">
                     </div>
-                    <button type="submit" class="w-full bg-[#2f6636] text-white py-2.5 rounded-xl font-bold text-sm shadow-sm transition">Simpan Materi Sumatif</button>
+                    <button type="submit" class="w-full bg-cypress hover:bg-olive text-aloe py-3 rounded-2xl font-bold text-sm shadow-sm transition">Simpan Materi Sumatif</button>
                 </form>
             </div>
 
             <!-- 4. TAMBAH KALENDER & PENGUMUMAN -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
-                    <h3 class="font-bold text-lg text-[#1e293b] mb-3">📅 Tambah Agenda Kalender Kelas</h3>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-lg text-slate-800 mb-3">📅 Tambah Agenda Kalender Kelas</h3>
                     <form action="/admin/add-event" method="POST" class="space-y-3">
                         <div>
-                            <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Tanggal</label>
-                            <input type="date" name="date" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                            <label class="block text-xs font-bold uppercase mb-1 text-slate-600">Tanggal</label>
+                            <input type="date" name="date" required class="w-full border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Judul Agenda</label>
-                            <input type="text" name="title" placeholder="Contoh: Ujian Tengah Semester" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                            <label class="block text-xs font-bold uppercase mb-1 text-slate-600">Judul Agenda</label>
+                            <input type="text" name="title" placeholder="Contoh: Ujian Tengah Semester" required class="w-full border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold uppercase mb-1 text-gray-600">Keterangan</label>
-                            <input type="text" name="description" placeholder="Keterangan singkat kegiatan" required class="w-full border p-2 rounded-xl text-sm bg-gray-50">
+                            <label class="block text-xs font-bold uppercase mb-1 text-slate-600">Keterangan</label>
+                            <input type="text" name="description" placeholder="Keterangan singkat kegiatan" required class="w-full border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50">
                         </div>
-                        <button type="submit" class="w-full bg-[#2f6636] text-white py-2 rounded-xl font-bold text-sm">Simpan Kalender</button>
+                        <button type="submit" class="w-full bg-cypress hover:bg-olive text-aloe py-2.5 rounded-2xl font-bold text-sm">Simpan Kalender</button>
                     </form>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#cbd5e1]">
-                    <h3 class="font-bold text-lg text-[#1e293b] mb-3">📢 Buat Pengumuman Sekolah</h3>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-lg text-slate-800 mb-3">📢 Buat Pengumuman Sekolah</h3>
                     <form action="/admin/add-announcement" method="POST" class="space-y-3">
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="date" name="date" required class="border p-2 rounded-xl text-sm bg-gray-50">
-                            <input type="text" name="title" placeholder="Judul Pengumuman" required class="border p-2 rounded-xl text-sm bg-gray-50">
+                            <input type="date" name="date" required class="border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50">
+                            <input type="text" name="title" placeholder="Judul Pengumuman" required class="border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50">
                         </div>
-                        <textarea name="content" rows="2" placeholder="Isi pengumuman..." required class="w-full border p-2 rounded-xl text-sm bg-gray-50 resize-none"></textarea>
-                        <input type="url" name="lampiran" placeholder="Link Google Drive (Opsional)" class="w-full border p-2 rounded-xl text-sm bg-gray-50">
-                        <button type="submit" class="w-full bg-[#2f6636] text-white py-2 rounded-xl font-bold text-sm">Publikasikan</button>
+                        <textarea name="content" rows="2" placeholder="Isi pengumuman..." required class="w-full border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50 resize-none"></textarea>
+                        <input type="url" name="lampiran" placeholder="Link Google Drive (Opsional)" class="w-full border border-slate-300 p-2.5 rounded-2xl text-sm bg-slate-50">
+                        <button type="submit" class="w-full bg-cypress hover:bg-olive text-aloe py-2.5 rounded-2xl font-bold text-sm">Publikasikan</button>
                     </form>
                 </div>
             </div>
 
             <!-- 5. BACKUP DATABASE (JSON) -->
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl shadow-sm border border-blue-200 flex justify-between items-center">
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-3xl shadow-sm border border-blue-200 flex justify-between items-center">
                 <div>
                     <h3 class="font-bold text-lg text-blue-900">💾 Cadangan Database (Backup)</h3>
-                    <p class="text-xs text-blue-700">Unduh file database (.json) saat ini ke komputer sebagai cadangan pengaman.</p>
+                    <p class="text-xs text-blue-700">Unduh file database (.json) saat ini ke komputer sebagai cadangan.</p>
                 </div>
-                <a id="downloadBtn" href="#" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm transition">Download JSON</a>
+                <a id="downloadBtn" href="#" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl font-bold text-sm shadow-sm transition">Download JSON</a>
             </div>
         </div>
 
