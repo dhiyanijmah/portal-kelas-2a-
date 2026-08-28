@@ -150,7 +150,6 @@ const layout = (title, content) => `
     <nav class="bg-deepgreen sticky top-0 z-50 border-b border-sagegreen/30 shadow-md">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center text-white">
             <a href="/dashboard" class="font-bold text-base sm:text-lg flex items-center space-x-2.5 hover:text-cream transition">
-                <span class="bg-sagegreen/40 p-2 rounded-2xl text-lg shadow-sm">🎖️</span>
                 <span>Portal Walimurid Kelas 2A</span>
             </a>
             <a href="/logout" class="bg-red-500/20 hover:bg-red-500 text-red-100 px-4 py-2 rounded-2xl text-xs font-bold transition shadow-sm border border-red-500/30">Keluar</a>
@@ -238,7 +237,6 @@ app.get('/login', (req, res) => {
 
         <div class="bg-cardbg p-6 sm:p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-deepgreen/15 text-earthtext">
             <div class="text-center mb-6">
-                <span class="bg-deepgreen/10 text-deepgreen p-4 rounded-3xl text-3xl inline-block mb-3 shadow-sm">🎖️</span>
                 <h1 class="text-xl sm:text-2xl font-bold text-deepgreen">Portal Walimurid Kelas 2A</h1>
                 <p class="text-xs sm:text-sm text-earthtext/70 mt-1">Assalamualaikum, selamat datang Ayah Bunda. Mohon masukkan Username dan Password</p>
             </div>
@@ -251,7 +249,7 @@ app.get('/login', (req, res) => {
                     <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/80 mb-1">Password</label>
                     <input type="password" name="password" required class="w-full px-4 py-3 border border-deepgreen/20 rounded-2xl focus:ring-2 focus:ring-softorange outline-none text-base bg-cream/50 transition shadow-sm font-semibold text-earthtext" placeholder="Password akun">
                 </div>
-                <button type="submit" class="w-full bg-softorange hover:bg-[#d88949] text-white py-3.5 rounded-2xl font-bold shadow-md transition text-base tracking-wide">Sign In</button>
+                <button type="submit" class="w-full bg-gradient-to-r from-deepgreen to-sagegreen hover:opacity-95 text-white py-3.5 rounded-2xl font-bold shadow-md transition text-base tracking-wide">Sign In</button>
             </form>
         </div>
     </body></html>`);
@@ -288,48 +286,47 @@ app.get('/dashboard', checkAuth, (req, res) => {
     <div class="mb-6 bg-gradient-to-r from-deepgreen to-sagegreen text-white p-6 sm:p-8 rounded-[2rem] shadow-lg flex justify-between items-center border border-white/15">
         <div>
             <span class="text-[10px] uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full font-bold text-white">Dashboard Wali Murid</span>
-            <h2 class="text-2xl sm:text-3xl font-bold mt-2 text-white">Assalamualaikum, ${String(req.user.first_name)}</h2>
+            <h2 class="text-2xl sm:text-3xl font-bold mt-2 text-white">Assalamualaikum, Ayah dan Bunda ${String(req.user.first_name)}</h2>
         </div>
-        <div class="text-4xl sm:text-5xl bg-white/15 p-4 rounded-3xl backdrop-blur-sm hidden sm:block shadow-inner">🎖️</div>
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <a href="/calendar" class="bg-cream/40 hover:bg-cream p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+        <a href="/calendar" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-softorange/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
             <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🗓️</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Kalendar Akademik</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Agenda kelas & jadwal pribadi siswa.</p>
             </div>
         </a>
-        <a href="/kas" class="bg-cream/40 hover:bg-cream p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+        <a href="/kas" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-softorange/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
             <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">💰</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Iuran Kas Siswa</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Pembayaran kas pribadi setiap siswa.</p>
             </div>
         </a>
-        <a href="/finances" class="bg-cream/40 hover:bg-cream p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+        <a href="/finances" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-softorange/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
             <div class="bg-amber-100 text-amber-800 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📊</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-amber-700 transition">Laporan Keuangan</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Rincian income & expense kelas 2A.</p>
             </div>
         </a>
-        <a href="/announcements" class="bg-cream/40 hover:bg-cream p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+        <a href="/announcements" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-softorange/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
             <div class="bg-sky-100 text-sky-800 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔔</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-sky-700 transition">Pengumuman</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Informasi resmi dari sekolah.</p>
             </div>
         </a>
-        <a href="/summative" class="bg-cream/40 hover:bg-cream p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+        <a href="/summative" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-softorange/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
             <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📘</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Materi Sumatif</h3>
                 <p class="text-xs sm:text-sm text-earthtext/70">Kisi-kisi dan materi bulanan lengkap.</p>
             </div>
         </a>
-        <a href="/change-password" class="bg-cream/40 hover:bg-cream p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
+        <a href="/change-password" class="bg-cream/40 hover:bg-[#FDF3E7] hover:border-softorange/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-deepgreen/15 flex items-center space-x-4 group">
             <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔒</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Ganti Password</h3>
@@ -381,7 +378,7 @@ app.get('/summative', checkAuth, async (req, res) => {
         if (period === 'month') {
             allMonthsList.forEach(m => {
                 const isActive = m === selectedMonth;
-                monthTabs += `<a href="/summative?period=month&month=${encodeURIComponent(m)}" class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition whitespace-nowrap shadow-sm ${isActive ? 'bg-softorange text-white' : 'bg-cream/60 text-earthtext border border-deepgreen/15 hover:bg-cream'}">${m}</a>`;
+                monthTabs += `<a href="/summative?period=month&month=${encodeURIComponent(m)}" class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition whitespace-nowrap shadow-sm ${isActive ? 'bg-deepgreen text-white shadow' : 'bg-cream/60 text-earthtext border border-deepgreen/15 hover:bg-cream'}">${m}</a>`;
             });
             monthTabs = `<div class="flex overflow-x-auto gap-2 pb-3 mb-4">${monthTabs}</div>`;
         }
@@ -419,9 +416,9 @@ app.get('/summative', checkAuth, async (req, res) => {
                             <span class="font-bold text-sm text-earthtext block">📄 ${mat.title}</span>
                             ${monthBadge}
                         </div>
-                        <div class="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                        <div class="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                             <a href="${rawUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-emerald-50 text-emerald-800 border border-emerald-200 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-100 transition">Buka Drive</a>
-                            <a href="${downloadUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-softorange text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-[#d88949] transition">Download</a>
+                            <a href="${downloadUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-deepgreen text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-sagegreen transition">Download</a>
                         </div>
                     </div>`;
                 });
@@ -548,7 +545,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
         let monthOptions = monthsList.map(mObj => `<option value="${mObj.v}" ${mObj.v === month ? 'selected' : ''}>${mObj.n}</option>`).join('');
 
         const content = `
-        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-cream/50 p-6 rounded-[2rem] shadow-sm border border-deepgreen/15">
+        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#FDF3E7] p-6 rounded-[2rem] shadow-sm border border-softorange/30">
             <div>
                 <h2 class="text-xl sm:text-2xl font-bold text-earthtext">Kalendar Akademik 2026/2027</h2>
                 <p class="text-xs sm:text-sm text-earthtext/70">Agenda kelas, libur nasional, dan catatan jadwal pribadi siswa.</p>
@@ -581,7 +578,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
             </div>
 
             <div class="mt-6 flex justify-end">
-                <button type="submit" class="w-full sm:w-auto bg-softorange hover:bg-[#d88949] text-white px-8 py-3.5 rounded-2xl font-bold text-sm shadow-md transition">💾 Simpan jadwal pribadi siswa</button>
+                <button type="submit" class="w-full sm:w-auto bg-deepgreen hover:bg-sagegreen text-white px-8 py-3.5 rounded-2xl font-bold text-sm shadow-md transition">💾 Simpan jadwal pribadi siswa</button>
             </div>
         </form>
 
@@ -702,11 +699,11 @@ app.get('/kas', checkAuth, async (req, res) => {
                         <div class="pt-4 border-t border-deepgreen/15 font-bold text-earthtext">Total Pembayaran: Rp <span id="totalDisplay">0</span></div>
                         
                         <div class="mt-6 p-4 bg-white rounded-2xl text-xs sm:text-sm border border-deepgreen/15 text-earthtext shadow-sm">
-                            <p class="mb-2 font-bold text-softorange">Info Pembayaran:</p>
+                            <p class="mb-2 font-bold text-deepgreen">Info Pembayaran:</p>
                             <p>BCA: 0971149581</p>
                             <p>BNI: 286855891</p>
                             <p>a.n. Nisa Syakrina</p>
-                            <p class="mt-3">Konfirmasi ke Mba Nisa:<br><a href="https://wa.me/6285800327444" target="_blank" class="text-softorange font-bold underline hover:text-deepgreen">+62 858-0032-7444</a></p>
+                            <a href="https://wa.me/6285800327444" target="_blank" class="block w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-2xl transition shadow-sm mt-3">WhatsApp Mba Nisa</a>
                         </div>
                     </div>
                 </div>
@@ -861,13 +858,13 @@ app.get('/finances', checkAuth, async (req, res) => {
         <div class="mb-6"><h2 class="text-xl sm:text-2xl font-bold text-earthtext">Laporan Keuangan</h2><p class="text-xs sm:text-sm text-earthtext/70">Rincian pemasukan kas, kaos, transaksi lainnya, dan pengeluaran kelas 2A.</p></div>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-blue-500"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Total Kas</span><h3 class="text-xl font-bold text-blue-600 mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
-            <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-green-500"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Total Kaos</span><h3 class="text-xl font-bold text-green-600 mt-1">Rp ${totalKaos.toLocaleString()}</h3></div>
-            <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-amber-500"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pendapatan Lain</span><h3 class="text-xl font-bold text-amber-600 mt-1">Rp ${totalLainnya.toLocaleString()}</h3></div>
-            <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-red-500"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pengeluaran</span><h3 class="text-xl font-bold text-red-600 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
+            <div class="bg-[#F7F4ED] p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-[#4B8A6C]"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Total Kas</span><h3 class="text-xl font-bold text-deepgreen mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
+            <div class="bg-[#F3F8F5] p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-[#215F47]"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Total Kaos</span><h3 class="text-xl font-bold text-emerald-800 mt-1">Rp ${totalKaos.toLocaleString()}</h3></div>
+            <div class="bg-[#FEF9E7] p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-[#E89A5B]"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pendapatan Lain</span><h3 class="text-xl font-bold text-amber-700 mt-1">Rp ${totalLainnya.toLocaleString()}</h3></div>
+            <div class="bg-[#FDF2F2] p-5 rounded-[2rem] shadow-sm border border-deepgreen/15 border-l-4 border-l-red-400"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/60">Pengeluaran</span><h3 class="text-xl font-bold text-red-600 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
         </div>
 
-        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/15 mb-6 bg-gradient-to-r from-deepgreen/10 to-sagegreen/10">
+        <div class="bg-[#FDF3E7] p-6 rounded-[2rem] shadow-sm border border-softorange/30 mb-6">
             <div>
                 <span class="text-xs font-bold uppercase tracking-wider text-deepgreen">Saldo Akhir Kas Kelas (Total Masuk - Pengeluaran)</span>
                 <h3 class="text-2xl sm:text-3xl font-bold text-earthtext mt-1">Rp ${balance.toLocaleString()}</h3>
@@ -912,8 +909,8 @@ app.get('/finances', checkAuth, async (req, res) => {
         <div class="bg-white rounded-[2rem] shadow-sm border border-deepgreen/15 overflow-x-auto mb-6">
             <table class="w-full min-w-[600px]">
                 <thead>
-                    <tr class="bg-cream/60 text-earthtext/70 text-xs uppercase tracking-wider border-b border-deepgreen/15 font-bold">
-                        <th class="py-3 px-3 sm:px-6 text-center w-[120px]">Tanggal</th>
+                    <tr class="bg-deepgreen text-white text-xs uppercase tracking-wider font-bold">
+                        <th class="py-3.5 px-3 sm:px-6 text-center w-[120px]">Tanggal</th>
                         <th class="py-3 px-3 sm:px-6 text-left">Keterangan</th>
                         <th class="py-3 px-3 sm:px-6 text-center w-[100px]">Tipe</th>
                         <th class="py-3 px-3 sm:px-6 text-left w-[160px] sm:w-[200px]">Jumlah</th>
@@ -988,14 +985,14 @@ app.get('/announcements', checkAuth, async (req, res) => {
                     actionButtonsHtml = `
                     <div class="mt-3 flex flex-wrap gap-2">
                         <a href="${rawUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold border border-emerald-200 transition"><span>📁</span><span>Buka di Google Drive</span></a>
-                        <a href="${downloadUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-softorange hover:bg-[#d88949] text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
+                        <a href="${downloadUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-deepgreen hover:bg-sagegreen text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
                     </div>`;
                 } else {
                     imageHtml = `<div class="mt-4"><img src="${rawUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-2xl max-h-80 w-auto object-cover border border-deepgreen/15" onerror="this.parentElement.style.display='none'"></div>`;
                     actionButtonsHtml = `
                     <div class="mt-3 flex flex-wrap gap-2">
                         <a href="${rawUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold border border-emerald-200 transition"><span>🔗</span><span>Buka Link</span></a>
-                        <a href="${rawUrl}" download target="_blank" class="inline-flex items-center space-x-2 bg-softorange hover:bg-[#d88949] text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
+                        <a href="${rawUrl}" download target="_blank" class="inline-flex items-center space-x-2 bg-deepgreen hover:bg-sagegreen text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
                     </div>`;
                 }
             }
@@ -1025,7 +1022,7 @@ app.get('/announcements', checkAuth, async (req, res) => {
                     <option value="all" ${filter === 'all' ? 'selected' : ''}>Semua Waktu</option>
                     <option value="weekly" ${filter === 'weekly' ? 'selected' : ''}>Minggu Ini</option>
                 </select>
-                <button type="submit" class="bg-softorange text-white px-5 py-2.5 rounded-2xl text-sm font-bold hover:bg-[#d88949] transition">Cari</button>
+                <button type="submit" class="bg-deepgreen text-white px-5 py-2.5 rounded-2xl text-sm font-bold hover:bg-sagegreen transition">Cari</button>
             </form>
         </div>
         <div class="space-y-4">${cards || '<div class="bg-white p-8 rounded-[2rem] text-center text-earthtext/50 border border-deepgreen/15 font-bold">Tidak ada pengumuman yang ditemukan.</div>'}</div>
@@ -1052,7 +1049,7 @@ app.get('/change-password', checkAuth, (req, res) => {
                 <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/70 mb-1">Password Baru</label>
                 <input type="password" name="newPassword" required class="w-full px-4 py-2.5 border border-deepgreen/20 rounded-2xl outline-none focus:ring-2 focus:ring-softorange bg-cream/50 text-earthtext font-bold">
             </div>
-            <button type="submit" class="w-full bg-softorange text-white py-3 rounded-2xl font-bold hover:bg-[#d88949] transition shadow-md">Simpan Password Baru</button>
+            <button type="submit" class="w-full bg-deepgreen text-white py-3 rounded-2xl font-bold hover:bg-sagegreen transition shadow-md">Simpan Password Baru</button>
         </form>
         <div class="mt-6"><a href="/dashboard" class="text-deepgreen font-bold hover:text-softorange">&larr; Kembali ke Beranda</a></div>
     </div>`;
@@ -1116,12 +1113,12 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
 
         const content = `
         <div class="max-w-6xl mx-auto space-y-8 pb-12">
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/20 flex justify-between items-center">
+            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h2 class="text-2xl font-bold text-deepgreen">Panel Utama Admin Kelas 2A</h2>
                     <p class="text-xs sm:text-sm text-earthtext/70">Kelola data kas, transaksi keuangan, agenda kalender, materi sumatif, dan backup database.</p>
                 </div>
-                <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-2xl text-sm font-bold transition shadow-sm">Logout</a>
+                <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-2xl text-sm font-bold transition shadow-sm whitespace-nowrap">Logout</a>
             </div>
 
             <!-- 1. BULK UPDATE STATUS KAS & KAOS -->
@@ -1129,25 +1126,27 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                 <h3 class="font-bold text-lg text-earthtext mb-2">💵 Kelola Status Pembayaran Kas & Kaos Siswa (Bulk Update)</h3>
                 <p class="text-xs text-earthtext/60 mb-4">Pilih siswa, lalu centang bulan/item yang sudah lunas dan klik Simpan.</p>
                 
-                <form action="/admin/update-kas-bulk" method="POST">
+                <form action="/admin/update-kas-bulk" method="POST" class="space-y-4">
                     <input type="hidden" name="user_id" value="${targetUserId}">
-                    <div class="mb-4">
+                    <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Pilih Nama Siswa:</label>
                         <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border border-deepgreen/20 p-3 rounded-2xl w-full sm:w-72 bg-cream/50 font-bold text-sm outline-none focus:ring-2 focus:ring-softorange text-earthtext">${studentOptions}</select>
                     </div>
                     
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                         ${checkboxesHtml}
                     </div>
 
-                    <button type="submit" class="bg-softorange hover:bg-[#d88949] text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-md transition">💾 Simpan Perubahan Kas (Bulk)</button>
+                    <div>
+                        <button type="submit" class="bg-deepgreen hover:bg-sagegreen text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-md transition">💾 Simpan Perubahan Kas (Bulk)</button>
+                    </div>
                 </form>
             </div>
 
             <!-- 2. TAMBAH TRANSAKSI -->
             <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/20">
                 <h3 class="font-bold text-lg text-earthtext mb-4">📊 Tambah Transaksi Keuangan (Pemasukan / Pengeluaran)</h3>
-                <form action="/admin/add-transaction" method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                <form action="/admin/add-transaction" method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Tanggal</label>
                         <input type="date" name="date" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
@@ -1167,7 +1166,9 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Jumlah (Rp)</label>
                         <input type="number" name="amount" placeholder="50000" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                     </div>
-                    <button type="submit" class="bg-softorange hover:bg-[#d88949] text-white py-2.5 px-4 rounded-2xl font-bold text-sm h-[42px] shadow-sm">Simpan Transaksi</button>
+                    <div class="w-full">
+                        <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-2.5 px-4 rounded-2xl font-bold text-sm h-[42px] shadow-sm">Simpan Transaksi</button>
+                    </div>
                 </form>
             </div>
 
@@ -1217,7 +1218,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Link Google Drive File</label>
                         <input type="url" name="link" placeholder="https://drive.google.com/file/d/..." required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                     </div>
-                    <button type="submit" class="w-full bg-softorange hover:bg-[#d88949] text-white py-3 rounded-2xl font-bold text-sm shadow-sm transition">Simpan Materi Sumatif</button>
+                    <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-3 rounded-2xl font-bold text-sm shadow-sm transition">Simpan Materi Sumatif</button>
                 </form>
             </div>
 
@@ -1238,31 +1239,31 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                             <label class="block text-xs font-bold uppercase mb-1 text-earthtext/70">Keterangan</label>
                             <input type="text" name="description" placeholder="Keterangan singkat kegiatan" required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                         </div>
-                        <button type="submit" class="w-full bg-softorange hover:bg-[#d88949] text-white py-2.5 rounded-2xl font-bold text-sm shadow-sm">Simpan Kalender</button>
+                        <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-2.5 rounded-2xl font-bold text-sm shadow-sm">Simpan Kalender</button>
                     </form>
                 </div>
 
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-deepgreen/20">
                     <h3 class="font-bold text-lg text-earthtext mb-3">📢 Buat Pengumuman Sekolah</h3>
                     <form action="/admin/add-announcement" method="POST" class="space-y-3">
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <input type="date" name="date" required class="border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                             <input type="text" name="title" placeholder="Judul Pengumuman" required class="border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
                         </div>
                         <textarea name="content" rows="2" placeholder="Isi pengumuman..." required class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 resize-none text-earthtext font-bold"></textarea>
                         <input type="url" name="lampiran" placeholder="Link Google Drive (Opsional)" class="w-full border border-deepgreen/20 p-2.5 rounded-2xl text-sm bg-cream/50 text-earthtext font-bold">
-                        <button type="submit" class="w-full bg-softorange hover:bg-[#d88949] text-white py-2.5 rounded-2xl font-bold text-sm shadow-sm">Publikasikan</button>
+                        <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-2.5 rounded-2xl font-bold text-sm shadow-sm">Publikasikan</button>
                     </form>
                 </div>
             </div>
 
             <!-- 5. BACKUP DATABASE (JSON) -->
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-[2rem] shadow-sm border border-blue-200 flex justify-between items-center">
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-[2rem] shadow-sm border border-blue-200 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div>
                     <h3 class="font-bold text-lg text-blue-900">💾 Cadangan Database (Backup)</h3>
                     <p class="text-xs text-blue-700 font-medium">Unduh file database (.json) saat ini ke komputer sebagai cadangan.</p>
                 </div>
-                <a id="downloadBtn" href="#" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl font-bold text-sm shadow-sm transition">Download JSON</a>
+                <a id="downloadBtn" href="#" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl font-bold text-sm shadow-sm transition whitespace-nowrap">Download JSON</a>
             </div>
         </div>
 
