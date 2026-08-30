@@ -874,25 +874,130 @@ const layout = (title, content) => `
             .portal-brand { font-size: 1rem; }
             .portal-brand-badge { width: 38px; height: 38px; border-radius: 14px; }
         }
-    </style>
+    
+        /* =====================================================
+           FINAL MOBILE-FIRST POLISH
+        ===================================================== */
+        .page-header {
+            margin-top: 18px !important;
+            margin-bottom: 26px !important;
+            padding: 8px 6px 0 !important;
+        }
+
+        .page-header .page-title {
+            font-family: 'Fredoka', 'Quicksand', sans-serif !important;
+            font-size: clamp(32px, 5vw, 44px) !important;
+            line-height: 1.08 !important;
+            font-weight: 600 !important;
+            letter-spacing: .01em !important;
+        }
+
+        .portal-loading-card {
+            width: min(360px, calc(100vw - 30px));
+            padding: 28px 22px 24px;
+        }
+
+        .portal-loading-title {
+            font-family: 'Fredoka', 'Quicksand', sans-serif;
+            font-size: 27px;
+            font-weight: 600;
+            color: var(--portal-green-dark);
+            margin-bottom: 18px;
+        }
+
+        .portal-loading-bar {
+            width: 100%;
+            height: 58px !important;
+            border-radius: 999px !important;
+            background: #ECEBF5 !important;
+            padding: 5px !important;
+            overflow: hidden !important;
+            border: 1px solid rgba(255,255,255,.95);
+            box-shadow: inset 0 2px 6px rgba(63,73,67,.05);
+        }
+
+        .portal-loading-bar-fill {
+            height: 100%;
+            width: 0%;
+            min-width: 0;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #FFD55C 0%, #FFB842 52%, #F5A34A 100%);
+            color: #A96422;
+            font-family: 'Fredoka', 'Quicksand', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: width .06s linear;
+            box-shadow: 0 5px 12px rgba(245,163,74,.16);
+        }
+
+        .portal-loading-dots {
+            margin-top: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .portal-loading-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: portalDot 1.05s ease-in-out infinite;
+        }
+
+        .portal-loading-dot:nth-child(1) { background: #F5A34A; }
+        .portal-loading-dot:nth-child(2) { background: #8FC8A8; animation-delay: .14s; }
+        .portal-loading-dot:nth-child(3) { background: #9ED5EA; animation-delay: .28s; }
+
+        @keyframes portalDot {
+            0%, 100% { transform: translateY(0); opacity: .45; }
+            50% { transform: translateY(-5px); opacity: 1; }
+        }
+
+        /* Mobile-first page sizing */
+        body { overflow-x: hidden; }
+        .portal-main, .portal-shell, .portal-card, form, section, article, .grid, .flex { min-width: 0; }
+        .portal-shell { overflow-x: hidden; }
+        img, svg, canvas { max-width: 100%; height: auto; }
+        .overflow-x-auto { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .overflow-x-auto table { min-width: 640px; }
+        button, a { touch-action: manipulation; }
+
+        @media (max-width: 760px) {
+            .portal-main { width: calc(100% - 10px); padding: 8px 0 24px; }
+            .portal-shell { border-radius: 24px; padding: 14px 12px 22px; }
+            .portal-nav-inner { width: calc(100% - 10px); min-height: 62px; padding: 9px 5px; }
+            .portal-brand { font-size: 18px; }
+            .portal-brand-badge { width: 37px; height: 37px; border-radius: 13px; }
+            .portal-logout { min-width: 72px; padding: 8px 12px !important; font-size: 11px !important; }
+            .page-header { margin-top: 12px !important; margin-bottom: 20px !important; padding: 6px 4px 0 !important; }
+            .page-header .page-title { font-size: 31px !important; }
+            .page-header .page-title::after { width: 44px; height: 5px; margin-top: 8px; }
+            .portal-card { border-radius: 20px !important; }
+            input, select, textarea { font-size: 16px !important; }
+            button { min-height: 44px; }
+        }
+
+        @media (max-width: 480px) {
+            .portal-main { width: calc(100% - 6px); }
+            .portal-shell { padding: 12px 10px 20px; border-radius: 22px; }
+            .page-header .page-title { font-size: 29px !important; }
+            .portal-loading-card { width: calc(100vw - 28px); }
+            .portal-loading-title { font-size: 24px; }
+            .portal-loading-bar { height: 52px !important; }
+            .portal-loading-bar-fill { font-size: 16px; }
+        }
+</style>
 </head>
 <body class="text-earthtext min-h-screen flex flex-col selection:bg-merigold selection:text-earthtext">
-    <div id="loading-overlay" class="fixed inset-0 flex flex-col items-center justify-center z-[9999]" style="display:none;">
+    <div id="loading-overlay" class="fixed inset-0 flex items-center justify-center z-[9999]" style="display:none; opacity:0;">
         <div class="portal-loading-card">
-            <div class="portal-loading-title">PORTAL 2A</div>
-            <div class="portal-loading-bar">
-                <div id="portal-loading-progress" class="portal-loading-bar-fill">Memuat halaman... 0%</div>
-            </div>
-            <div class="portal-loading-dots" aria-hidden="true">
-                <span class="portal-loading-dot"></span>
-                <span class="portal-loading-dot"></span>
-                <span class="portal-loading-dot"></span>
-            </div>
-        </div>
-    </div>
-
-<div class="portal-loading-bar">
-                <div id="portal-loading-progress" class="portal-loading-bar-fill">Memuat halaman... 0%</div>
+            <div class="portal-loading-title">Loading.. <span id="portal-loading-percent">0%</span></div>
+            <div class="portal-loading-bar" aria-label="Loading progress">
+                <div id="portal-loading-progress" class="portal-loading-bar-fill" style="width:0%;">Loading.. 0%</div>
             </div>
             <div class="portal-loading-dots" aria-hidden="true">
                 <span class="portal-loading-dot"></span>
@@ -932,25 +1037,28 @@ const layout = (title, content) => `
 
         function startPortalLoading() {
             const overlay = document.getElementById('loading-overlay');
-            const text = document.getElementById('portal-loading-progress');
-            if (!overlay || !text) return;
-
-            overlay.style.display = 'flex';
-            overlay.style.opacity = '1';
+            const bar = document.getElementById('portal-loading-progress');
+            const titlePct = document.getElementById('portal-loading-percent');
+            if (!overlay || !bar || !titlePct) return;
 
             cancelAnimationFrame(portalLoadingFrame);
             portalLoadingStart = performance.now();
+            overlay.style.display = 'flex';
+            requestAnimationFrame(() => { overlay.style.opacity = '1'; });
 
             const duration = 1800;
 
             function tick(now) {
                 const elapsed = now - portalLoadingStart;
                 const pct = Math.min(100, Math.round((elapsed / duration) * 100));
-                text.textContent = "Memuat halaman... " + pct + "%";
-                text.style.width = pct + "%";
+                bar.style.width = pct + '%';
+                bar.textContent = 'Loading.. ' + pct + '%';
+                titlePct.textContent = pct + '%';
 
                 if (pct < 100) {
                     portalLoadingFrame = requestAnimationFrame(tick);
+                } else {
+                    setTimeout(hidePortalLoading, 120);
                 }
             }
 
@@ -960,10 +1068,15 @@ const layout = (title, content) => `
         function hidePortalLoading() {
             const overlay = document.getElementById('loading-overlay');
             if (!overlay) return;
+            cancelAnimationFrame(portalLoadingFrame);
             overlay.style.opacity = '0';
             setTimeout(() => {
                 overlay.style.display = 'none';
-            }, 260);
+                const bar = document.getElementById('portal-loading-progress');
+                const titlePct = document.getElementById('portal-loading-percent');
+                if (bar) { bar.style.width = '0%'; bar.textContent = 'Loading.. 0%'; }
+                if (titlePct) titlePct.textContent = '0%';
+            }, 280);
         }
 
         window.addEventListener('load', hidePortalLoading);
@@ -989,369 +1102,321 @@ const layout = (title, content) => `
 
 app.get('/login', (req, res) => {
     res.send(`
-    <!DOCTYPE html>
-    <html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="theme-color" content="#F9D76E">
-        <title>PORTAL 2A</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
-        <script src="https://cdn.tailwindcss.com"></script>
-        <style>
-            :root {
-                --green: #4B8F70;
-                --green-dark: #315F4A;
-                --cream: #FFF9EF;
-                --yellow: #F8D66D;
-                --orange: #F5A34A;
-                --blue: #BFE4F2;
-                --peach: #F8B98A;
-                --text: #29463A;
-            }
-            * { box-sizing: border-box; }
-            body {
-                margin: 0;
-                min-height: 100vh;
-                font-family: 'Quicksand', sans-serif;
-                color: var(--text);
-                background:
-                    radial-gradient(circle at 8% 12%, rgba(248,214,109,.50) 0 8%, transparent 27%),
-                    radial-gradient(circle at 92% 88%, rgba(191,228,242,.48) 0 10%, transparent 28%),
-                    linear-gradient(160deg, #FFFDF8 0%, #EEF8F0 100%);
-                display: grid;
-                place-items: center;
-                padding: 18px;
-                overflow-x: hidden;
-            }
-            body::before, body::after {
-                content: '';
-                position: fixed;
-                pointer-events: none;
-                border-radius: 50%;
-                opacity: .72;
-            }
-            body::before { width: 180px; height: 180px; left: -85px; top: 20%; background: #FFF2BC; box-shadow: 58px 70px 0 #DFF3E5; }
-            body::after { width: 170px; height: 170px; right: -75px; bottom: 8%; background: #FFE6D6; box-shadow: -55px -66px 0 #DDF2FA; }
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#4B8F70">
+    <title>PORTAL 2A</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --green: #4B8F70;
+            --green-dark: #315F4A;
+            --cream: #FFF9EF;
+            --yellow: #F8D66D;
+            --orange: #F5A34A;
+            --text: #29463A;
+        }
+        * { box-sizing: border-box; }
+        html, body { min-height: 100%; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Quicksand', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 7% 7%, rgba(248,214,109,.38) 0 9%, transparent 26%),
+                radial-gradient(circle at 94% 10%, rgba(191,228,242,.42) 0 10%, transparent 29%),
+                linear-gradient(160deg, #FFFDF8 0%, #EEF8F0 100%);
+            display: grid;
+            place-items: center;
+            padding: 16px;
+            overflow-x: hidden;
+        }
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            pointer-events: none;
+            border-radius: 50%;
+            z-index: 0;
+        }
+        body::before { width: 190px; height: 190px; left: -95px; top: 16%; background:#FFF2BC; box-shadow: 65px 70px 0 #DFF3E5; }
+        body::after { width: 170px; height: 170px; right: -80px; bottom: 8%; background:#FFE6D6; box-shadow:-55px -66px 0 #DDF2FA; }
 
-            .login-wrap {
-                width: min(980px, 100%);
-                display: grid;
-                grid-template-columns: 1.1fr .9fr;
-                gap: 18px;
-                position: relative;
-                z-index: 1;
-            }
+        .login-wrap {
+            position: relative;
+            z-index: 1;
+            width: min(860px, 100%);
+            display: grid;
+            grid-template-columns: .95fr 1.05fr;
+            gap: 16px;
+        }
 
-            .login-visual {
-                position: relative;
-                min-height: 640px;
-                border-radius: 36px;
-                background:
-                    radial-gradient(circle at 30% 18%, rgba(255,255,255,.72), transparent 28%),
-                    linear-gradient(180deg, #EAF8EE 0%, #FFF8E6 100%);
-                border: 1px solid rgba(255,255,255,.95);
-                box-shadow: 0 24px 60px rgba(60,91,73,.11);
-                overflow: hidden;
-                padding: 40px 38px 30px;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }
+        .login-visual,
+        .login-card {
+            border-radius: 34px;
+            border: 1px solid rgba(255,255,255,.96);
+            box-shadow: 0 24px 60px rgba(55,91,72,.11);
+        }
 
-            .login-brand {
-                display: inline-flex;
-                align-items: center;
-                gap: 10px;
-                color: var(--green-dark);
-                font-family: 'Fredoka', 'Quicksand', sans-serif;
-                font-size: 24px;
-                font-weight: 700;
-                letter-spacing: .03em;
-            }
+        .login-visual {
+            min-height: 590px;
+            padding: 38px;
+            background:
+                radial-gradient(circle at 82% 18%, rgba(255,255,255,.85) 0 7%, transparent 7.5%),
+                radial-gradient(circle at 20% 72%, rgba(255,218,106,.22) 0 9%, transparent 9.5%),
+                linear-gradient(160deg, #EAF8EE, #FFF8E6);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-start;
+        }
 
-            .login-brand-mark {
-                width: 42px;
-                height: 42px;
-                border-radius: 15px;
-                display: grid;
-                place-items: center;
-                background: linear-gradient(145deg, #FFE883, #FFD15D);
-                border: 2px solid rgba(255,255,255,.96);
-                box-shadow: 0 8px 18px rgba(199,150,48,.18);
-            }
+        .login-visual::before {
+            content: '';
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            left: -100px;
+            bottom: -115px;
+            background: rgba(255,255,255,.55);
+        }
+        .login-visual::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            right: 50px;
+            top: 82px;
+            background: var(--orange);
+            box-shadow: -36px 54px 0 #9ED5EA, -66px 8px 0 #F8D66D;
+        }
 
-            .login-copy {
-                margin-top: 48px;
-                max-width: 430px;
-            }
-            .login-copy h2 {
-                margin: 0;
-                font-family: 'Fredoka', 'Quicksand', sans-serif;
-                font-size: clamp(38px, 5vw, 62px);
-                line-height: .95;
-                color: var(--green-dark);
-            }
-            .login-copy p {
-                margin: 16px 0 0;
-                font-size: 16px;
-                line-height: 1.65;
-                max-width: 380px;
-                color: rgba(41,70,58,.72);
-                font-weight: 700;
-            }
+        .login-brand {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            font-size: 24px;
+            color: var(--green-dark);
+        }
+        .login-brand-mark {
+            width: 44px;
+            height: 44px;
+            border-radius: 15px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(145deg,#FFE680,#FFD15A);
+            color: #6E541B;
+            box-shadow: 0 9px 18px rgba(197,150,48,.16);
+        }
+        .login-copy {
+            position: relative;
+            z-index: 2;
+            margin-top: 76px;
+        }
+        .login-copy h2 {
+            margin: 0;
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(40px, 5.5vw, 64px);
+            line-height: .98;
+            font-weight: 600;
+            color: var(--green-dark);
+        }
+        .login-copy p {
+            margin: 17px 0 0;
+            max-width: 320px;
+            font-size: 15px;
+            line-height: 1.7;
+            font-weight: 600;
+            color: rgba(41,70,58,.70);
+        }
+        .login-mini-note {
+            position: absolute;
+            z-index: 2;
+            left: 38px;
+            bottom: 34px;
+            font-size: 12px;
+            font-weight: 700;
+            color: rgba(41,70,58,.58);
+        }
 
-            .login-illustration {
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                width: 100%;
-                height: 350px;
-                overflow: hidden;
-                pointer-events: none;
-                display: flex;
-                align-items: flex-end;
-                justify-content: center;
-            }
+        .login-card {
+            min-height: 590px;
+            padding: 42px;
+            background: rgba(255,255,255,.96);
+            display: flex;
+            align-items: center;
+        }
+        .login-inner { width: 100%; max-width: 390px; margin: 0 auto; }
+        .login-card h1 {
+            margin: 0;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 36px;
+            line-height: 1;
+            font-weight: 600;
+            color: var(--green-dark);
+        }
+        .login-subtitle {
+            margin: 9px 0 28px;
+            font-size: 13px;
+            line-height: 1.6;
+            font-weight: 600;
+            color: rgba(41,70,58,.68);
+        }
+        .login-form { display:grid; gap:16px; }
+        .login-label { display:block; margin-bottom:7px; font-size:12px; font-weight:700; color:rgba(41,70,58,.78); }
+        .login-input-wrap { position:relative; }
+        .login-input {
+            width:100%;
+            min-height:52px;
+            border:1px solid rgba(75,143,112,.16);
+            background:#FFFEFB;
+            color:var(--text);
+            padding:13px 15px 13px 46px;
+            border-radius:17px;
+            outline:none;
+            font:600 15px 'Quicksand', sans-serif;
+            box-shadow:0 6px 15px rgba(74,103,84,.035);
+        }
+        .login-input:focus { border-color:rgba(75,143,112,.48); box-shadow:0 0 0 4px rgba(143,200,168,.17); }
+        .login-input-icon { position:absolute; left:15px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:#5A9A79; pointer-events:none; }
+        .login-btn {
+            width:100%;
+            min-height:54px;
+            border:0;
+            border-radius:18px;
+            cursor:pointer;
+            background:linear-gradient(90deg,#55A77C,#75BA92);
+            color:#fff;
+            font:600 17px 'Fredoka', sans-serif;
+            box-shadow:0 14px 24px rgba(74,151,105,.19);
+        }
 
-            .login-card {
-                min-height: 640px;
-                border-radius: 36px;
-                background: rgba(255,255,255,.94);
-                border: 1px solid rgba(255,255,255,.98);
-                box-shadow: 0 24px 60px rgba(60,91,73,.11);
-                padding: 32px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
+        #login-loading { position:fixed; inset:0; z-index:9999; display:none; place-items:center; background:linear-gradient(160deg,rgba(255,248,221,.97),rgba(233,247,238,.97)); backdrop-filter:blur(10px); }
+        .login-loading-card { width:min(350px,calc(100vw - 28px)); padding:28px 22px 24px; border-radius:30px; background:#fff; box-shadow:0 25px 60px rgba(50,80,65,.14); text-align:center; }
+        .login-loading-title { font:600 26px 'Fredoka',sans-serif; color:var(--green-dark); margin-bottom:16px; }
+        .login-loading-bar { width:100%; height:56px; padding:5px; background:#ECEBF5; border-radius:999px; overflow:hidden; }
+        .login-loading-fill { height:100%; width:0; border-radius:999px; background:linear-gradient(90deg,#FFD55C,#FFB842,#F5A34A); color:#A96422; display:flex; align-items:center; justify-content:center; font:600 17px 'Fredoka',sans-serif; transition:width .06s linear; }
+        .login-loading-dots { display:flex; justify-content:center; gap:8px; margin-top:12px; }
+        .login-loading-dots span { width:8px; height:8px; border-radius:50%; animation:loginDot 1.05s ease-in-out infinite; }
+        .login-loading-dots span:nth-child(1){background:#F5A34A}.login-loading-dots span:nth-child(2){background:#8FC8A8;animation-delay:.14s}.login-loading-dots span:nth-child(3){background:#9ED5EA;animation-delay:.28s}
+        @keyframes loginDot{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-5px);opacity:1}}
 
-            .login-card h1 {
-                margin: 0;
-                font-family: 'Fredoka', 'Quicksand', sans-serif;
-                font-size: 34px;
-                color: var(--green-dark);
-                text-align: center;
-            }
-            .login-subtitle { margin: 8px auto 0; text-align:center; color:rgba(41,70,58,.72); font-size:13px; line-height:1.55; font-weight:700; max-width:320px; }
+        @media(max-width:760px){
+            body { padding:10px; }
+            .login-wrap { width:100%; max-width:520px; grid-template-columns:1fr; gap:12px; }
+            .login-visual { min-height:250px; padding:24px 22px; border-radius:26px; }
+            .login-brand { font-size:19px; }
+            .login-brand-mark { width:38px; height:38px; border-radius:13px; }
+            .login-copy { margin-top:34px; }
+            .login-copy h2 { font-size:38px; }
+            .login-copy p { font-size:13px; max-width:260px; margin-top:11px; }
+            .login-mini-note { left:22px; bottom:20px; font-size:10px; }
+            .login-card { min-height:unset; padding:25px 19px 28px; border-radius:26px; }
+            .login-card h1 { font-size:30px; }
+            .login-subtitle { margin-bottom:22px; }
+            .login-input { font-size:16px; min-height:52px; }
+        }
+        @media(max-width:390px){
+            .login-visual { min-height:225px; }
+            .login-copy h2 { font-size:33px; }
+            .login-copy p { font-size:12px; }
+            .login-card { padding:21px 15px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="login-loading">
+        <div class="login-loading-card">
+            <div class="login-loading-title">Loading.. <span id="login-loading-percent">0%</span></div>
+            <div class="login-loading-bar">
+                <div id="login-loading-fill" class="login-loading-fill">Loading.. 0%</div>
+            </div>
+            <div class="login-loading-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+        </div>
+    </div>
 
-            .login-form { margin-top: 26px; display: grid; gap: 14px; }
-            .login-label { display:block; font-size:12px; font-weight:700; color:rgba(41,70,58,.78); margin-bottom:6px; }
-            .login-input-wrap { position:relative; }
-            .login-input {
-                width: 100%;
-                border: 1px solid rgba(75,143,112,.14);
-                background: #FFFEFB;
-                color: var(--text);
-                padding: 14px 15px 14px 46px;
-                border-radius: 17px;
-                outline: none;
-                font: 600 15px 'Quicksand', sans-serif;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 7px 15px rgba(74,103,84,.035);
-            }
-            .login-input:focus { border-color: rgba(75,143,112,.42); box-shadow: 0 0 0 4px rgba(143,200,168,.17); }
-            .login-input-icon { position:absolute; left:15px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:#5A9A79; pointer-events:none; }
-
-            .login-btn {
-                margin-top: 4px;
-                width: 100%;
-                border: 0;
-                border-radius: 18px;
-                padding: 14px 18px;
-                cursor: pointer;
-                background: linear-gradient(90deg, #55A77C, #75BA92);
-                color: white;
-                font: 700 16px 'Quicksand', sans-serif;
-                box-shadow: 0 14px 24px rgba(74,151,105,.20);
-                transition: transform .18s ease, box-shadow .18s ease;
-            }
-            .login-btn:hover { transform:translateY(-1px); box-shadow:0 18px 28px rgba(74,151,105,.24); }
-
-            #login-loading {
-                position:fixed; inset:0; z-index:9999; display:none; place-items:center;
-                background: linear-gradient(160deg, rgba(255,248,221,.95), rgba(233,247,238,.96));
-                backdrop-filter: blur(10px);
-            }
-
-            .portal-loading-card {
-                width:min(340px, calc(100vw - 34px));
-                padding:26px 22px 24px;
-                border-radius:34px;
-                background:rgba(255,255,255,.95);
-                border:1px solid rgba(255,255,255,.98);
-                box-shadow:0 28px 65px rgba(67,96,78,.14);
-                text-align:center;
-                position:relative;
-                overflow:hidden;
-            }
-            .portal-loading-bar { margin-top:10px; height:58px; border-radius:999px; background:#E8E9F5; padding:5px; overflow:hidden; }
-            .portal-loading-bar-fill { height:100%; width:64%; min-width:170px; display:flex; align-items:center; justify-content:center; border-radius:999px; background:linear-gradient(90deg,#FFD55C,#FFB842); color:#B76822; font-family:'Quicksand',sans-serif; font-weight:700; animation:portalLoadPulse 1.6s ease-in-out infinite; }
-            .portal-loading-dots { margin-top:12px; display:flex; justify-content:center; gap:7px; }
-            .portal-loading-dot { width:8px; height:8px; border-radius:50%; background:#F5A34A; animation:portalDot 1.2s infinite; }
-            .portal-loading-dot:nth-child(2){animation-delay:.15s;background:#8FC8A8}.portal-loading-dot:nth-child(3){animation-delay:.3s;background:#9ED5EA}
-            @keyframes portalDot{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-4px);opacity:1}}
-            @keyframes portalLoadPulse{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.97)}}
-
-            @media(max-width:820px){
-                .login-wrap{grid-template-columns:1fr; max-width:620px;}
-                .login-visual{min-height:310px; padding:28px 26px;}
-                .login-card{min-height:auto; padding:28px;}
-                .login-copy{margin-top:30px; max-width:350px;}
-                .login-copy h2{font-size:42px;}
-                .login-illustration{width:100%; height:250px; right:0; bottom:-8px; opacity:.96;}
-            }
-            @media(max-width:520px){
-                body{padding:10px;}
-                .login-visual{border-radius:28px; min-height:300px; padding:22px 20px;}
-                .login-card{border-radius:28px; padding:22px 18px;}
-                .login-copy h2{font-size:34px;}
-                .login-copy p{font-size:14px;}
-                .login-mascot{transform:scale(.86); transform-origin:bottom right; right:8px;}
-                .login-mosque{transform:scale(.82); transform-origin:bottom left; left:-8px;}
-            }
-
-            @media(max-width:520px){
-                .login-wrap { gap: 10px; }
-                .login-visual { min-height: 295px; padding: 22px 18px; }
-                .login-brand { font-size: 20px; }
-                .login-copy { margin-top: 24px; }
-                .login-copy h2 { font-size: 34px; }
-                .login-illustration { height: 205px; bottom: -2px; }
-                .login-card { min-height: auto; padding: 22px 17px 24px; }
-                .login-card h1 { font-size: 29px; }
-                .login-form { margin-top: 20px; }
-                .login-input { min-height: 48px; }
-                .login-btn { min-height: 50px; }
-            }
-        </style>
-    </head>
-    <body>
-        <div id="login-loading">
-            <div class="portal-loading-card">
-                <div class="portal-loading-title">PORTAL 2A</div>
-                <div class="portal-loading-bar">
-                    <div id="portal-loading-progress" class="portal-loading-bar-fill">Memuat halaman... 0%</div>
+    <div class="login-wrap">
+        <section class="login-visual">
+            <div>
+                <div class="login-brand">
+                    <div class="login-brand-mark" aria-hidden="true">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <path d="M4 11.2 12 5l8 6.2v7.1c0 .94-.76 1.7-1.7 1.7H5.7c-.94 0-1.7-.76-1.7-1.7v-7.1Z" fill="#4B8F70"/>
+                            <path d="M9.5 20v-5.5h5V20" stroke="#FFFDF6" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <span>PORTAL 2A</span>
                 </div>
-                <div class="portal-loading-dots" aria-hidden="true">
-                    <span class="portal-loading-dot"></span>
-                    <span class="portal-loading-dot"></span>
-                    <span class="portal-loading-dot"></span>
+                <div class="login-copy">
+                    <h2>Portal<br>Walimurid<br>Kelas 2A</h2>
+                    <p>Ruang informasi kelas untuk Ayah &amp; Bunda.</p>
                 </div>
             </div>
-        </div>
-                <div class="portal-loading-dots"><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span></div>
-            </div>
-        </div>
+            <div class="login-mini-note">Belajar • Bertumbuh • Berkah 🌿</div>
+        </section>
 
-        <div class="login-wrap">
-            <section class="login-visual">
-                <div>
-                    <div class="login-brand">
-                        <div class="login-brand-mark" aria-hidden="true">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 11.2 12 5l8 6.2v7.1c0 .94-.76 1.7-1.7 1.7H5.7c-.94 0-1.7-.76-1.7-1.7v-7.1Z" fill="#4B8F70"/><path d="M9.5 20v-5.5h5V20" stroke="#FFFDF6" stroke-width="1.8" stroke-linecap="round"/></svg>
-                        </div>
-                        <span>PORTAL 2A</span>
-                    </div>
-                    <div class="login-copy">
-                        <h2>Portal<br>Walimurid<br>Kelas 2A</h2>
-                        <p>Assalamualaikum, selamat datang Ayah Bunda.<br>Mohon masukkan Username dan Password</p>
-                    </div>
-                </div>
+        <section class="login-card">
+            <div class="login-inner">
+                <h1>Assalamualaikum 👋</h1>
+                <p class="login-subtitle">Selamat datang Ayah Bunda.<br>Mohon masukkan Username dan Password</p>
 
-                <div class="login-illustration" aria-hidden="true">
-                    <svg class="login-scene-svg" viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="sceneGreen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#73B995"/><stop offset="1" stop-color="#4B8F70"/></linearGradient>
-                            <linearGradient id="sceneOrange" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFD36D"/><stop offset="1" stop-color="#F5A34A"/></linearGradient>
-                        </defs>
-                        <ellipse cx="300" cy="336" rx="246" ry="24" fill="#CDE5D4" opacity=".72"/>
-                        <circle cx="487" cy="72" r="33" fill="#FFD96A" opacity=".80"/>
-                        <path d="M24 302C80 261 128 267 181 300s111 36 160 4 102-30 179 4v52H24Z" fill="#DDF1E3"/>
-                        <g opacity=".96">
-                            <rect x="206" y="176" width="188" height="126" rx="18" fill="#FFF9EF" stroke="#4B8F70" stroke-width="4"/>
-                            <path d="M230 181c3-50 41-82 70-82s67 32 70 82Z" fill="url(#sceneGreen)"/>
-                            <path d="M294 99c2-17 7-30 12-40 5 10 10 23 12 40Z" fill="url(#sceneOrange)"/>
-                            <circle cx="306" cy="54" r="4" fill="#F5A34A"/>
-                            <rect x="180" y="179" width="12" height="123" rx="5" fill="#FFD273"/>
-                            <path d="M174 180 186 153l12 27Z" fill="#F5A34A"/>
-                            <rect x="395" y="179" width="12" height="123" rx="5" fill="#FFD273"/>
-                            <path d="M389 180 401 153l12 27Z" fill="#F5A34A"/>
-                            <path d="M277 302v-58c0-25 58-25 58 0v58Z" fill="#356C54"/>
-                        </g>
-                        <g class="login-scene-boy">
-                            <ellipse cx="202" cy="324" rx="63" ry="12" fill="#B8D8C3" opacity=".6"/>
-                            <path d="M148 240c0-27 21-47 48-47h23c27 0 48 20 48 47v77h-119Z" fill="url(#sceneGreen)" stroke="#315F4A" stroke-width="4"/>
-                            <path d="M165 245c12-10 26-15 38-15s27 5 39 15v72h-77Z" fill="#FFFDF5"/>
-                            <circle cx="207" cy="181" r="38" fill="#F0B082" stroke="#315F4A" stroke-width="4"/>
-                            <path d="M170 178c4-27 17-45 37-45 20 0 34 18 37 45-10-8-22-12-37-12s-27 4-37 12Z" fill="#FFFDF5" stroke="#315F4A" stroke-width="4"/>
-                            <path d="M174 150c7-18 19-26 34-26s28 8 35 26c-18-6-51-6-69 0Z" fill="#27483A"/>
-                            <rect x="216" y="246" width="47" height="61" rx="8" fill="#82CBE4" stroke="#315F4A" stroke-width="4" transform="rotate(-7 216 246)"/>
-                            <path d="M239 249v56" stroke="#E9F7FC" stroke-width="3"/>
-                        </g>
-                        <g class="login-scene-girl">
-                            <ellipse cx="395" cy="324" rx="63" ry="12" fill="#B8D8C3" opacity=".6"/>
-                            <path d="M341 240c0-27 21-47 48-47h23c27 0 48 20 48 47v77H341Z" fill="#F5A34A" stroke="#315F4A" stroke-width="4"/>
-                            <path d="M358 245c12-10 26-15 38-15s27 5 39 15v72h-77Z" fill="#FFFDF5"/>
-                            <path d="M347 181c0-34 22-56 49-56 29 0 49 22 49 56 0 38-13 60-49 60-36 0-49-22-49-60Z" fill="#4B8F70" stroke="#315F4A" stroke-width="4"/>
-                            <circle cx="396" cy="182" r="31" fill="#C9906D"/>
-                            <path d="M367 175c6-13 17-21 29-21 13 0 24 8 30 21v24c-7 11-17 17-30 17-12 0-23-6-29-17Z" fill="#FFFDF5"/>
-                            <rect x="349" y="247" width="47" height="61" rx="8" fill="#FFD45C" stroke="#315F4A" stroke-width="4" transform="rotate(7 349 247)"/>
-                            <path d="M373 250v56" stroke="#FFF8DB" stroke-width="3"/>
-                        </g>
-                        <g class="login-scene-star" fill="#F5A34A"><path d="m82 80 5 12 12 5-12 5-5 12-5-12-12-5 12-5Z"/><circle cx="545" cy="142" r="6" fill="#9ED5EA"/></g>
-                    </svg>
-                </div>
-            </section>
-
-            <section class="login-card">
-                <div>
-                    <h1>PORTAL 2A</h1>
-                    <p class="login-subtitle">Assalamualaikum, selamat datang Ayah Bunda.<br>Mohon masukkan Username dan Password</p>
-                </div>
                 <form action="/login" method="POST" class="login-form" onsubmit="startLoginLoading();">
                     <div>
                         <label class="login-label">Username</label>
                         <div class="login-input-wrap">
                             <svg class="login-input-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 19c.8-3.1 2.9-4.7 6.5-4.7s5.7 1.6 6.5 4.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                            <input type="text" name="first_name" required class="login-input" placeholder="Nama Siswa">
+                            <input type="text" name="first_name" required class="login-input" placeholder="Nama Siswa" autocomplete="username">
                         </div>
                     </div>
                     <div>
                         <label class="login-label">Password</label>
                         <div class="login-input-wrap">
                             <svg class="login-input-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                            <input type="password" name="password" required class="login-input" placeholder="Password Akun">
+                            <input type="password" name="password" required class="login-input" placeholder="Password Akun" autocomplete="current-password">
                         </div>
                     </div>
                     <button type="submit" class="login-btn">Masuk <span aria-hidden="true">›</span></button>
                 </form>
-            </section>
-        </div>
+            </div>
+        </section>
+    </div>
 
-        <script>
-            let loginLoadingFrame = null;
-            function startLoginLoading() {
-                const overlay = document.getElementById('login-loading');
-                const text = document.getElementById('portal-loading-progress');
-                if (!overlay || !text) return;
-                overlay.style.display = 'grid';
-                cancelAnimationFrame(loginLoadingFrame);
-                const start = performance.now();
-                const duration = 1800;
-                function tick(now) {
-                    const pct = Math.min(100, Math.round(((now - start) / duration) * 100));
-                    text.textContent = 'Memuat halaman... ' + pct + '%';
-                    text.style.width = pct + '%';
-                    if (pct < 100) loginLoadingFrame = requestAnimationFrame(tick);
-                }
-                loginLoadingFrame = requestAnimationFrame(tick);
+    <script>
+        let loginLoadingFrame = null;
+        function startLoginLoading() {
+            const overlay = document.getElementById('login-loading');
+            const fill = document.getElementById('login-loading-fill');
+            const pctText = document.getElementById('login-loading-percent');
+            if (!overlay || !fill || !pctText) return;
+
+            overlay.style.display = 'grid';
+            cancelAnimationFrame(loginLoadingFrame);
+            const start = performance.now();
+            const duration = 1800;
+
+            function tick(now) {
+                const pct = Math.min(100, Math.round(((now - start) / duration) * 100));
+                fill.style.width = pct + '%';
+                fill.textContent = 'Loading.. ' + pct + '%';
+                pctText.textContent = pct + '%';
+                if (pct < 100) loginLoadingFrame = requestAnimationFrame(tick);
             }
-        </script>
-    </body>
-    </html>`);
+            loginLoadingFrame = requestAnimationFrame(tick);
+        }
+    </script>
+</body>
+</html>`);
 });
 
 app.post('/login', async (req, res) => {
