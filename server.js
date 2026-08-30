@@ -1,11 +1,9 @@
 const express = require('express');
-const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use('/assets', express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
     res.redirect('/login');
@@ -109,6 +107,61 @@ const nationalHolidays = {
     "2027-12-25": "Hari Raya Natal"
 };
 
+const iconSvg = (name) => {
+    const icons = {
+        calendar: `
+            <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                <rect x="7" y="10" width="34" height="31" rx="9" fill="#E5F3E9" stroke="#4B8F70" stroke-width="2.5"/>
+                <path d="M7 18h34" stroke="#4B8F70" stroke-width="2.5"/>
+                <path d="M15 6v8M33 6v8" stroke="#F5A34A" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="16" cy="25" r="2.6" fill="#F5A34A"/>
+                <circle cx="24" cy="25" r="2.6" fill="#8FC8A8"/>
+                <circle cx="32" cy="25" r="2.6" fill="#9ED5EA"/>
+                <circle cx="16" cy="33" r="2.6" fill="#8FC8A8"/>
+                <circle cx="24" cy="33" r="2.6" fill="#F5A34A"/>
+            </svg>`,
+        wallet: `
+            <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                <rect x="6" y="12" width="35" height="27" rx="8" fill="#FFF1DD" stroke="#F5A34A" stroke-width="2.5"/>
+                <path d="M10 17h23c6 0 8 3 8 8v1H28c-4 0-6 2-6 5s2 5 6 5h13" fill="#FFE3C0"/>
+                <path d="M28 23h13v14H28c-4 0-6-2-6-7s2-7 6-7Z" fill="#F5A34A"/>
+                <circle cx="31" cy="30" r="2" fill="#FFFDF5"/>
+                <path d="M10 12c0-3 2-5 5-5h8" stroke="#4B8F70" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>`,
+        chart: `
+            <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                <rect x="7" y="7" width="34" height="34" rx="10" fill="#FFF7D9" stroke="#F5A34A" stroke-width="2.5"/>
+                <path d="M13 34V27" stroke="#4B8F70" stroke-width="4" stroke-linecap="round"/>
+                <path d="M21 34V21" stroke="#8FC8A8" stroke-width="4" stroke-linecap="round"/>
+                <path d="M29 34V25" stroke="#F5A34A" stroke-width="4" stroke-linecap="round"/>
+                <path d="M13 16l7-4 8 3 7-6" stroke="#4B8F70" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="35" cy="9" r="3" fill="#F5A34A"/>
+            </svg>`,
+        bell: `
+            <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                <path d="M14 34h20l-3-5V21c0-5-3-9-7-10v-1h-2v1c-4 1-7 5-7 10v8l-1 5Z" fill="#E4F4E8" stroke="#4B8F70" stroke-width="2.5" stroke-linejoin="round"/>
+                <path d="M20 38c1 2 3 3 4 3s3-1 4-3" stroke="#F5A34A" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="33" cy="12" r="6" fill="#F5A34A"/>
+                <path d="M31 12l1.5 1.5L35 11" stroke="#FFFDF5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>`,
+        book: `
+            <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                <path d="M8 11c6-3 12-2 17 2v25c-5-4-11-5-17-2V11Z" fill="#DFF0F8" stroke="#4B8F70" stroke-width="2.5" stroke-linejoin="round"/>
+                <path d="M40 11c-6-3-12-2-17 2v25c5-4 11-5 17-2V11Z" fill="#FFF0DA" stroke="#F5A34A" stroke-width="2.5" stroke-linejoin="round"/>
+                <path d="M13 17c3-1 6-1 9 1M13 22c3-1 6-1 9 1M35 17c-3-1-6-1-9 1M35 22c-3-1-6-1-9 1" stroke="#7FB794" stroke-width="1.8" stroke-linecap="round"/>
+                <circle cx="24" cy="10" r="3" fill="#F5A34A"/>
+            </svg>`,
+        lock: `
+            <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                <rect x="9" y="20" width="30" height="22" rx="8" fill="#E6F4EA" stroke="#4B8F70" stroke-width="2.5"/>
+                <path d="M15 20v-5c0-6 4-10 9-10s9 4 9 10v5" stroke="#F5A34A" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="24" cy="30" r="3" fill="#F5A34A"/>
+                <path d="M24 33v4" stroke="#F5A34A" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>`
+    };
+    return icons[name] || icons.book;
+};
+
 const layout = (title, content) => `
 <!DOCTYPE html>
 <html lang="id">
@@ -119,7 +172,7 @@ const layout = (title, content) => `
     <title>${title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -127,7 +180,7 @@ const layout = (title, content) => `
                 extend: {
                     fontFamily: {
                         sans: ['Quicksand', 'sans-serif'],
-                        display: ['Quicksand', 'Quicksand', 'sans-serif'],
+                        display: ['Fredoka', 'Quicksand', 'sans-serif'],
                     },
                     colors: {
                         deepgreen: '#4B8F70',
@@ -207,7 +260,10 @@ const layout = (title, content) => `
             box-shadow: -38px -32px 0 #F8E4D5;
         }
 
-        .portal-font-display { font-family: 'Quicksand', 'Quicksand', sans-serif; }
+        .portal-font-display { font-family: 'Fredoka', 'Quicksand', sans-serif; font-weight: 600; }
+
+        h1, h2, h3, h4, h5, h6 { font-family: 'Fredoka', 'Quicksand', sans-serif !important; font-weight: 600 !important; }
+        p, li, td, th, label, button, input, select, textarea { font-family: 'Quicksand', sans-serif; }
 
         .portal-nav {
             position: sticky;
@@ -236,7 +292,7 @@ const layout = (title, content) => `
             gap: 12px;
             color: var(--portal-green-dark) !important;
             text-decoration: none;
-            font-family: 'Quicksand', 'Quicksand', sans-serif;
+            font-family: 'Fredoka', 'Quicksand', sans-serif;
             font-size: 1.12rem;
             font-weight: 700;
             letter-spacing: .02em;
@@ -352,26 +408,220 @@ const layout = (title, content) => `
         button, a[class*="bg-deepgreen"] { transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease; }
         button:hover, a[class*="bg-deepgreen"]:hover { transform: translateY(-1px); }
 
+
+        /* =====================================================
+           CUTE TYPOGRAPHY + PAGE HEADERS
+        ===================================================== */
+        .portal-font-display,
+        .portal-page-title,
+        .page-title,
+        h1.page-title,
+        h2.page-title {
+            font-family: 'Fredoka', 'Quicksand', sans-serif !important;
+            font-weight: 600 !important;
+            letter-spacing: .01em;
+        }
+
+        .page-header {
+            margin-bottom: 26px !important;
+            padding: 6px 4px 0;
+        }
+
+        .page-header .page-title {
+            margin: 0 !important;
+            font-size: clamp(28px, 4vw, 40px) !important;
+            line-height: 1.08 !important;
+            color: var(--portal-green-dark) !important;
+            padding-bottom: 4px;
+        }
+
+        .page-header .page-title::after {
+            content: '';
+            display: block;
+            width: 52px;
+            height: 6px;
+            margin-top: 10px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #F5A34A, #F8D66D);
+        }
+
+        .page-header + * {
+            margin-top: 0 !important;
+        }
+
+        /* =====================================================
+           ILLUSTRATED ICONS
+        ===================================================== */
+        .portal-icon-art {
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
+            display: grid;
+            place-items: center;
+            border-radius: 19px;
+            background: linear-gradient(145deg, #FFFFFF 0%, #E8F5EC 100%);
+            border: 1px solid rgba(75,143,112,.12);
+            box-shadow: 0 9px 18px rgba(54,91,72,.09), inset 0 1px 0 rgba(255,255,255,.95);
+            transition: transform .2s ease;
+        }
+
+        .portal-icon-art svg {
+            width: 34px;
+            height: 34px;
+            filter: drop-shadow(0 2px 1px rgba(43,90,64,.10));
+        }
+
+        a.portal-card:hover .portal-icon-art {
+            transform: translateY(-2px) rotate(-2deg) scale(1.03);
+        }
+
+        .portal-icon-art.orange {
+            background: linear-gradient(145deg, #FFF9ED, #FFF0DD);
+        }
+        .portal-icon-art.blue {
+            background: linear-gradient(145deg, #F6FCFF, #E5F4FA);
+        }
+        .portal-icon-art.yellow {
+            background: linear-gradient(145deg, #FFFDF2, #FFF5C9);
+        }
+
+        /* =====================================================
+           LOADING: MOVING OVAL 0 -> 100, NO ILLUSTRATION
+        ===================================================== */
+        .portal-loading-card {
+            width: min(370px, calc(100vw - 30px));
+            padding: 30px 24px 24px;
+        }
+
+        .portal-loading-title {
+            font-family: 'Fredoka', 'Quicksand', sans-serif;
+            font-weight: 600;
+            font-size: 26px;
+            color: var(--portal-green-dark);
+            margin-bottom: 18px;
+        }
+
+        .portal-loading-bar {
+            margin-top: 0 !important;
+            height: 58px !important;
+            border-radius: 999px !important;
+            background: #ECEBF5 !important;
+            padding: 5px !important;
+            overflow: hidden !important;
+            position: relative !important;
+            border: 1px solid rgba(255,255,255,.92);
+            box-shadow: inset 0 2px 6px rgba(63,73,67,.05);
+        }
+
+        .portal-loading-bar-fill {
+            width: 0%;
+            min-width: 0;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #FFD55C 0%, #FFB842 50%, #F5A34A 100%);
+            color: #A96422;
+            font-family: 'Fredoka', 'Quicksand', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: width .08s linear;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 12px rgba(245,163,74,.16);
+        }
+
+        .portal-loading-card::before,
+        .portal-loading-card::after {
+            opacity: .8;
+        }
+
+        /* =====================================================
+           MOBILE: ALL PAGE SAFETY
+        ===================================================== */
+        .portal-shell,
+        .portal-card,
+        form,
+        section,
+        article,
+        .grid,
+        .flex {
+            min-width: 0;
+        }
+
+        .portal-main {
+            overflow-x: clip;
+        }
+
+        img, svg {
+            max-width: 100%;
+        }
+
+        @media (max-width: 640px) {
+            .page-header {
+                margin-bottom: 18px !important;
+                padding-top: 2px;
+            }
+
+            .page-header .page-title {
+                font-size: 29px !important;
+            }
+
+            .portal-card {
+                padding: 15px !important;
+            }
+
+            .portal-icon-art {
+                width: 51px;
+                height: 51px;
+                min-width: 51px;
+                border-radius: 17px;
+            }
+
+            .portal-icon-art svg {
+                width: 31px;
+                height: 31px;
+            }
+
+            .portal-loading-card {
+                padding: 27px 18px 22px;
+                border-radius: 28px;
+            }
+
+            .portal-loading-title {
+                font-size: 24px;
+            }
+
+            .portal-loading-bar {
+                height: 54px !important;
+            }
+
+            .portal-loading-bar-fill {
+                font-size: 16px;
+            }
+
+            table {
+                min-width: 680px;
+            }
+
+            .overflow-x-auto {
+                max-width: 100%;
+                overflow-x: auto !important;
+            }
+
+            input, select, textarea, button {
+                font-size: 14px !important;
+            }
+
+            button,
+            a[class*="bg-"] {
+                min-height: 44px;
+            }
+        }
+
         /* =====================================================
            REFERENCE-BASED VISUALS + RESPONSIVE SAFETY
         ===================================================== */
-        .portal-shell::before {
-            content: '';
-            position: absolute;
-            left: -30px;
-            bottom: -45px;
-            width: 240px;
-            height: 180px;
-            background-image: url('/assets/portal-reference.png');
-            background-size: 460% auto;
-            background-position: 6% 96%;
-            background-repeat: no-repeat;
-            opacity: .07;
-            pointer-events: none;
-            border-radius: 28px;
-            transform: rotate(-2deg);
-        }
-
         .portal-shell img,
         .portal-card img,
         .portal-main img {
@@ -484,116 +734,138 @@ const layout = (title, content) => `
         .portal-loading-card::before { width: 120px; height: 120px; left: -45px; top: -55px; background: #FFF2C2; }
         .portal-loading-card::after { width: 110px; height: 110px; right: -44px; bottom: -42px; background: #DFF3E4; }
 
-        .portal-loading-illustration {
-            width: 160px;
-            height: 160px;
-            margin: 0 auto 6px;
-            position: relative;
-            display: grid;
-            place-items: center;
+        /* =====================================================
+           CLEAN LOADING: 0 -> 100% LEFT TO RIGHT
+           No illustration/image.
+        ===================================================== */
+        .portal-loading-card {
+            width: min(380px, calc(100vw - 30px));
+            padding: 30px 24px 24px;
+            border-radius: 32px;
         }
 
-        .portal-loading-illustration .halo {
-            position: absolute;
-            width: 112px;
-            height: 112px;
-            border-radius: 50%;
-            background: linear-gradient(145deg, #FFF0A8, #E3F5EA);
+        .portal-loading-card::before,
+        .portal-loading-card::after {
+            opacity: .65;
         }
 
-        .portal-loading-illustration .head {
-            position: relative;
-            width: 70px;
-            height: 70px;
-            border-radius: 48% 48% 45% 45%;
-            background: #F4B68A;
-            border: 4px solid #27483A;
-            z-index: 2;
-        }
-
-        .portal-loading-illustration .cap {
-            position: absolute;
-            width: 76px;
-            height: 34px;
-            top: 27px;
-            border-radius: 40px 40px 18px 18px;
-            background: #F6CF57;
-            border: 4px solid #27483A;
-            z-index: 3;
-            transform: rotate(-6deg);
-        }
-
-        .portal-loading-illustration .body {
-            position: absolute;
-            width: 82px;
-            height: 62px;
-            bottom: 8px;
-            background: #59A97C;
-            border-radius: 34px 34px 26px 26px;
-            border: 4px solid #27483A;
-            z-index: 1;
-        }
-
-        .portal-loading-illustration .book {
-            position: absolute;
-            width: 54px;
-            height: 40px;
-            right: 15px;
-            bottom: 12px;
-            background: #82CBE4;
-            border: 4px solid #27483A;
-            border-radius: 10px;
-            transform: rotate(7deg);
-            z-index: 4;
-        }
-
-        .portal-loading-speech {
-            position: absolute;
-            right: 14px;
-            top: 8px;
-            background: #FFF;
-            border: 3px solid #27483A;
-            border-radius: 20px;
-            padding: 7px 10px;
-            font-weight: 700;
-            font-size: 12px;
-            z-index: 8;
+        .portal-loading-title {
+            margin: 0 0 18px;
+            text-align: center;
+            font-family: 'Fredoka', 'Quicksand', sans-serif;
+            font-size: 27px;
+            line-height: 1.1;
+            font-weight: 600;
+            color: var(--portal-green-dark);
         }
 
         .portal-loading-bar {
-            margin-top: 10px;
-            height: 58px;
-            border-radius: 999px;
-            background: #E8E9F5;
-            padding: 5px;
+            width: 100%;
+            height: 58px !important;
+            padding: 5px !important;
+            margin: 0 !important;
+            border-radius: 999px !important;
+            overflow: hidden !important;
+            background: #E9EAF3 !important;
             border: 1px solid rgba(255,255,255,.95);
-            overflow: hidden;
-            position: relative;
+            box-shadow: inset 0 2px 6px rgba(64,77,69,.06);
         }
 
         .portal-loading-bar-fill {
+            width: 0%;
+            min-width: 0;
             height: 100%;
-            width: 64%;
-            min-width: 170px;
+            padding: 0 14px;
+            border-radius: 999px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 999px;
-            background: linear-gradient(90deg, #FFD55C, #FFB842);
-            color: #B76822;
-            font-family: 'Quicksand', sans-serif;
-            font-weight: 700;
-            letter-spacing: .04em;
-            animation: portalLoadPulse 1.6s ease-in-out infinite;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: width .08s linear;
+            background: linear-gradient(90deg, #FFD45C 0%, #FFBA43 58%, #F5A34A 100%);
+            color: #A76120;
+            font-family: 'Fredoka', 'Quicksand', sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: .01em;
+            box-shadow: 0 5px 12px rgba(245,163,74,.17);
         }
 
-        .portal-loading-dots { margin-top: 12px; display: flex; justify-content: center; gap: 7px; }
-        .portal-loading-dot { width: 8px; height: 8px; border-radius: 50%; background: #F5A34A; animation: portalDot 1.2s infinite; }
-        .portal-loading-dot:nth-child(2) { animation-delay: .15s; background: #8FC8A8; }
-        .portal-loading-dot:nth-child(3) { animation-delay: .30s; background: #9ED5EA; }
+        .portal-loading-dots {
+            margin-top: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
 
-        @keyframes portalDot { 0%, 100% { transform: translateY(0); opacity: .45; } 50% { transform: translateY(-4px); opacity: 1; } }
-        @keyframes portalLoadPulse { 0%,100% { transform: scaleX(1); } 50% { transform: scaleX(.97); } }
+        .portal-loading-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: portalDot 1.15s ease-in-out infinite;
+            background: #F5A34A;
+        }
+
+        .portal-loading-dot:nth-child(2) {
+            animation-delay: .15s;
+            background: #8FC8A8;
+        }
+
+        .portal-loading-dot:nth-child(3) {
+            animation-delay: .30s;
+            background: #9ED5EA;
+        }
+
+        @keyframes portalDot {
+            0%, 100% { transform: translateY(0); opacity: .45; }
+            50% { transform: translateY(-4px); opacity: 1; }
+        }
+
+        /* =====================================================
+           CUTE LOGIN SCENE — pure SVG/CSS, no broken bitmap
+        ===================================================== */
+        .login-illustration {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 345px;
+            pointer-events: none;
+        }
+
+        .login-scene-svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .login-scene-boy,
+        .login-scene-girl {
+            transform-box: fill-box;
+            transform-origin: center bottom;
+            animation: loginSceneFloat 3.2s ease-in-out infinite;
+        }
+
+        .login-scene-girl { animation-delay: .25s; }
+
+        @keyframes loginSceneFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .login-scene-star {
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: loginSceneSpark 2.2s ease-in-out infinite;
+        }
+
+        @keyframes loginSceneSpark {
+            0%, 100% { opacity: .55; transform: scale(.92); }
+            50% { opacity: 1; transform: scale(1.08); }
+        }
 
         @media (max-width: 640px) {
             .portal-nav-inner { min-height: 66px; padding: 10px 14px; }
@@ -605,17 +877,21 @@ const layout = (title, content) => `
     </style>
 </head>
 <body class="text-earthtext min-h-screen flex flex-col selection:bg-merigold selection:text-earthtext">
-    <div id="loading-overlay" class="fixed inset-0 flex flex-col items-center justify-center z-[9999]" style="display: none;">
+    <div id="loading-overlay" class="fixed inset-0 flex flex-col items-center justify-center z-[9999]" style="display:none;">
         <div class="portal-loading-card">
-            <div class="portal-loading-illustration" aria-hidden="true">
-                <div class="halo"></div>
-                <div class="head"></div>
-                <div class="cap"></div>
-                <div class="body"></div>
-                <div class="book"></div>
-                <div class="portal-loading-speech">Hi!</div>
-            </div>
+            <div class="portal-loading-title">PORTAL 2A</div>
             <div class="portal-loading-bar">
+                <div id="portal-loading-progress" class="portal-loading-bar-fill">Memuat halaman... 0%</div>
+            </div>
+            <div class="portal-loading-dots" aria-hidden="true">
+                <span class="portal-loading-dot"></span>
+                <span class="portal-loading-dot"></span>
+                <span class="portal-loading-dot"></span>
+            </div>
+        </div>
+    </div>
+
+<div class="portal-loading-bar">
                 <div id="portal-loading-progress" class="portal-loading-bar-fill">Memuat halaman... 0%</div>
             </div>
             <div class="portal-loading-dots" aria-hidden="true">
@@ -671,6 +947,7 @@ const layout = (title, content) => `
                 const elapsed = now - portalLoadingStart;
                 const pct = Math.min(100, Math.round((elapsed / duration) * 100));
                 text.textContent = "Memuat halaman... " + pct + "%";
+                text.style.width = pct + "%";
 
                 if (pct < 100) {
                     portalLoadingFrame = requestAnimationFrame(tick);
@@ -721,7 +998,7 @@ app.get('/login', (req, res) => {
         <title>PORTAL 2A</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
         <style>
             :root {
@@ -789,7 +1066,7 @@ app.get('/login', (req, res) => {
                 align-items: center;
                 gap: 10px;
                 color: var(--green-dark);
-                font-family: 'Quicksand', sans-serif;
+                font-family: 'Fredoka', 'Quicksand', sans-serif;
                 font-size: 24px;
                 font-weight: 700;
                 letter-spacing: .03em;
@@ -812,7 +1089,7 @@ app.get('/login', (req, res) => {
             }
             .login-copy h2 {
                 margin: 0;
-                font-family: 'Quicksand', sans-serif;
+                font-family: 'Fredoka', 'Quicksand', sans-serif;
                 font-size: clamp(38px, 5vw, 62px);
                 line-height: .95;
                 color: var(--green-dark);
@@ -840,39 +1117,6 @@ app.get('/login', (req, res) => {
                 justify-content: center;
             }
 
-            .login-reference-bg {
-                position: absolute;
-                inset: 0;
-                background-image: url('/assets/portal-reference.png');
-                background-size: cover;
-                background-position: center 35%;
-                opacity: .09;
-                filter: saturate(.95);
-            }
-
-            .login-scene-glow {
-                position: absolute;
-                left: 50%;
-                bottom: 8px;
-                width: 340px;
-                height: 180px;
-                transform: translateX(-50%);
-                border-radius: 50%;
-                background: radial-gradient(circle, rgba(248,214,109,.42), rgba(232,245,236,.10) 67%, transparent 72%);
-            }
-
-            .login-kids-image {
-                position: relative;
-                z-index: 3;
-                width: min(470px, 105%);
-                max-width: none;
-                height: auto;
-                transform: translateY(4px);
-                filter: saturate(.98) contrast(.99);
-                border-radius: 22px;
-                box-shadow: 0 18px 38px rgba(46,88,66,.08);
-            }
-
             .login-card {
                 min-height: 640px;
                 border-radius: 36px;
@@ -887,7 +1131,7 @@ app.get('/login', (req, res) => {
 
             .login-card h1 {
                 margin: 0;
-                font-family: 'Quicksand', sans-serif;
+                font-family: 'Fredoka', 'Quicksand', sans-serif;
                 font-size: 34px;
                 color: var(--green-dark);
                 text-align: center;
@@ -943,14 +1187,6 @@ app.get('/login', (req, res) => {
                 position:relative;
                 overflow:hidden;
             }
-            .portal-loading-illustration { width:160px; height:160px; margin:0 auto 6px; position:relative; display:grid; place-items:center; }
-            .login-loading-kids { width: 100%; height: 100%; object-fit: cover; object-position: center 82%; border-radius: 20px; box-shadow: 0 10px 24px rgba(55,88,69,.08); }
-            .portal-loading-illustration .halo { position:absolute; width:112px; height:112px; border-radius:50%; background:linear-gradient(145deg,#FFF0A8,#E3F5EA); }
-            .portal-loading-illustration .head { position:relative; width:70px; height:70px; border-radius:48%; background:#F4B68A; border:4px solid #27483A; z-index:2; }
-            .portal-loading-illustration .cap { position:absolute; width:76px; height:34px; top:27px; border-radius:40px 40px 18px 18px; background:#F6CF57; border:4px solid #27483A; z-index:3; transform:rotate(-6deg); }
-            .portal-loading-illustration .body { position:absolute; width:82px; height:62px; bottom:8px; background:#59A97C; border-radius:34px 34px 26px 26px; border:4px solid #27483A; z-index:1; }
-            .portal-loading-illustration .book { position:absolute; width:54px; height:40px; right:15px; bottom:12px; background:#82CBE4; border:4px solid #27483A; border-radius:10px; transform:rotate(7deg); z-index:4; }
-            .portal-loading-speech { position:absolute; right:14px; top:8px; background:#FFF; border:3px solid #27483A; border-radius:20px; padding:7px 10px; font-weight:700; font-size:12px; z-index:8; }
             .portal-loading-bar { margin-top:10px; height:58px; border-radius:999px; background:#E8E9F5; padding:5px; overflow:hidden; }
             .portal-loading-bar-fill { height:100%; width:64%; min-width:170px; display:flex; align-items:center; justify-content:center; border-radius:999px; background:linear-gradient(90deg,#FFD55C,#FFB842); color:#B76822; font-family:'Quicksand',sans-serif; font-weight:700; animation:portalLoadPulse 1.6s ease-in-out infinite; }
             .portal-loading-dots { margin-top:12px; display:flex; justify-content:center; gap:7px; }
@@ -966,7 +1202,6 @@ app.get('/login', (req, res) => {
                 .login-copy{margin-top:30px; max-width:350px;}
                 .login-copy h2{font-size:42px;}
                 .login-illustration{width:100%; height:250px; right:0; bottom:-8px; opacity:.96;}
-                .login-kids-image{width:390px; max-width:120%;}
             }
             @media(max-width:520px){
                 body{padding:10px;}
@@ -977,15 +1212,36 @@ app.get('/login', (req, res) => {
                 .login-mascot{transform:scale(.86); transform-origin:bottom right; right:8px;}
                 .login-mosque{transform:scale(.82); transform-origin:bottom left; left:-8px;}
             }
+
+            @media(max-width:520px){
+                .login-wrap { gap: 10px; }
+                .login-visual { min-height: 295px; padding: 22px 18px; }
+                .login-brand { font-size: 20px; }
+                .login-copy { margin-top: 24px; }
+                .login-copy h2 { font-size: 34px; }
+                .login-illustration { height: 205px; bottom: -2px; }
+                .login-card { min-height: auto; padding: 22px 17px 24px; }
+                .login-card h1 { font-size: 29px; }
+                .login-form { margin-top: 20px; }
+                .login-input { min-height: 48px; }
+                .login-btn { min-height: 50px; }
+            }
         </style>
     </head>
     <body>
         <div id="login-loading">
             <div class="portal-loading-card">
-                <div class="portal-loading-illustration" aria-hidden="true">
-                    <img src="/assets/login-kids.png" alt="" class="login-loading-kids">
+                <div class="portal-loading-title">PORTAL 2A</div>
+                <div class="portal-loading-bar">
+                    <div id="portal-loading-progress" class="portal-loading-bar-fill">Memuat halaman... 0%</div>
                 </div>
-                <div class="portal-loading-bar"><div id="portal-loading-progress" class="portal-loading-bar-fill">Memuat halaman... 0%</div></div>
+                <div class="portal-loading-dots" aria-hidden="true">
+                    <span class="portal-loading-dot"></span>
+                    <span class="portal-loading-dot"></span>
+                    <span class="portal-loading-dot"></span>
+                </div>
+            </div>
+        </div>
                 <div class="portal-loading-dots"><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span></div>
             </div>
         </div>
@@ -1006,14 +1262,47 @@ app.get('/login', (req, res) => {
                 </div>
 
                 <div class="login-illustration" aria-hidden="true">
-                    <div class="login-reference-bg"></div>
-                    <div class="login-scene-glow"></div>
-                    <img
-                        src="/assets/login-kids.png"
-                        alt=""
-                        class="login-kids-image"
-                        loading="eager"
-                    >
+                    <svg class="login-scene-svg" viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="sceneGreen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#73B995"/><stop offset="1" stop-color="#4B8F70"/></linearGradient>
+                            <linearGradient id="sceneOrange" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFD36D"/><stop offset="1" stop-color="#F5A34A"/></linearGradient>
+                        </defs>
+                        <ellipse cx="300" cy="336" rx="246" ry="24" fill="#CDE5D4" opacity=".72"/>
+                        <circle cx="487" cy="72" r="33" fill="#FFD96A" opacity=".80"/>
+                        <path d="M24 302C80 261 128 267 181 300s111 36 160 4 102-30 179 4v52H24Z" fill="#DDF1E3"/>
+                        <g opacity=".96">
+                            <rect x="206" y="176" width="188" height="126" rx="18" fill="#FFF9EF" stroke="#4B8F70" stroke-width="4"/>
+                            <path d="M230 181c3-50 41-82 70-82s67 32 70 82Z" fill="url(#sceneGreen)"/>
+                            <path d="M294 99c2-17 7-30 12-40 5 10 10 23 12 40Z" fill="url(#sceneOrange)"/>
+                            <circle cx="306" cy="54" r="4" fill="#F5A34A"/>
+                            <rect x="180" y="179" width="12" height="123" rx="5" fill="#FFD273"/>
+                            <path d="M174 180 186 153l12 27Z" fill="#F5A34A"/>
+                            <rect x="395" y="179" width="12" height="123" rx="5" fill="#FFD273"/>
+                            <path d="M389 180 401 153l12 27Z" fill="#F5A34A"/>
+                            <path d="M277 302v-58c0-25 58-25 58 0v58Z" fill="#356C54"/>
+                        </g>
+                        <g class="login-scene-boy">
+                            <ellipse cx="202" cy="324" rx="63" ry="12" fill="#B8D8C3" opacity=".6"/>
+                            <path d="M148 240c0-27 21-47 48-47h23c27 0 48 20 48 47v77h-119Z" fill="url(#sceneGreen)" stroke="#315F4A" stroke-width="4"/>
+                            <path d="M165 245c12-10 26-15 38-15s27 5 39 15v72h-77Z" fill="#FFFDF5"/>
+                            <circle cx="207" cy="181" r="38" fill="#F0B082" stroke="#315F4A" stroke-width="4"/>
+                            <path d="M170 178c4-27 17-45 37-45 20 0 34 18 37 45-10-8-22-12-37-12s-27 4-37 12Z" fill="#FFFDF5" stroke="#315F4A" stroke-width="4"/>
+                            <path d="M174 150c7-18 19-26 34-26s28 8 35 26c-18-6-51-6-69 0Z" fill="#27483A"/>
+                            <rect x="216" y="246" width="47" height="61" rx="8" fill="#82CBE4" stroke="#315F4A" stroke-width="4" transform="rotate(-7 216 246)"/>
+                            <path d="M239 249v56" stroke="#E9F7FC" stroke-width="3"/>
+                        </g>
+                        <g class="login-scene-girl">
+                            <ellipse cx="395" cy="324" rx="63" ry="12" fill="#B8D8C3" opacity=".6"/>
+                            <path d="M341 240c0-27 21-47 48-47h23c27 0 48 20 48 47v77H341Z" fill="#F5A34A" stroke="#315F4A" stroke-width="4"/>
+                            <path d="M358 245c12-10 26-15 38-15s27 5 39 15v72h-77Z" fill="#FFFDF5"/>
+                            <path d="M347 181c0-34 22-56 49-56 29 0 49 22 49 56 0 38-13 60-49 60-36 0-49-22-49-60Z" fill="#4B8F70" stroke="#315F4A" stroke-width="4"/>
+                            <circle cx="396" cy="182" r="31" fill="#C9906D"/>
+                            <path d="M367 175c6-13 17-21 29-21 13 0 24 8 30 21v24c-7 11-17 17-30 17-12 0-23-6-29-17Z" fill="#FFFDF5"/>
+                            <rect x="349" y="247" width="47" height="61" rx="8" fill="#FFD45C" stroke="#315F4A" stroke-width="4" transform="rotate(7 349 247)"/>
+                            <path d="M373 250v56" stroke="#FFF8DB" stroke-width="3"/>
+                        </g>
+                        <g class="login-scene-star" fill="#F5A34A"><path d="m82 80 5 12 12 5-12 5-5 12-5-12-12-5 12-5Z"/><circle cx="545" cy="142" r="6" fill="#9ED5EA"/></g>
+                    </svg>
                 </div>
             </section>
 
@@ -1055,6 +1344,7 @@ app.get('/login', (req, res) => {
                 function tick(now) {
                     const pct = Math.min(100, Math.round(((now - start) / duration) * 100));
                     text.textContent = 'Memuat halaman... ' + pct + '%';
+                    text.style.width = pct + '%';
                     if (pct < 100) loginLoadingFrame = requestAnimationFrame(tick);
                 }
                 loginLoadingFrame = requestAnimationFrame(tick);
@@ -1095,48 +1385,48 @@ app.get('/dashboard', checkAuth, (req, res) => {
     <div class="mb-7 relative overflow-hidden bg-gradient-to-r from-[#E7F5EA] to-[#FFF7DD] text-earthtext p-6 sm:p-8 rounded-[28px] shadow-lg border border-white/90">
         <div>
             <span class="text-[10px] uppercase tracking-widest bg-white/75 px-3 py-1 rounded-full font-bold text-deepgreen border border-white">Dashboard Wali Murid</span>
-            <h2 class="portal-font-display text-2xl sm:text-3xl font-bold mt-2 text-deepgreen">Assalamualaikum, Ayah & Bunda ${String(req.user.first_name)}</h2><div class="mt-3 flex gap-2" aria-hidden="true"><span class="w-2.5 h-2.5 rounded-full bg-[#F5A34A]"></span><span class="w-2.5 h-2.5 rounded-full bg-[#8FC8A8]"></span><span class="w-2.5 h-2.5 rounded-full bg-[#BFE4F2]"></span></div>
+            <h2 class="portal-font-display text-2xl sm:text-3xl font-bold mt-2 text-deepgreen">Assalamualaikum,<br>Ayah &amp; Bunda ${String(req.user.first_name)}</h2><div class="mt-3 flex gap-2" aria-hidden="true"><span class="w-2.5 h-2.5 rounded-full bg-[#F5A34A]"></span><span class="w-2.5 h-2.5 rounded-full bg-[#8FC8A8]"></span><span class="w-2.5 h-2.5 rounded-full bg-[#BFE4F2]"></span></div>
         </div>
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         <a href="/calendar" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🗓️</div>
+            <div class="portal-icon-art">${iconSvg('calendar')}</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Kalendar Akademik</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Agenda kelas & jadwal pribadi siswa.</p>
             </div>
         </a>
         <a href="/kas" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">💰</div>
+            <div class="portal-icon-art orange">${iconSvg('wallet')}</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Iuran Kas Siswa</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Pembayaran kas pribadi setiap siswa.</p>
             </div>
         </a>
         <a href="/finances" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="bg-amber-100/70 text-amber-900 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📊</div>
+            <div class="portal-icon-art yellow">${iconSvg('chart')}</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-amber-900 transition">Laporan Keuangan</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Rincian income & expense kelas 2A.</p>
             </div>
         </a>
         <a href="/announcements" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="bg-sky-100/70 text-sky-900 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔔</div>
+            <div class="portal-icon-art blue">${iconSvg('bell')}</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-sky-900 transition">Pengumuman</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Informasi resmi dari sekolah.</p>
             </div>
         </a>
         <a href="/summative" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📘</div>
+            <div class="portal-icon-art blue">${iconSvg('book')}</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Materi Sumatif</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Kisi-kisi dan materi bulanan lengkap.</p>
             </div>
         </a>
         <a href="/change-password" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔒</div>
+            <div class="portal-icon-art">${iconSvg('lock')}</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Ganti Password</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Ubah kata sandi akun Anda.</p>
@@ -1258,9 +1548,8 @@ app.get('/summative', checkAuth, async (req, res) => {
         });
 
         const content = `
-        <div class="mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-earthtext">Materi & Kisi-kisi Sumatif</h2>
-            
+        <div class="page-header">
+            <h2 class="page-title">Materi & Kisi-kisi Sumatif</h2>
         </div>
 
         ${periodSelect}
@@ -1706,7 +1995,7 @@ app.get('/finances', checkAuth, async (req, res) => {
         }
 
         const content = `
-        <div class="mb-6"><h2 class="text-xl sm:text-2xl font-bold text-earthtext">Laporan Keuangan</h2></div>
+        <div class="page-header"><h2 class="page-title">Laporan Keuangan</h2></div>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="bg-amber-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-amber-200"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Total Kas</span><h3 class="text-xl font-bold text-amber-900 mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
@@ -1873,9 +2162,8 @@ app.get('/announcements', checkAuth, async (req, res) => {
         }
 
         const content = `
-        <div class="mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-earthtext">Pengumuman Sekolah</h2>
-            
+        <div class="page-header">
+            <h2 class="page-title">Pengumuman Sekolah</h2>
         </div>
         <div class="bg-white/50 backdrop-blur-md p-4 rounded-[2rem] shadow-md border border-white/70 mb-6">
             <form method="GET" class="flex flex-wrap gap-3 items-center">
