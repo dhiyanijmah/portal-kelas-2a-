@@ -113,70 +113,485 @@ const layout = (title, content) => `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#F9D76E">
     <title>${title}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Quicksand', 'sans-serif'],
+                        sans: ['Nunito', 'sans-serif'],
+                        display: ['Baloo 2', 'Nunito', 'sans-serif'],
                     },
                     colors: {
-                        deepgreen: '#215F47',
-                        sagegreen: '#4B8A6C',
-                        tangerine: '#FA8128',
-                        merigold: '#FCAE1E',
-                        cider: '#B56727',
-                        cantaloupe: '#FDA172',
-                        sandstone: '#D67229',
-                        cream: '#F7F4ED',
-                        earthtext: '#2C3B32',
+                        deepgreen: '#4B8F70',
+                        sagegreen: '#8FC8A8',
+                        tangerine: '#F5A34A',
+                        merigold: '#F8D66D',
+                        cider: '#C7794C',
+                        cantaloupe: '#F8B98A',
+                        sandstone: '#E1B36C',
+                        cream: '#FFF9EF',
+                        earthtext: '#29463A',
                         cardbg: '#FFFFFF',
+                        mintsoft: '#E8F5EC',
+                        skysoft: '#E7F5FA',
+                        peachsoft: '#FFF0E5',
+                        yellowsoft: '#FFF8D8',
                     }
                 }
             }
         }
     </script>
     <style>
-        body {
-            font-family: 'Quicksand', sans-serif;
-            background: radial-gradient(circle at 15% 12%, rgba(246, 222, 160, 0.75) 0%, transparent 45%),
-                        radial-gradient(circle at 88% 85%, rgba(110, 175, 145, 0.65) 0%, transparent 50%),
-                        linear-gradient(145deg, #E2F0EA 0%, #A8D1BE 50%, #68A589 100%);
-            background-attachment: fixed;
-            min-height: 100vh;
+        :root {
+            --portal-green: #4B8F70;
+            --portal-green-dark: #356C54;
+            --portal-mint: #E8F5EC;
+            --portal-cream: #FFF9EF;
+            --portal-yellow: #F8D66D;
+            --portal-orange: #F5A34A;
+            --portal-blue: #BFE4F2;
+            --portal-peach: #F8B98A;
+            --portal-text: #29463A;
+            --portal-border: rgba(75, 143, 112, .14);
         }
-        #loading-overlay { transition: opacity 0.3s ease; }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            color: var(--portal-text);
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 8% 8%, rgba(248, 214, 109, .35) 0 9%, transparent 27%),
+                radial-gradient(circle at 92% 7%, rgba(191, 228, 242, .45) 0 10%, transparent 30%),
+                radial-gradient(circle at 90% 90%, rgba(248, 185, 138, .22) 0 8%, transparent 26%),
+                linear-gradient(180deg, #FBF8EE 0%, #EFF8F1 58%, #FDF6EA 100%);
+            background-attachment: fixed;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            border-radius: 999px;
+            opacity: .75;
+        }
+
+        body::before {
+            width: 120px;
+            height: 120px;
+            left: -40px;
+            top: 22%;
+            background: #FFF0B7;
+            box-shadow: 40px 40px 0 #D9F1DE;
+        }
+
+        body::after {
+            width: 150px;
+            height: 150px;
+            right: -55px;
+            bottom: 14%;
+            background: #DFF4FA;
+            box-shadow: -38px -32px 0 #F8E4D5;
+        }
+
+        .portal-font-display { font-family: 'Baloo 2', 'Nunito', sans-serif; }
+
+        .portal-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255, 253, 247, .93);
+            border-bottom: 1px solid rgba(75, 143, 112, .10);
+            box-shadow: 0 8px 24px rgba(51, 91, 71, .07);
+            backdrop-filter: blur(14px);
+        }
+
+        .portal-nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            min-height: 74px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .portal-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--portal-green-dark) !important;
+            text-decoration: none;
+            font-family: 'Baloo 2', 'Nunito', sans-serif;
+            font-size: 1.12rem;
+            font-weight: 800;
+            letter-spacing: .02em;
+        }
+
+        .portal-brand-badge {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 16px;
+            background: linear-gradient(145deg, #FFE57D, #FFD15C);
+            border: 2px solid rgba(255,255,255,.95);
+            box-shadow: 0 7px 18px rgba(197, 145, 48, .20);
+            color: #7A5A1A;
+        }
+
+        .portal-logout {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px !important;
+            min-width: 82px;
+            border-radius: 16px !important;
+            background: #FFF0EA !important;
+            color: #C75A55 !important;
+            border: 1px solid #FFD6CF !important;
+            box-shadow: 0 6px 14px rgba(207, 99, 87, .08) !important;
+        }
+
+        .portal-main {
+            position: relative;
+            z-index: 1;
+            width: min(1100px, calc(100% - 24px));
+            margin: 0 auto;
+            padding: 22px 0 34px;
+        }
+
+        .portal-shell {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 253, 247, .82);
+            border: 1px solid rgba(255,255,255,.92);
+            border-radius: 34px;
+            box-shadow: 0 22px 60px rgba(62, 102, 81, .10);
+            padding: clamp(18px, 3vw, 30px);
+            min-height: 75vh;
+        }
+
+        .portal-shell::after {
+            content: '';
+            position: absolute;
+            width: 230px;
+            height: 230px;
+            right: -80px;
+            top: -90px;
+            border-radius: 50%;
+            background: rgba(255, 224, 130, .28);
+            pointer-events: none;
+        }
+
+        .portal-footer {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding-top: 24px;
+            margin-top: 28px;
+            border-top: 1px dashed rgba(75,143,112,.18);
+            color: rgba(41,70,58,.60);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .portal-page-title {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Global restyle for existing page components: structure and behavior stay unchanged. */
+        [class*="rounded-[2rem]"],
+        [class*="rounded-2xl"] {
+            border-radius: 22px !important;
+        }
+
+        [class*="shadow-2xl"] { box-shadow: 0 20px 44px rgba(54, 91, 72, .10) !important; }
+        [class*="shadow-lg"] { box-shadow: 0 12px 26px rgba(54, 91, 72, .09) !important; }
+        [class*="shadow-md"], [class*="shadow-sm"] { box-shadow: 0 7px 18px rgba(54, 91, 72, .065) !important; }
+
+        input, select, textarea {
+            border-color: rgba(75,143,112,.16) !important;
+            background: rgba(255,255,255,.88) !important;
+            color: var(--portal-text) !important;
+            box-shadow: 0 4px 12px rgba(75,143,112,.035);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: rgba(75,143,112,.44) !important;
+            box-shadow: 0 0 0 4px rgba(143,200,168,.18) !important;
+        }
+
+        [class*="bg-white/50"], [class*="bg-white/55"], [class*="bg-white/60"], [class*="bg-white/70"] {
+            background: rgba(255,255,255,.80) !important;
+            border-color: rgba(75,143,112,.11) !important;
+        }
+
+        [class*="bg-deepgreen"] { background: var(--portal-green) !important; }
+        [class*="from-deepgreen"] { --tw-gradient-from: #4B8F70 var(--tw-gradient-from-position) !important; }
+        [class*="to-sagegreen"] { --tw-gradient-to: #8FC8A8 var(--tw-gradient-to-position) !important; }
+        [class*="text-deepgreen"] { color: var(--portal-green-dark) !important; }
+        [class*="text-earthtext"] { color: var(--portal-text) !important; }
+
+        a, button { -webkit-tap-highlight-color: transparent; }
+        button, a[class*="bg-deepgreen"] { transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease; }
+        button:hover, a[class*="bg-deepgreen"]:hover { transform: translateY(-1px); }
+
+        .portal-icon-badge {
+            width: 54px;
+            height: 54px;
+            min-width: 54px;
+            display: grid;
+            place-items: center;
+            border-radius: 18px;
+            background: linear-gradient(145deg, #E9F6EC, #D8EFE0);
+            color: var(--portal-green-dark);
+            font-size: 24px;
+            border: 1px solid rgba(75,143,112,.10);
+        }
+
+        .portal-card {
+            background: rgba(255,255,255,.88) !important;
+            border: 1px solid rgba(75,143,112,.10) !important;
+            border-radius: 24px !important;
+            box-shadow: 0 12px 28px rgba(54, 91, 72, .07) !important;
+        }
+
+        .portal-card:hover {
+            border-color: rgba(75,143,112,.22) !important;
+            box-shadow: 0 18px 34px rgba(54, 91, 72, .10) !important;
+        }
+
+        .portal-doodle {
+            position: absolute;
+            right: 26px;
+            top: 20px;
+            width: 110px;
+            height: 82px;
+            pointer-events: none;
+            opacity: .9;
+        }
+
+        #loading-overlay {
+            transition: opacity .28s ease;
+            background:
+                radial-gradient(circle at 15% 10%, rgba(255,236,161,.95), transparent 34%),
+                radial-gradient(circle at 88% 88%, rgba(216,245,227,.95), transparent 36%),
+                linear-gradient(160deg, #FFF9E7 0%, #ECF8F0 100%) !important;
+            backdrop-filter: blur(8px) !important;
+        }
+
+        .portal-loading-card {
+            width: min(340px, calc(100vw - 34px));
+            padding: 26px 22px 24px;
+            border-radius: 34px;
+            background: rgba(255,255,255,.94);
+            border: 1px solid rgba(255,255,255,.98);
+            box-shadow: 0 28px 65px rgba(67,96,78,.14);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portal-loading-card::before,
+        .portal-loading-card::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .portal-loading-card::before { width: 120px; height: 120px; left: -45px; top: -55px; background: #FFF2C2; }
+        .portal-loading-card::after { width: 110px; height: 110px; right: -44px; bottom: -42px; background: #DFF3E4; }
+
+        .portal-loading-illustration {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 6px;
+            position: relative;
+            display: grid;
+            place-items: center;
+        }
+
+        .portal-loading-illustration .halo {
+            position: absolute;
+            width: 112px;
+            height: 112px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #FFF0A8, #E3F5EA);
+        }
+
+        .portal-loading-illustration .head {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            border-radius: 48% 48% 45% 45%;
+            background: #F4B68A;
+            border: 4px solid #27483A;
+            z-index: 2;
+        }
+
+        .portal-loading-illustration .cap {
+            position: absolute;
+            width: 76px;
+            height: 34px;
+            top: 27px;
+            border-radius: 40px 40px 18px 18px;
+            background: #F6CF57;
+            border: 4px solid #27483A;
+            z-index: 3;
+            transform: rotate(-6deg);
+        }
+
+        .portal-loading-illustration .body {
+            position: absolute;
+            width: 82px;
+            height: 62px;
+            bottom: 8px;
+            background: #59A97C;
+            border-radius: 34px 34px 26px 26px;
+            border: 4px solid #27483A;
+            z-index: 1;
+        }
+
+        .portal-loading-illustration .book {
+            position: absolute;
+            width: 54px;
+            height: 40px;
+            right: 15px;
+            bottom: 12px;
+            background: #82CBE4;
+            border: 4px solid #27483A;
+            border-radius: 10px;
+            transform: rotate(7deg);
+            z-index: 4;
+        }
+
+        .portal-loading-speech {
+            position: absolute;
+            right: 14px;
+            top: 8px;
+            background: #FFF;
+            border: 3px solid #27483A;
+            border-radius: 20px;
+            padding: 7px 10px;
+            font-weight: 800;
+            font-size: 12px;
+            z-index: 8;
+        }
+
+        .portal-loading-bar {
+            margin-top: 10px;
+            height: 58px;
+            border-radius: 999px;
+            background: #E8E9F5;
+            padding: 5px;
+            border: 1px solid rgba(255,255,255,.95);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .portal-loading-bar-fill {
+            height: 100%;
+            width: 64%;
+            min-width: 170px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #FFD55C, #FFB842);
+            color: #B76822;
+            font-family: 'Baloo 2', sans-serif;
+            font-weight: 800;
+            letter-spacing: .04em;
+            animation: portalLoadPulse 1.6s ease-in-out infinite;
+        }
+
+        .portal-loading-dots { margin-top: 12px; display: flex; justify-content: center; gap: 7px; }
+        .portal-loading-dot { width: 8px; height: 8px; border-radius: 50%; background: #F5A34A; animation: portalDot 1.2s infinite; }
+        .portal-loading-dot:nth-child(2) { animation-delay: .15s; background: #8FC8A8; }
+        .portal-loading-dot:nth-child(3) { animation-delay: .30s; background: #9ED5EA; }
+
+        @keyframes portalDot { 0%, 100% { transform: translateY(0); opacity: .45; } 50% { transform: translateY(-4px); opacity: 1; } }
+        @keyframes portalLoadPulse { 0%,100% { transform: scaleX(1); } 50% { transform: scaleX(.97); } }
+
+        @media (max-width: 640px) {
+            .portal-nav-inner { min-height: 66px; padding: 10px 14px; }
+            .portal-main { width: min(100% - 14px, 1100px); padding-top: 10px; }
+            .portal-shell { border-radius: 26px; padding: 14px; }
+            .portal-brand { font-size: 1rem; }
+            .portal-brand-badge { width: 38px; height: 38px; border-radius: 14px; }
+        }
     </style>
 </head>
-<body class="text-earthtext min-h-screen flex flex-col selection:bg-tangerine selection:text-white">
-    <div id="loading-overlay" class="fixed inset-0 bg-[#215F47]/80 backdrop-blur-md flex flex-col items-center justify-center z-[9999]" style="display: none;">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-white"></div>
-        <p class="mt-4 text-white font-bold text-lg animate-pulse">Memuat halaman...</p>
+<body class="text-earthtext min-h-screen flex flex-col selection:bg-merigold selection:text-earthtext">
+    <div id="loading-overlay" class="fixed inset-0 flex flex-col items-center justify-center z-[9999]" style="display: none;">
+        <div class="portal-loading-card">
+            <div class="portal-loading-illustration" aria-hidden="true">
+                <div class="halo"></div>
+                <div class="head"></div>
+                <div class="cap"></div>
+                <div class="body"></div>
+                <div class="book"></div>
+                <div class="portal-loading-speech">Hi!</div>
+            </div>
+            <div class="portal-loading-bar">
+                <div class="portal-loading-bar-fill">Memuat halaman...</div>
+            </div>
+            <div class="portal-loading-dots" aria-hidden="true">
+                <span class="portal-loading-dot"></span>
+                <span class="portal-loading-dot"></span>
+                <span class="portal-loading-dot"></span>
+            </div>
+        </div>
     </div>
 
-    <nav class="bg-[#215F47]/75 backdrop-blur-xl sticky top-0 z-50 border-b border-white/20 shadow-lg">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center text-white">
-            <a href="/dashboard" class="font-bold text-base sm:text-lg flex items-center space-x-2.5 hover:text-cantaloupe transition">
-                <span>Portal Walimurid Kelas 2A</span>
+    <nav class="portal-nav">
+        <div class="portal-nav-inner">
+            <a href="/dashboard" class="portal-brand">
+                <span class="portal-brand-badge" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 11.2 12 5l8 6.2v7.1c0 .94-.76 1.7-1.7 1.7H5.7c-.94 0-1.7-.76-1.7-1.7v-7.1Z" fill="#4B8F70"/>
+                        <path d="M9.5 20v-5.5h5V20" stroke="#FFFDF6" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                </span>
+                <span>PORTAL 2A</span>
             </a>
-            <a href="/logout" class="bg-red-500/30 hover:bg-red-500 text-red-100 px-4 py-2.5 rounded-2xl text-xs font-bold transition shadow-sm border border-red-500/40 backdrop-blur-md">Logout</a>
+            <a href="/logout" class="portal-logout text-xs font-bold transition">Logout</a>
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto p-4 sm:p-6 flex-grow w-full">
-        <div class="bg-white/55 backdrop-blur-2xl text-earthtext rounded-[2rem] p-6 sm:p-8 shadow-2xl border border-white/80 min-h-[75vh] flex flex-col justify-between">
-            <div>
+    <main class="portal-main flex-grow">
+        <div class="portal-shell">
+            <div class="portal-doodle" aria-hidden="true">
+                <svg viewBox="0 0 120 90" width="100%" height="100%" fill="none">
+                    <path d="M12 70h95" stroke="#8FC8A8" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M26 69V45h22v24" fill="#FFF3C4" stroke="#4B8F70" stroke-width="2.4"/>
+                    <path d="M34 45V34c0-7 6-12 12-12s12 5 12 12v11" fill="#F8D66D" stroke="#4B8F70" stroke-width="2.4"/>
+                    <path d="M71 69V50h16v19" fill="#E7F5FA" stroke="#4B8F70" stroke-width="2.4"/>
+                    <path d="M79 50V40" stroke="#4B8F70" stroke-width="2.4" stroke-linecap="round"/>
+                    <path d="m81 27 3 6 7 1-5 4 1 7-6-3-6 3 1-7-5-4 7-1 3-6Z" fill="#F5A34A"/>
+                </svg>
+            </div>
+            <div class="relative z-[2]">
                 ${content}
             </div>
-            <footer class="text-center pt-8 mt-12 text-xs text-earthtext/70 border-t border-white/20 font-semibold">
-                Portal Walimurid Kelas 2A &copy; 2026 Dhiya
-            </footer>
+            <footer class="portal-footer">PORTAL 2A &copy; 2026 Dhiya</footer>
         </div>
     </main>
-    
+
     <script>
         window.addEventListener('load', function() {
             const overlay = document.getElementById('loading-overlay');
@@ -216,67 +631,322 @@ app.get('/login', (req, res) => {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login - Portal Walimurid Kelas 2A</title>
-        <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+        <meta name="theme-color" content="#F9D76E">
+        <title>PORTAL 2A</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
-        <script>
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        fontFamily: {
-                            sans: ['Quicksand', 'sans-serif'],
-                        },
-                        colors: {
-                            deepgreen: '#215F47',
-                            sagegreen: '#4B8A6C',
-                            tangerine: '#FA8128',
-                            merigold: '#FCAE1E',
-                            cider: '#B56727',
-                            cantaloupe: '#FDA172',
-                            sandstone: '#D67229',
-                            cream: '#F7F4ED',
-                            earthtext: '#2C3B32',
-                            cardbg: '#FFFFFF',
-                        }
-                    }
-                }
-            }
-        </script>
         <style>
+            :root {
+                --green: #4B8F70;
+                --green-dark: #315F4A;
+                --cream: #FFF9EF;
+                --yellow: #F8D66D;
+                --orange: #F5A34A;
+                --blue: #BFE4F2;
+                --peach: #F8B98A;
+                --text: #29463A;
+            }
+            * { box-sizing: border-box; }
             body {
-                font-family: 'Quicksand', sans-serif;
-                background: radial-gradient(circle at 15% 12%, rgba(246, 222, 160, 0.75) 0%, transparent 45%),
-                            radial-gradient(circle at 88% 85%, rgba(110, 175, 145, 0.65) 0%, transparent 50%),
-                            linear-gradient(145deg, #E2F0EA 0%, #A8D1BE 50%, #68A589 100%);
-                background-attachment: fixed;
+                margin: 0;
                 min-height: 100vh;
+                font-family: 'Nunito', sans-serif;
+                color: var(--text);
+                background:
+                    radial-gradient(circle at 8% 12%, rgba(248,214,109,.50) 0 8%, transparent 27%),
+                    radial-gradient(circle at 92% 88%, rgba(191,228,242,.48) 0 10%, transparent 28%),
+                    linear-gradient(160deg, #FFFDF8 0%, #EEF8F0 100%);
+                display: grid;
+                place-items: center;
+                padding: 18px;
+                overflow-x: hidden;
+            }
+            body::before, body::after {
+                content: '';
+                position: fixed;
+                pointer-events: none;
+                border-radius: 50%;
+                opacity: .72;
+            }
+            body::before { width: 180px; height: 180px; left: -85px; top: 20%; background: #FFF2BC; box-shadow: 58px 70px 0 #DFF3E5; }
+            body::after { width: 170px; height: 170px; right: -75px; bottom: 8%; background: #FFE6D6; box-shadow: -55px -66px 0 #DDF2FA; }
+
+            .login-wrap {
+                width: min(980px, 100%);
+                display: grid;
+                grid-template-columns: 1.1fr .9fr;
+                gap: 18px;
+                position: relative;
+                z-index: 1;
+            }
+
+            .login-visual {
+                position: relative;
+                min-height: 640px;
+                border-radius: 36px;
+                background:
+                    radial-gradient(circle at 30% 18%, rgba(255,255,255,.72), transparent 28%),
+                    linear-gradient(180deg, #EAF8EE 0%, #FFF8E6 100%);
+                border: 1px solid rgba(255,255,255,.95);
+                box-shadow: 0 24px 60px rgba(60,91,73,.11);
+                overflow: hidden;
+                padding: 40px 38px 30px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .login-brand {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                color: var(--green-dark);
+                font-family: 'Baloo 2', sans-serif;
+                font-size: 24px;
+                font-weight: 800;
+                letter-spacing: .03em;
+            }
+
+            .login-brand-mark {
+                width: 42px;
+                height: 42px;
+                border-radius: 15px;
+                display: grid;
+                place-items: center;
+                background: linear-gradient(145deg, #FFE883, #FFD15D);
+                border: 2px solid rgba(255,255,255,.96);
+                box-shadow: 0 8px 18px rgba(199,150,48,.18);
+            }
+
+            .login-copy {
+                margin-top: 48px;
+                max-width: 430px;
+            }
+            .login-copy h2 {
+                margin: 0;
+                font-family: 'Baloo 2', sans-serif;
+                font-size: clamp(38px, 5vw, 62px);
+                line-height: .95;
+                color: var(--green-dark);
+            }
+            .login-copy p {
+                margin: 16px 0 0;
+                font-size: 16px;
+                line-height: 1.65;
+                max-width: 380px;
+                color: rgba(41,70,58,.72);
+                font-weight: 700;
+            }
+
+            .login-illustration {
+                position: absolute;
+                right: 22px;
+                bottom: 14px;
+                width: min(390px, 62%);
+                height: 330px;
+            }
+            .login-mascot {
+                position: absolute;
+                right: 54px;
+                bottom: 20px;
+                width: 180px;
+                height: 230px;
+            }
+            .login-mascot .head { position:absolute; top:40px; left:48px; width:88px; height:95px; border:5px solid #315F4A; border-radius:48% 48% 46% 46%; background:#F0B082; z-index:3; }
+            .login-mascot .hood { position:absolute; top:22px; left:32px; width:122px; height:120px; border:5px solid #315F4A; border-radius:58% 58% 45% 45%; background:#F7FAF0; z-index:4; clip-path: polygon(0 0,100% 0,84% 100%,16% 100%); }
+            .login-mascot .body { position:absolute; bottom:0; left:25px; width:135px; height:120px; border:5px solid #315F4A; border-radius:54px 54px 30px 30px; background:#5AA77B; z-index:2; }
+            .login-mascot .book { position:absolute; right:-8px; bottom:44px; width:72px; height:54px; border:5px solid #315F4A; border-radius:12px; background:#83CBE6; transform:rotate(8deg); z-index:5; }
+            .login-mascot .spark { position:absolute; width:12px; height:12px; background:#F5A34A; clip-path:polygon(50% 0,60% 35%,100% 50%,60% 65%,50% 100%,40% 65%,0 50%,40% 35%); }
+            .spark.s1 { left: 18px; top: 20px; }
+            .spark.s2 { right: 18px; top: 72px; transform:scale(.75); background:#9ED5EA; }
+            .spark.s3 { left: 10px; bottom: 66px; transform:scale(.58); background:#F5D35A; }
+
+            .login-mosque { position:absolute; left:8px; bottom:8px; width:260px; height:150px; }
+            .login-mosque .ground { position:absolute; left:0; right:0; bottom:0; height:36px; background:#BEE0C8; border-radius:50% 50% 0 0; }
+            .login-mosque .main { position:absolute; left:62px; bottom:24px; width:126px; height:94px; background:#FFF9EF; border:4px solid #4B8F70; border-bottom-width:5px; border-radius:18px 18px 8px 8px; }
+            .login-mosque .dome { position:absolute; left:56px; bottom:107px; width:138px; height:56px; background:#F8D66D; border:4px solid #4B8F70; border-radius:80px 80px 0 0; }
+            .login-mosque .minaret1, .login-mosque .minaret2 { position:absolute; bottom:24px; width:20px; height:104px; background:#FFF9EF; border:4px solid #4B8F70; border-bottom:0; border-radius:10px 10px 0 0; }
+            .login-mosque .minaret1 { left:32px; } .login-mosque .minaret2 { right:26px; }
+            .login-mosque .top { position:absolute; width:30px; height:14px; border:4px solid #4B8F70; border-bottom:0; border-radius:16px 16px 0 0; }
+            .login-mosque .top.t1 { left:27px; bottom:124px; } .login-mosque .top.t2 { right:21px; bottom:124px; }
+            .login-mosque .door { position:absolute; left:55px; bottom:24px; width:26px; height:42px; background:#D6EEDC; border:3px solid #4B8F70; border-radius:14px 14px 0 0; }
+            .login-mosque .window { position:absolute; right:56px; bottom:58px; width:22px; height:30px; border:3px solid #4B8F70; border-radius:12px 12px 0 0; background:#DDF1F7; }
+
+            .login-card {
+                min-height: 640px;
+                border-radius: 36px;
+                background: rgba(255,255,255,.94);
+                border: 1px solid rgba(255,255,255,.98);
+                box-shadow: 0 24px 60px rgba(60,91,73,.11);
+                padding: 32px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .login-card h1 {
+                margin: 0;
+                font-family: 'Baloo 2', sans-serif;
+                font-size: 34px;
+                color: var(--green-dark);
+                text-align: center;
+            }
+            .login-subtitle { margin: 8px auto 0; text-align:center; color:rgba(41,70,58,.72); font-size:13px; line-height:1.55; font-weight:700; max-width:320px; }
+
+            .login-form { margin-top: 26px; display: grid; gap: 14px; }
+            .login-label { display:block; font-size:12px; font-weight:800; color:rgba(41,70,58,.78); margin-bottom:6px; }
+            .login-input-wrap { position:relative; }
+            .login-input {
+                width: 100%;
+                border: 1px solid rgba(75,143,112,.14);
+                background: #FFFEFB;
+                color: var(--text);
+                padding: 14px 15px 14px 46px;
+                border-radius: 17px;
+                outline: none;
+                font: 700 15px 'Nunito', sans-serif;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 7px 15px rgba(74,103,84,.035);
+            }
+            .login-input:focus { border-color: rgba(75,143,112,.42); box-shadow: 0 0 0 4px rgba(143,200,168,.17); }
+            .login-input-icon { position:absolute; left:15px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:#5A9A79; pointer-events:none; }
+
+            .login-btn {
+                margin-top: 4px;
+                width: 100%;
+                border: 0;
+                border-radius: 18px;
+                padding: 14px 18px;
+                cursor: pointer;
+                background: linear-gradient(90deg, #55A77C, #75BA92);
+                color: white;
+                font: 800 16px 'Nunito', sans-serif;
+                box-shadow: 0 14px 24px rgba(74,151,105,.20);
+                transition: transform .18s ease, box-shadow .18s ease;
+            }
+            .login-btn:hover { transform:translateY(-1px); box-shadow:0 18px 28px rgba(74,151,105,.24); }
+
+            #login-loading {
+                position:fixed; inset:0; z-index:9999; display:none; place-items:center;
+                background: linear-gradient(160deg, rgba(255,248,221,.95), rgba(233,247,238,.96));
+                backdrop-filter: blur(10px);
+            }
+
+            .portal-loading-card {
+                width:min(340px, calc(100vw - 34px));
+                padding:26px 22px 24px;
+                border-radius:34px;
+                background:rgba(255,255,255,.95);
+                border:1px solid rgba(255,255,255,.98);
+                box-shadow:0 28px 65px rgba(67,96,78,.14);
+                text-align:center;
+                position:relative;
+                overflow:hidden;
+            }
+            .portal-loading-illustration { width:160px; height:160px; margin:0 auto 6px; position:relative; display:grid; place-items:center; }
+            .portal-loading-illustration .halo { position:absolute; width:112px; height:112px; border-radius:50%; background:linear-gradient(145deg,#FFF0A8,#E3F5EA); }
+            .portal-loading-illustration .head { position:relative; width:70px; height:70px; border-radius:48%; background:#F4B68A; border:4px solid #27483A; z-index:2; }
+            .portal-loading-illustration .cap { position:absolute; width:76px; height:34px; top:27px; border-radius:40px 40px 18px 18px; background:#F6CF57; border:4px solid #27483A; z-index:3; transform:rotate(-6deg); }
+            .portal-loading-illustration .body { position:absolute; width:82px; height:62px; bottom:8px; background:#59A97C; border-radius:34px 34px 26px 26px; border:4px solid #27483A; z-index:1; }
+            .portal-loading-illustration .book { position:absolute; width:54px; height:40px; right:15px; bottom:12px; background:#82CBE4; border:4px solid #27483A; border-radius:10px; transform:rotate(7deg); z-index:4; }
+            .portal-loading-speech { position:absolute; right:14px; top:8px; background:#FFF; border:3px solid #27483A; border-radius:20px; padding:7px 10px; font-weight:800; font-size:12px; z-index:8; }
+            .portal-loading-bar { margin-top:10px; height:58px; border-radius:999px; background:#E8E9F5; padding:5px; overflow:hidden; }
+            .portal-loading-bar-fill { height:100%; width:64%; min-width:170px; display:flex; align-items:center; justify-content:center; border-radius:999px; background:linear-gradient(90deg,#FFD55C,#FFB842); color:#B76822; font-family:'Baloo 2',sans-serif; font-weight:800; animation:portalLoadPulse 1.6s ease-in-out infinite; }
+            .portal-loading-dots { margin-top:12px; display:flex; justify-content:center; gap:7px; }
+            .portal-loading-dot { width:8px; height:8px; border-radius:50%; background:#F5A34A; animation:portalDot 1.2s infinite; }
+            .portal-loading-dot:nth-child(2){animation-delay:.15s;background:#8FC8A8}.portal-loading-dot:nth-child(3){animation-delay:.3s;background:#9ED5EA}
+            @keyframes portalDot{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-4px);opacity:1}}
+            @keyframes portalLoadPulse{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.97)}}
+
+            @media(max-width:820px){
+                .login-wrap{grid-template-columns:1fr; max-width:620px;}
+                .login-visual{min-height:310px; padding:28px 26px;}
+                .login-card{min-height:auto; padding:28px;}
+                .login-copy{margin-top:30px; max-width:350px;}
+                .login-copy h2{font-size:42px;}
+                .login-illustration{width:330px; height:250px; right:-5px; bottom:-8px; opacity:.92;}
+            }
+            @media(max-width:520px){
+                body{padding:10px;}
+                .login-visual{border-radius:28px; min-height:280px; padding:22px 20px;}
+                .login-card{border-radius:28px; padding:22px 18px;}
+                .login-copy h2{font-size:34px;}
+                .login-copy p{font-size:14px;}
+                .login-mascot{transform:scale(.86); transform-origin:bottom right; right:8px;}
+                .login-mosque{transform:scale(.82); transform-origin:bottom left; left:-8px;}
             }
         </style>
     </head>
-    <body class="flex items-center justify-center min-h-screen px-4 font-sans">
-        <div id="login-loading" class="fixed inset-0 bg-[#215F47]/80 backdrop-blur-md flex flex-col items-center justify-center z-[9999]" style="display: none;">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-white"></div>
-            <p class="mt-4 text-white font-bold text-lg animate-pulse">Memuat halaman...</p>
+    <body>
+        <div id="login-loading">
+            <div class="portal-loading-card">
+                <div class="portal-loading-illustration" aria-hidden="true">
+                    <div class="halo"></div>
+                    <div class="head"></div>
+                    <div class="cap"></div>
+                    <div class="body"></div>
+                    <div class="book"></div>
+                    <div class="portal-loading-speech">Hi!</div>
+                </div>
+                <div class="portal-loading-bar"><div class="portal-loading-bar-fill">Memuat halaman...</div></div>
+                <div class="portal-loading-dots"><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span></div>
+            </div>
         </div>
 
-        <div class="bg-white/55 backdrop-blur-2xl p-6 sm:p-10 rounded-2xl shadow-2xl w-full max-w-md border border-white/80 text-earthtext">
-            <div class="text-center mb-6">
-                <h1 class="text-xl sm:text-2xl font-bold text-deepgreen">Portal Walimurid Kelas 2A</h1>
-                <p class="text-xs sm:text-sm text-earthtext/80 mt-1">Assalamualaikum, selamat datang Ayah Bunda.<br>Mohon masukkan Username dan Password</p>
-            </div>
-            <form action="/login" method="POST" class="space-y-4" onsubmit="document.getElementById('login-loading').style.display='flex';">
+        <div class="login-wrap">
+            <section class="login-visual">
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/90 mb-1">Username</label>
-                    <input type="text" name="first_name" required class="w-full px-4 py-3 border border-white/70 rounded-2xl focus:ring-2 focus:ring-deepgreen outline-none text-base bg-white/70 backdrop-blur-md transition shadow-sm font-semibold text-earthtext" placeholder="Nama Siswa">
+                    <div class="login-brand">
+                        <div class="login-brand-mark" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 11.2 12 5l8 6.2v7.1c0 .94-.76 1.7-1.7 1.7H5.7c-.94 0-1.7-.76-1.7-1.7v-7.1Z" fill="#4B8F70"/><path d="M9.5 20v-5.5h5V20" stroke="#FFFDF6" stroke-width="1.8" stroke-linecap="round"/></svg>
+                        </div>
+                        <span>PORTAL 2A</span>
+                    </div>
+                    <div class="login-copy">
+                        <h2>Portal<br>Walimurid<br>Kelas 2A</h2>
+                        <p>Assalamualaikum, selamat datang Ayah Bunda.<br>Mohon masukkan Username dan Password</p>
+                    </div>
                 </div>
+
+                <div class="login-illustration" aria-hidden="true">
+                    <div class="login-mosque">
+                        <div class="ground"></div><div class="main"></div><div class="dome"></div>
+                        <div class="minaret1"></div><div class="minaret2"></div><div class="top t1"></div><div class="top t2"></div><div class="door"></div><div class="window"></div>
+                    </div>
+                    <div class="login-mascot">
+                        <div class="spark s1"></div><div class="spark s2"></div><div class="spark s3"></div>
+                        <div class="body"></div><div class="head"></div><div class="hood"></div><div class="book"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="login-card">
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/90 mb-1">Password</label>
-                    <input type="password" name="password" required class="w-full px-4 py-3 border border-white/70 rounded-2xl focus:ring-2 focus:ring-deepgreen outline-none text-base bg-white/70 backdrop-blur-md transition shadow-sm font-semibold text-earthtext" placeholder="Password Akun">
+                    <h1>PORTAL 2A</h1>
+                    <p class="login-subtitle">Assalamualaikum, selamat datang Ayah Bunda.<br>Mohon masukkan Username dan Password</p>
                 </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-deepgreen to-sagegreen hover:opacity-95 text-white py-3.5 rounded-2xl font-bold shadow-md transition text-base tracking-wide">Masuk</button>
-            </form>
+                <form action="/login" method="POST" class="login-form" onsubmit="document.getElementById('login-loading').style.display='grid';">
+                    <div>
+                        <label class="login-label">Username</label>
+                        <div class="login-input-wrap">
+                            <svg class="login-input-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 19c.8-3.1 2.9-4.7 6.5-4.7s5.7 1.6 6.5 4.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                            <input type="text" name="first_name" required class="login-input" placeholder="Nama Siswa">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="login-label">Password</label>
+                        <div class="login-input-wrap">
+                            <svg class="login-input-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                            <input type="password" name="password" required class="login-input" placeholder="Password Akun">
+                        </div>
+                    </div>
+                    <button type="submit" class="login-btn">Masuk <span aria-hidden="true">›</span></button>
+                </form>
+            </section>
         </div>
-    </body></html>`);
+    </body>
+    </html>`);
 });
 
 app.post('/login', async (req, res) => {
@@ -307,50 +977,50 @@ app.get('/logout', (req, res) => {
 
 app.get('/dashboard', checkAuth, (req, res) => {
     const content = `
-    <div class="mb-6 bg-gradient-to-r from-deepgreen/90 to-sagegreen/90 backdrop-blur-md text-white p-6 sm:p-8 rounded-[2rem] shadow-lg flex justify-between items-center border border-white/30">
+    <div class="mb-7 relative overflow-hidden bg-gradient-to-r from-[#E7F5EA] to-[#FFF7DD] text-earthtext p-6 sm:p-8 rounded-[28px] shadow-lg border border-white/90">
         <div>
-            <span class="text-[10px] uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full font-bold text-white">Dashboard Wali Murid</span>
-            <h2 class="text-2xl sm:text-3xl font-bold mt-2 text-white">Assalamualaikum, Ayah & Bunda ${String(req.user.first_name)}</h2>
+            <span class="text-[10px] uppercase tracking-widest bg-white/75 px-3 py-1 rounded-full font-bold text-deepgreen border border-white">Dashboard Wali Murid</span>
+            <h2 class="portal-font-display text-2xl sm:text-3xl font-bold mt-2 text-deepgreen">Assalamualaikum, Ayah & Bunda ${String(req.user.first_name)}</h2><div class="mt-3 flex gap-2" aria-hidden="true"><span class="w-2.5 h-2.5 rounded-full bg-[#F5A34A]"></span><span class="w-2.5 h-2.5 rounded-full bg-[#8FC8A8]"></span><span class="w-2.5 h-2.5 rounded-full bg-[#BFE4F2]"></span></div>
         </div>
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <a href="/calendar" class="bg-white/50 hover:bg-white/70 hover:border-tangerine/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-white/70 flex items-center space-x-4 group backdrop-blur-md">
+        <a href="/calendar" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
             <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🗓️</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Kalendar Akademik</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Agenda kelas & jadwal pribadi siswa.</p>
             </div>
         </a>
-        <a href="/kas" class="bg-white/50 hover:bg-white/70 hover:border-tangerine/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-white/70 flex items-center space-x-4 group backdrop-blur-md">
+        <a href="/kas" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
             <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">💰</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Iuran Kas Siswa</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Pembayaran kas pribadi setiap siswa.</p>
             </div>
         </a>
-        <a href="/finances" class="bg-white/50 hover:bg-white/70 hover:border-tangerine/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-white/70 flex items-center space-x-4 group backdrop-blur-md">
+        <a href="/finances" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
             <div class="bg-amber-100/70 text-amber-900 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📊</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-amber-900 transition">Laporan Keuangan</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Rincian income & expense kelas 2A.</p>
             </div>
         </a>
-        <a href="/announcements" class="bg-white/50 hover:bg-white/70 hover:border-tangerine/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-white/70 flex items-center space-x-4 group backdrop-blur-md">
+        <a href="/announcements" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
             <div class="bg-sky-100/70 text-sky-900 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔔</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-sky-900 transition">Pengumuman</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Informasi resmi dari sekolah.</p>
             </div>
         </a>
-        <a href="/summative" class="bg-white/50 hover:bg-white/70 hover:border-tangerine/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-white/70 flex items-center space-x-4 group backdrop-blur-md">
+        <a href="/summative" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
             <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📘</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Materi Sumatif</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Kisi-kisi dan materi bulanan lengkap.</p>
             </div>
         </a>
-        <a href="/change-password" class="bg-white/50 hover:bg-white/70 hover:border-tangerine/50 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-md transition duration-300 border border-white/70 flex items-center space-x-4 group backdrop-blur-md">
+        <a href="/change-password" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
             <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔒</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Ganti Password</h3>
@@ -1196,7 +1866,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
         <div class="max-w-6xl mx-auto space-y-8 pb-12">
             <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-deepgreen">Panel Utama Admin Kelas 2A</h2>
+                    <h2 class="text-2xl font-bold text-deepgreen">PORTAL 2A</h2>
                     <p class="text-xs sm:text-sm text-earthtext/80">Kelola data kas, transaksi keuangan, agenda kalender, materi sumatif, dan backup database.</p>
                 </div>
                 <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-2xl text-sm font-bold transition shadow-sm whitespace-nowrap">Logout</a>
