@@ -14,2083 +14,3603 @@ const SCRIPT_URL = process.env.APPS_SCRIPT_URL;
 let cacheData = null;
 let lastFetchTime = 0;
 const CACHE_DURATION = 3 * 60 * 1000;
+
 async function fetchDb() {
     const now = Date.now();
+
     if (cacheData && (now - lastFetchTime < CACHE_DURATION)) {
         return cacheData;
     }
+
     try {
-        const res = await fetch(`${SCRIPT_URL}?action=getData&t=${Date.now()}`);
+        const res = await fetch(
+            `${SCRIPT_URL}?action=getData&t=${Date.now()}`
+        );
+
         const data = await res.json();
+
         cacheData = data;
         lastFetchTime = now;
+
         return cacheData;
+
     } catch (e) {
+
         console.error("Gagal mengambil data:", e);
-        return cacheData || { users: [], notes: [], kas: [], transactions: [], announcements: [], events: [], summative: [] };
+
+        return cacheData || {
+            users: [],
+            notes: [],
+            kas: [],
+            transactions: [],
+            announcements: [],
+            events: [],
+            summative: []
+        };
     }
 }
 
-// Fungsi format tanggal ke format Indonesia yang rapi (misal: 27 Agustus 2026)
+
+// ---------------------------------------------------------
+// FORMAT DATE
+// ---------------------------------------------------------
+
 const formatDateID = (dateStr) => {
-    if (!dateStr || dateStr === "-") return "-";
+
+    if (!dateStr || dateStr === "-") {
+        return "-";
+    }
+
     try {
+
         const d = new Date(dateStr);
-        if (isNaN(d.getTime())) return dateStr;
-        return d.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'long', year: 'numeric' });
+
+        if (isNaN(d.getTime())) {
+            return dateStr;
+        }
+
+        return d.toLocaleDateString(
+            'id-ID',
+            {
+                timeZone: 'Asia/Jakarta',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            }
+        );
+
     } catch (e) {
+
         return dateStr;
+
     }
 };
 
+
+// ---------------------------------------------------------
+// LOGIN VERIFICATION
+// ---------------------------------------------------------
+
 async function verifyLogin(first_name, password) {
+
     try {
+
         const params = new URLSearchParams({
             action: 'verifyLogin',
             first_name: first_name,
             password: password
         });
-        const res = await fetch(`${SCRIPT_URL}?${params.toString()}`);
+
+        const res = await fetch(
+            `${SCRIPT_URL}?${params.toString()}`
+        );
+
         return await res.json();
+
     } catch (e) {
-        console.error("Gagal verifikasi login:", e);
+
+        console.error(
+            "Gagal verifikasi login:",
+            e
+        );
+
         return null;
     }
 }
 
+
+// ---------------------------------------------------------
+// SESSION
+// ---------------------------------------------------------
+
 const sessions = {};
 
 function checkAuth(req, res, next) {
-    const sessionId = req.headers.cookie?.split('; ').find(row => row.startsWith('sessionId='))?.split('=')[1];
-    if (sessionId && sessions[sessionId]) {
+
+    const sessionId =
+        req.headers.cookie
+            ?.split('; ')
+            .find(
+                row => row.startsWith('sessionId=')
+            )
+            ?.split('=')[1];
+
+    if (
+        sessionId &&
+        sessions[sessionId]
+    ) {
+
         req.user = sessions[sessionId];
+
         next();
+
     } else {
+
         res.redirect('/login');
+
     }
 }
 
+
+// ---------------------------------------------------------
+// NATIONAL HOLIDAYS
+// ---------------------------------------------------------
+
 const nationalHolidays = {
-    "2026-01-01": "Tahun Baru Masehi",
-    "2026-01-16": "Isra Mikraj Nabi Muhammad SAW",
-    "2026-02-17": "Tahun Baru Imlek",
-    "2026-03-19": "Hari Suci Nyepi",
-    "2026-03-20": "Hari Raya Idul Fitri",
-    "2026-03-21": "Hari Raya Idul Fitri",
-    "2026-04-03": "Wafat Yesus Kristus",
-    "2026-04-05": "Kebangkitan Yesus Kristus (Paskah)",
-    "2026-05-01": "Hari Buruh Internasional",
-    "2026-05-14": "Kenaikan Yesus Kristus",
-    "2026-05-27": "Hari Raya Idul Adha",
-    "2026-05-31": "Hari Raya Waisak",
-    "2026-06-01": "Hari Lahir Pancasila",
-    "2026-06-16": "Tahun Baru Islam",
-    "2026-08-17": "Hari Kemerdekaan RI",
-    "2026-08-25": "Maulid Nabi Muhammad SAW",
-    "2026-12-25": "Hari Raya Natal",
-    "2027-01-01": "Tahun Baru Masehi",
-    "2027-01-05": "Isra Mikraj Nabi Muhammad SAW",
-    "2027-02-06": "Tahun Baru Imlek",
-    "2027-03-08": "Hari Suci Nyepi",
-    "2027-03-10": "Hari Raya Idul Fitri",
-    "2027-03-11": "Hari Raya Idul Fitri",
-    "2027-03-26": "Wafat Yesus Kristus",
-    "2027-03-28": "Paskah",
-    "2027-05-01": "Hari Buruh Internasional",
-    "2027-05-06": "Kenaikan Yesus Kristus",
-    "2027-05-16": "Hari Raya Idul Adha",
-    "2027-05-20": "Hari Raya Waisak",
-    "2027-06-01": "Hari Lahir Pancasila",
-    "2027-06-06": "Tahun Baru Islam",
-    "2027-08-17": "Hari Kemerdekaan RI",
-    "2027-09-04": "Maulid Nabi Muhammad SAW",
-    "2027-12-25": "Hari Raya Natal"
+
+    "2026-01-01":
+        "Tahun Baru Masehi",
+
+    "2026-01-16":
+        "Isra Mikraj Nabi Muhammad SAW",
+
+    "2026-02-17":
+        "Tahun Baru Imlek",
+
+    "2026-03-19":
+        "Hari Suci Nyepi",
+
+    "2026-03-20":
+        "Hari Raya Idul Fitri",
+
+    "2026-03-21":
+        "Hari Raya Idul Fitri",
+
+    "2026-04-03":
+        "Wafat Yesus Kristus",
+
+    "2026-04-05":
+        "Kebangkitan Yesus Kristus (Paskah)",
+
+    "2026-05-01":
+        "Hari Buruh Internasional",
+
+    "2026-05-14":
+        "Kenaikan Yesus Kristus",
+
+    "2026-05-27":
+        "Hari Raya Idul Adha",
+
+    "2026-05-31":
+        "Hari Raya Waisak",
+
+    "2026-06-01":
+        "Hari Lahir Pancasila",
+
+    "2026-06-16":
+        "Tahun Baru Islam",
+
+    "2026-08-17":
+        "Hari Kemerdekaan RI",
+
+    "2026-08-25":
+        "Maulid Nabi Muhammad SAW",
+
+    "2026-12-25":
+        "Hari Raya Natal",
+
+    "2027-01-01":
+        "Tahun Baru Masehi",
+
+    "2027-01-05":
+        "Isra Mikraj Nabi Muhammad SAW",
+
+    "2027-02-06":
+        "Tahun Baru Imlek",
+
+    "2027-03-08":
+        "Hari Suci Nyepi",
+
+    "2027-03-10":
+        "Hari Raya Idul Fitri",
+
+    "2027-03-11":
+        "Hari Raya Idul Fitri",
+
+    "2027-03-26":
+        "Wafat Yesus Kristus",
+
+    "2027-03-28":
+        "Paskah",
+
+    "2027-05-01":
+        "Hari Buruh Internasional",
+
+    "2027-05-06":
+        "Kenaikan Yesus Kristus",
+
+    "2027-05-16":
+        "Hari Raya Idul Adha",
+
+    "2027-05-20":
+        "Hari Raya Waisak",
+
+    "2027-06-01":
+        "Hari Lahir Pancasila",
+
+    "2027-06-06":
+        "Tahun Baru Islam",
+
+    "2027-08-17":
+        "Hari Kemerdekaan RI",
+
+    "2027-09-04":
+        "Maulid Nabi Muhammad SAW",
+
+    "2027-12-25":
+        "Hari Raya Natal"
 };
 
-const layout = (title, content) => `
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#F9D76E">
-    <title>${title}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Nunito', 'sans-serif'],
-                        display: ['Baloo 2', 'Nunito', 'sans-serif'],
-                    },
-                    colors: {
-                        deepgreen: '#4B8F70',
-                        sagegreen: '#8FC8A8',
-                        tangerine: '#F5A34A',
-                        merigold: '#F8D66D',
-                        cider: '#C7794C',
-                        cantaloupe: '#F8B98A',
-                        sandstone: '#E1B36C',
-                        cream: '#FFF9EF',
-                        earthtext: '#29463A',
-                        cardbg: '#FFFFFF',
-                        mintsoft: '#E8F5EC',
-                        skysoft: '#E7F5FA',
-                        peachsoft: '#FFF0E5',
-                        yellowsoft: '#FFF8D8',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        :root {
-            --portal-green: #4B8F70;
-            --portal-green-dark: #356C54;
-            --portal-mint: #E8F5EC;
-            --portal-cream: #FFF9EF;
-            --portal-yellow: #F8D66D;
-            --portal-orange: #F5A34A;
-            --portal-blue: #BFE4F2;
-            --portal-peach: #F8B98A;
-            --portal-text: #29463A;
-            --portal-border: rgba(75, 143, 112, .14);
-        }
 
-        * { box-sizing: border-box; }
+// =========================================================
+// PORTAL 2A ILLUSTRATION
+// =========================================================
 
-        html { scroll-behavior: smooth; }
+const portalArt = `
+<svg
+    class="portal-art"
+    viewBox="0 0 320 240"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+>
 
-        body {
-            font-family: 'Nunito', sans-serif;
-            color: var(--portal-text);
-            min-height: 100vh;
-            background:
-                radial-gradient(circle at 8% 8%, rgba(248, 214, 109, .35) 0 9%, transparent 27%),
-                radial-gradient(circle at 92% 7%, rgba(191, 228, 242, .45) 0 10%, transparent 30%),
-                radial-gradient(circle at 90% 90%, rgba(248, 185, 138, .22) 0 8%, transparent 26%),
-                linear-gradient(180deg, #FBF8EE 0%, #EFF8F1 58%, #FDF6EA 100%);
-            background-attachment: fixed;
-        }
+<defs>
 
-        body::before,
-        body::after {
-            content: '';
-            position: fixed;
-            pointer-events: none;
-            z-index: 0;
-            border-radius: 999px;
-            opacity: .75;
-        }
+    <linearGradient
+        id="portalGreen"
+        x1="0"
+        y1="0"
+        x2="1"
+        y2="1"
+    >
 
-        body::before {
-            width: 120px;
-            height: 120px;
-            left: -40px;
-            top: 22%;
-            background: #FFF0B7;
-            box-shadow: 40px 40px 0 #D9F1DE;
-        }
+        <stop
+            offset="0%"
+            stop-color="#62B98A"
+        />
 
-        body::after {
-            width: 150px;
-            height: 150px;
-            right: -55px;
-            bottom: 14%;
-            background: #DFF4FA;
-            box-shadow: -38px -32px 0 #F8E4D5;
-        }
+        <stop
+            offset="100%"
+            stop-color="#237650"
+        />
 
-        .portal-font-display { font-family: 'Baloo 2', 'Nunito', sans-serif; }
+    </linearGradient>
 
-        .portal-nav {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: rgba(255, 253, 247, .93);
-            border-bottom: 1px solid rgba(75, 143, 112, .10);
-            box-shadow: 0 8px 24px rgba(51, 91, 71, .07);
-            backdrop-filter: blur(14px);
-        }
 
-        .portal-nav-inner {
-            max-width: 1100px;
-            margin: 0 auto;
-            min-height: 74px;
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-        }
+    <linearGradient
+        id="portalOrange"
+        x1="0"
+        y1="0"
+        x2="1"
+        y2="1"
+    >
 
-        .portal-brand {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--portal-green-dark) !important;
-            text-decoration: none;
-            font-family: 'Baloo 2', 'Nunito', sans-serif;
-            font-size: 1.12rem;
-            font-weight: 800;
-            letter-spacing: .02em;
-        }
+        <stop
+            offset="0%"
+            stop-color="#FFBE45"
+        />
 
-        .portal-brand-badge {
-            width: 42px;
-            height: 42px;
-            display: grid;
-            place-items: center;
-            border-radius: 16px;
-            background: linear-gradient(145deg, #FFE57D, #FFD15C);
-            border: 2px solid rgba(255,255,255,.95);
-            box-shadow: 0 7px 18px rgba(197, 145, 48, .20);
-            color: #7A5A1A;
-        }
+        <stop
+            offset="100%"
+            stop-color="#F57B20"
+        />
 
-        .portal-logout {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 16px !important;
-            min-width: 82px;
-            border-radius: 16px !important;
-            background: #FFF0EA !important;
-            color: #C75A55 !important;
-            border: 1px solid #FFD6CF !important;
-            box-shadow: 0 6px 14px rgba(207, 99, 87, .08) !important;
-        }
+    </linearGradient>
 
-        .portal-main {
-            position: relative;
-            z-index: 1;
-            width: min(1100px, calc(100% - 24px));
-            margin: 0 auto;
-            padding: 22px 0 34px;
-        }
 
-        .portal-shell {
-            position: relative;
-            overflow: hidden;
-            background: rgba(255, 253, 247, .82);
-            border: 1px solid rgba(255,255,255,.92);
-            border-radius: 34px;
-            box-shadow: 0 22px 60px rgba(62, 102, 81, .10);
-            padding: clamp(18px, 3vw, 30px);
-            min-height: 75vh;
-        }
+    <filter
+        id="portalShadow"
+        x="-30%"
+        y="-30%"
+        width="160%"
+        height="160%"
+    >
 
-        .portal-shell::after {
-            content: '';
-            position: absolute;
-            width: 230px;
-            height: 230px;
-            right: -80px;
-            top: -90px;
-            border-radius: 50%;
-            background: rgba(255, 224, 130, .28);
-            pointer-events: none;
-        }
+        <feDropShadow
+            dx="0"
+            dy="7"
+            stdDeviation="7"
+            flood-color="#1F6248"
+            flood-opacity=".16"
+        />
 
-        .portal-footer {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            padding-top: 24px;
-            margin-top: 28px;
-            border-top: 1px dashed rgba(75,143,112,.18);
-            color: rgba(41,70,58,.60);
-            font-size: 12px;
-            font-weight: 700;
-        }
+    </filter>
 
-        .portal-page-title {
-            position: relative;
-            z-index: 2;
-        }
+</defs>
 
-        /* Global restyle for existing page components: structure and behavior stay unchanged. */
-        [class*="rounded-[2rem]"],
-        [class*="rounded-2xl"] {
-            border-radius: 22px !important;
-        }
 
-        [class*="shadow-2xl"] { box-shadow: 0 20px 44px rgba(54, 91, 72, .10) !important; }
-        [class*="shadow-lg"] { box-shadow: 0 12px 26px rgba(54, 91, 72, .09) !important; }
-        [class*="shadow-md"], [class*="shadow-sm"] { box-shadow: 0 7px 18px rgba(54, 91, 72, .065) !important; }
+<!-- ground -->
 
-        input, select, textarea {
-            border-color: rgba(75,143,112,.16) !important;
-            background: rgba(255,255,255,.88) !important;
-            color: var(--portal-text) !important;
-            box-shadow: 0 4px 12px rgba(75,143,112,.035);
-        }
+<ellipse
+    cx="160"
+    cy="216"
+    rx="112"
+    ry="13"
+    fill="#1F6248"
+    opacity=".10"
+/>
 
-        input:focus, select:focus, textarea:focus {
-            border-color: rgba(75,143,112,.44) !important;
-            box-shadow: 0 0 0 4px rgba(143,200,168,.18) !important;
-        }
 
-        [class*="bg-white/50"], [class*="bg-white/55"], [class*="bg-white/60"], [class*="bg-white/70"] {
-            background: rgba(255,255,255,.80) !important;
-            border-color: rgba(75,143,112,.11) !important;
-        }
+<!-- MOSQUE -->
 
-        [class*="bg-deepgreen"] { background: var(--portal-green) !important; }
-        [class*="from-deepgreen"] { --tw-gradient-from: #4B8F70 var(--tw-gradient-from-position) !important; }
-        [class*="to-sagegreen"] { --tw-gradient-to: #8FC8A8 var(--tw-gradient-to-position) !important; }
-        [class*="text-deepgreen"] { color: var(--portal-green-dark) !important; }
-        [class*="text-earthtext"] { color: var(--portal-text) !important; }
+<g filter="url(#portalShadow)">
 
-        a, button { -webkit-tap-highlight-color: transparent; }
-        button, a[class*="bg-deepgreen"] { transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease; }
-        button:hover, a[class*="bg-deepgreen"]:hover { transform: translateY(-1px); }
+    <!-- building -->
 
-        .portal-icon-badge {
-            width: 54px;
-            height: 54px;
-            min-width: 54px;
-            display: grid;
-            place-items: center;
-            border-radius: 18px;
-            background: linear-gradient(145deg, #E9F6EC, #D8EFE0);
-            color: var(--portal-green-dark);
-            font-size: 24px;
-            border: 1px solid rgba(75,143,112,.10);
-        }
+    <rect
+        x="72"
+        y="94"
+        width="176"
+        height="101"
+        rx="25"
+        fill="#FFFDF5"
+    />
 
-        .portal-card {
-            background: rgba(255,255,255,.88) !important;
-            border: 1px solid rgba(75,143,112,.10) !important;
-            border-radius: 24px !important;
-            box-shadow: 0 12px 28px rgba(54, 91, 72, .07) !important;
-        }
 
-        .portal-card:hover {
-            border-color: rgba(75,143,112,.22) !important;
-            box-shadow: 0 18px 34px rgba(54, 91, 72, .10) !important;
-        }
+    <!-- main dome -->
 
-        .portal-doodle {
-            position: absolute;
-            right: 26px;
-            top: 20px;
-            width: 110px;
-            height: 82px;
-            pointer-events: none;
-            opacity: .9;
-        }
+    <path
+        d="
+        M93 121
+        C98 79 128 57 160 57
+        C192 57 222 79 227 121
+        Z
+        "
+        fill="url(#portalGreen)"
+    />
 
-        #loading-overlay {
-            transition: opacity .28s ease;
-            background:
-                radial-gradient(circle at 15% 10%, rgba(255,236,161,.95), transparent 34%),
-                radial-gradient(circle at 88% 88%, rgba(216,245,227,.95), transparent 36%),
-                linear-gradient(160deg, #FFF9E7 0%, #ECF8F0 100%) !important;
-            backdrop-filter: blur(8px) !important;
-        }
 
-        .portal-loading-card {
-            width: min(340px, calc(100vw - 34px));
-            padding: 26px 22px 24px;
-            border-radius: 34px;
-            background: rgba(255,255,255,.94);
-            border: 1px solid rgba(255,255,255,.98);
-            box-shadow: 0 28px 65px rgba(67,96,78,.14);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
+    <!-- dome top -->
 
-        .portal-loading-card::before,
-        .portal-loading-card::after {
-            content: '';
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        .portal-loading-card::before { width: 120px; height: 120px; left: -45px; top: -55px; background: #FFF2C2; }
-        .portal-loading-card::after { width: 110px; height: 110px; right: -44px; bottom: -42px; background: #DFF3E4; }
+    <path
+        d="
+        M151 59
+        C153 46 157 37 160 32
+        C163 37 167 46 169 59
+        Z
+        "
+        fill="url(#portalOrange)"
+    />
 
-        .portal-loading-illustration {
-            width: 160px;
-            height: 160px;
-            margin: 0 auto 6px;
-            position: relative;
-            display: grid;
-            place-items: center;
-        }
 
-        .portal-loading-illustration .halo {
-            position: absolute;
-            width: 112px;
-            height: 112px;
-            border-radius: 50%;
-            background: linear-gradient(145deg, #FFF0A8, #E3F5EA);
-        }
+    <circle
+        cx="160"
+        cy="29"
+        r="4"
+        fill="#FFB52D"
+    />
 
-        .portal-loading-illustration .head {
-            position: relative;
-            width: 70px;
-            height: 70px;
-            border-radius: 48% 48% 45% 45%;
-            background: #F4B68A;
-            border: 4px solid #27483A;
-            z-index: 2;
-        }
 
-        .portal-loading-illustration .cap {
-            position: absolute;
-            width: 76px;
-            height: 34px;
-            top: 27px;
-            border-radius: 40px 40px 18px 18px;
-            background: #F6CF57;
-            border: 4px solid #27483A;
-            z-index: 3;
-            transform: rotate(-6deg);
-        }
+    <!-- side domes -->
 
-        .portal-loading-illustration .body {
-            position: absolute;
-            width: 82px;
-            height: 62px;
-            bottom: 8px;
-            background: #59A97C;
-            border-radius: 34px 34px 26px 26px;
-            border: 4px solid #27483A;
-            z-index: 1;
-        }
+    <path
+        d="
+        M67 129
+        C68 99 91 86 110 86
+        C129 86 141 101 142 129
+        Z
+        "
+        fill="#73B991"
+    />
 
-        .portal-loading-illustration .book {
-            position: absolute;
-            width: 54px;
-            height: 40px;
-            right: 15px;
-            bottom: 12px;
-            background: #82CBE4;
-            border: 4px solid #27483A;
-            border-radius: 10px;
-            transform: rotate(7deg);
-            z-index: 4;
-        }
 
-        .portal-loading-speech {
-            position: absolute;
-            right: 14px;
-            top: 8px;
-            background: #FFF;
-            border: 3px solid #27483A;
-            border-radius: 20px;
-            padding: 7px 10px;
-            font-weight: 800;
-            font-size: 12px;
-            z-index: 8;
-        }
+    <path
+        d="
+        M178 129
+        C179 101 191 86 210 86
+        C229 86 252 99 253 129
+        Z
+        "
+        fill="#73B991"
+    />
 
-        .portal-loading-bar {
-            margin-top: 10px;
-            height: 58px;
-            border-radius: 999px;
-            background: #E8E9F5;
-            padding: 5px;
-            border: 1px solid rgba(255,255,255,.95);
-            overflow: hidden;
-            position: relative;
-        }
 
-        .portal-loading-bar-fill {
-            height: 100%;
-            width: 64%;
-            min-width: 170px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 999px;
-            background: linear-gradient(90deg, #FFD55C, #FFB842);
-            color: #B76822;
-            font-family: 'Baloo 2', sans-serif;
-            font-weight: 800;
-            letter-spacing: .04em;
-            animation: portalLoadPulse 1.6s ease-in-out infinite;
-        }
+    <!-- central door -->
 
-        .portal-loading-dots { margin-top: 12px; display: flex; justify-content: center; gap: 7px; }
-        .portal-loading-dot { width: 8px; height: 8px; border-radius: 50%; background: #F5A34A; animation: portalDot 1.2s infinite; }
-        .portal-loading-dot:nth-child(2) { animation-delay: .15s; background: #8FC8A8; }
-        .portal-loading-dot:nth-child(3) { animation-delay: .30s; background: #9ED5EA; }
+    <path
+        d="
+        M142 195
+        V150
+        C142 132 178 132 178 150
+        V195
+        Z
+        "
+        fill="#237650"
+    />
 
-        @keyframes portalDot { 0%, 100% { transform: translateY(0); opacity: .45; } 50% { transform: translateY(-4px); opacity: 1; } }
-        @keyframes portalLoadPulse { 0%,100% { transform: scaleX(1); } 50% { transform: scaleX(.97); } }
 
-        @media (max-width: 640px) {
-            .portal-nav-inner { min-height: 66px; padding: 10px 14px; }
-            .portal-main { width: min(100% - 14px, 1100px); padding-top: 10px; }
-            .portal-shell { border-radius: 26px; padding: 14px; }
-            .portal-brand { font-size: 1rem; }
-            .portal-brand-badge { width: 38px; height: 38px; border-radius: 14px; }
-        }
-    </style>
-</head>
-<body class="text-earthtext min-h-screen flex flex-col selection:bg-merigold selection:text-earthtext">
-    <div id="loading-overlay" class="fixed inset-0 flex flex-col items-center justify-center z-[9999]" style="display: none;">
-        <div class="portal-loading-card">
-            <div class="portal-loading-illustration" aria-hidden="true">
-                <div class="halo"></div>
-                <div class="head"></div>
-                <div class="cap"></div>
-                <div class="body"></div>
-                <div class="book"></div>
-                <div class="portal-loading-speech">Hi!</div>
-            </div>
-            <div class="portal-loading-bar">
-                <div class="portal-loading-bar-fill">Memuat halaman...</div>
-            </div>
-            <div class="portal-loading-dots" aria-hidden="true">
-                <span class="portal-loading-dot"></span>
-                <span class="portal-loading-dot"></span>
-                <span class="portal-loading-dot"></span>
-            </div>
-        </div>
-    </div>
+    <!-- left windows -->
 
-    <nav class="portal-nav">
-        <div class="portal-nav-inner">
-            <a href="/dashboard" class="portal-brand">
-                <span class="portal-brand-badge" aria-hidden="true">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                        <path d="M4 11.2 12 5l8 6.2v7.1c0 .94-.76 1.7-1.7 1.7H5.7c-.94 0-1.7-.76-1.7-1.7v-7.1Z" fill="#4B8F70"/>
-                        <path d="M9.5 20v-5.5h5V20" stroke="#FFFDF6" stroke-width="1.8" stroke-linecap="round"/>
-                    </svg>
-                </span>
-                <span>PORTAL 2A</span>
-            </a>
-            <a href="/logout" class="portal-logout text-xs font-bold transition">Logout</a>
-        </div>
-    </nav>
+    <rect
+        x="93"
+        y="151"
+        width="25"
+        height="29"
+        rx="13"
+        fill="#E6F4EC"
+    />
 
-    <main class="portal-main flex-grow">
-        <div class="portal-shell">
-            <div class="portal-doodle" aria-hidden="true">
-                <svg viewBox="0 0 120 90" width="100%" height="100%" fill="none">
-                    <path d="M12 70h95" stroke="#8FC8A8" stroke-width="4" stroke-linecap="round"/>
-                    <path d="M26 69V45h22v24" fill="#FFF3C4" stroke="#4B8F70" stroke-width="2.4"/>
-                    <path d="M34 45V34c0-7 6-12 12-12s12 5 12 12v11" fill="#F8D66D" stroke="#4B8F70" stroke-width="2.4"/>
-                    <path d="M71 69V50h16v19" fill="#E7F5FA" stroke="#4B8F70" stroke-width="2.4"/>
-                    <path d="M79 50V40" stroke="#4B8F70" stroke-width="2.4" stroke-linecap="round"/>
-                    <path d="m81 27 3 6 7 1-5 4 1 7-6-3-6 3 1-7-5-4 7-1 3-6Z" fill="#F5A34A"/>
-                </svg>
-            </div>
-            <div class="relative z-[2]">
-                ${content}
-            </div>
-            <footer class="portal-footer">PORTAL 2A &copy; 2026 Dhiya</footer>
-        </div>
-    </main>
 
-    <script>
-        window.addEventListener('load', function() {
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) {
-                overlay.style.opacity = '0';
-                setTimeout(() => { overlay.style.display = 'none'; }, 300);
-            }
-        });
+    <!-- right windows -->
 
-        document.addEventListener('click', function(e) {
-            const link = e.target.closest('a');
-            if (link && link.href && link.href.startsWith(window.location.origin) && !link.getAttribute('target')) {
-                const overlay = document.getElementById('loading-overlay');
-                if (overlay) {
-                    overlay.style.display = 'flex';
-                    overlay.style.opacity = '1';
-                }
-            }
-        });
+    <rect
+        x="202"
+        y="151"
+        width="25"
+        height="29"
+        rx="13"
+        fill="#E6F4EC"
+    />
 
-        document.addEventListener('submit', function(e) {
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) {
-                overlay.style.display = 'flex';
-                overlay.style.opacity = '1';
-            }
-        });
-    </script>
-</body>
-</html>
+
+    <!-- minarets -->
+
+    <rect
+        x="48"
+        y="103"
+        width="12"
+        height="92"
+        rx="5"
+        fill="#FFC766"
+    />
+
+    <path
+        d="
+        M42 104
+        L54 78
+        L66 104
+        Z
+        "
+        fill="url(#portalOrange)"
+    />
+
+
+    <rect
+        x="260"
+        y="103"
+        width="12"
+        height="92"
+        rx="5"
+        fill="#FFC766"
+    />
+
+    <path
+        d="
+        M254 104
+        L266 78
+        L278 104
+        Z
+        "
+        fill="url(#portalOrange)"
+    />
+
+</g>
+
+
+<!-- BOY -->
+
+<g
+    class="portal-float"
+    filter="url(#portalShadow)"
+>
+
+    <!-- body -->
+
+    <path
+        d="
+        M61 194
+        V155
+        C61 137 76 124 94 124
+        H111
+        C130 124 145 137 145 155
+        V194
+        Z
+        "
+        fill="#3C9C70"
+    />
+
+
+    <!-- shirt -->
+
+    <path
+        d="
+        M76 160
+        C84 154 95 151 103 151
+        C113 151 123 154 130 160
+        V194
+        H76
+        Z
+        "
+        fill="#FFFDF5"
+    />
+
+
+    <!-- head -->
+
+    <circle
+        cx="103"
+        cy="106"
+        r="31"
+        fill="#F2C8AA"
+    />
+
+
+    <!-- cap -->
+
+    <path
+        d="
+        M73 105
+        C75 84 85 71 103 71
+        C121 71 132 84 134 105
+        C125 98 115 95 103 95
+        C91 95 82 98 73 105
+        Z
+        "
+        fill="#FFFDF5"
+    />
+
+
+    <path
+        d="
+        M77 83
+        C82 68 92 60 104 60
+        C116 60 126 68 131 83
+        C114 78 94 78 77 83
+        Z
+        "
+        fill="#23372D"
+    />
+
+
+    <!-- book -->
+
+    <rect
+        x="111"
+        y="153"
+        width="30"
+        height="39"
+        rx="5"
+        fill="#FF8A23"
+        transform="rotate(-8 111 153)"
+    />
+
+    <path
+        d="
+        M126 154
+        V190
+        "
+        stroke="#FFF0D8"
+        stroke-width="2"
+    />
+
+</g>
+
+
+<!-- GIRL -->
+
+<g
+    class="portal-float-delay"
+    filter="url(#portalShadow)"
+>
+
+    <!-- dress -->
+
+    <path
+        d="
+        M171 194
+        V156
+        C171 137 185 124 204 124
+        H220
+        C239 124 253 137 253 156
+        V194
+        Z
+        "
+        fill="#FF8A23"
+    />
+
+
+    <!-- inner shirt -->
+
+    <path
+        d="
+        M185 160
+        C192 154 202 151 211 151
+        C221 151 231 154 239 160
+        V194
+        H185
+        Z
+        "
+        fill="#FFFDF5"
+    />
+
+
+    <!-- hijab -->
+
+    <path
+        d="
+        M171 108
+        C171 84 187 66 208 66
+        C230 66 246 84 246 108
+        C246 138 234 151 208 151
+        C183 151 171 138 171 108
+        Z
+        "
+        fill="#3C9C70"
+    />
+
+
+    <!-- face -->
+
+    <circle
+        cx="208"
+        cy="108"
+        r="27"
+        fill="#C9906D"
+    />
+
+
+    <!-- hijab opening -->
+
+    <path
+        d="
+        M182 104
+        C187 94 197 88 208 88
+        C220 88 230 94 235 104
+        V125
+        C229 136 219 141 208 141
+        C197 141 188 136 182 125
+        Z
+        "
+        fill="#FFFDF5"
+    />
+
+
+    <!-- book -->
+
+    <rect
+        x="179"
+        y="153"
+        width="30"
+        height="39"
+        rx="5"
+        fill="#FFD34E"
+        transform="rotate(8 179 153)"
+    />
+
+    <path
+        d="
+        M194 154
+        V190
+        "
+        stroke="#FFF8DB"
+        stroke-width="2"
+    />
+
+</g>
+
+
+<!-- stars -->
+
+<g fill="#FFB52D">
+
+    <path
+        d="
+        M47 62
+        L51 72
+        L62 76
+        L51 80
+        L47 91
+        L43 80
+        L32 76
+        L43 72
+        Z
+        "
+    />
+
+    <path
+        d="
+        M273 58
+        L276 66
+        L285 69
+        L276 72
+        L273 81
+        L270 72
+        L261 69
+        L270 66
+        Z
+        "
+    />
+
+</g>
+
+</svg>
 `;
 
-app.get('/login', (req, res) => {
-    res.send(`
-    <!DOCTYPE html>
-    <html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="theme-color" content="#F9D76E">
-        <title>PORTAL 2A</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
-        <script src="https://cdn.tailwindcss.com"></script>
-        <style>
-            :root {
-                --green: #4B8F70;
-                --green-dark: #315F4A;
-                --cream: #FFF9EF;
-                --yellow: #F8D66D;
-                --orange: #F5A34A;
-                --blue: #BFE4F2;
-                --peach: #F8B98A;
-                --text: #29463A;
-            }
-            * { box-sizing: border-box; }
-            body {
-                margin: 0;
-                min-height: 100vh;
-                font-family: 'Nunito', sans-serif;
-                color: var(--text);
-                background:
-                    radial-gradient(circle at 8% 12%, rgba(248,214,109,.50) 0 8%, transparent 27%),
-                    radial-gradient(circle at 92% 88%, rgba(191,228,242,.48) 0 10%, transparent 28%),
-                    linear-gradient(160deg, #FFFDF8 0%, #EEF8F0 100%);
-                display: grid;
-                place-items: center;
-                padding: 18px;
-                overflow-x: hidden;
-            }
-            body::before, body::after {
-                content: '';
-                position: fixed;
-                pointer-events: none;
-                border-radius: 50%;
-                opacity: .72;
-            }
-            body::before { width: 180px; height: 180px; left: -85px; top: 20%; background: #FFF2BC; box-shadow: 58px 70px 0 #DFF3E5; }
-            body::after { width: 170px; height: 170px; right: -75px; bottom: 8%; background: #FFE6D6; box-shadow: -55px -66px 0 #DDF2FA; }
 
-            .login-wrap {
-                width: min(980px, 100%);
-                display: grid;
-                grid-template-columns: 1.1fr .9fr;
-                gap: 18px;
-                position: relative;
-                z-index: 1;
-            }
+// =========================================================
+// COMMON LAYOUT
+// =========================================================
 
-            .login-visual {
-                position: relative;
-                min-height: 640px;
-                border-radius: 36px;
-                background:
-                    radial-gradient(circle at 30% 18%, rgba(255,255,255,.72), transparent 28%),
-                    linear-gradient(180deg, #EAF8EE 0%, #FFF8E6 100%);
-                border: 1px solid rgba(255,255,255,.95);
-                box-shadow: 0 24px 60px rgba(60,91,73,.11);
-                overflow: hidden;
-                padding: 40px 38px 30px;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }
+const layout = (title, content) => `
 
-            .login-brand {
-                display: inline-flex;
-                align-items: center;
-                gap: 10px;
-                color: var(--green-dark);
-                font-family: 'Baloo 2', sans-serif;
-                font-size: 24px;
-                font-weight: 800;
-                letter-spacing: .03em;
-            }
+<!DOCTYPE html>
 
-            .login-brand-mark {
-                width: 42px;
-                height: 42px;
-                border-radius: 15px;
-                display: grid;
-                place-items: center;
-                background: linear-gradient(145deg, #FFE883, #FFD15D);
-                border: 2px solid rgba(255,255,255,.96);
-                box-shadow: 0 8px 18px rgba(199,150,48,.18);
-            }
+<html lang="id">
 
-            .login-copy {
-                margin-top: 48px;
-                max-width: 430px;
-            }
-            .login-copy h2 {
-                margin: 0;
-                font-family: 'Baloo 2', sans-serif;
-                font-size: clamp(38px, 5vw, 62px);
-                line-height: .95;
-                color: var(--green-dark);
-            }
-            .login-copy p {
-                margin: 16px 0 0;
-                font-size: 16px;
-                line-height: 1.65;
-                max-width: 380px;
-                color: rgba(41,70,58,.72);
-                font-weight: 700;
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
+
+<title>
+    ${title} - PORTAL 2A
+</title>
+
+
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
+
+<link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+>
+
+
+<link
+    href="
+    https://fonts.googleapis.com/css2?
+    family=Baloo+2:wght@500;600;700;800&
+    family=Nunito:wght@500;600;700;800;900&
+    display=swap
+    "
+    rel="stylesheet"
+>
+
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+
+<script>
+
+tailwind.config = {
+
+    theme: {
+
+        extend: {
+
+            fontFamily: {
+
+                sans: [
+                    'Nunito',
+                    'sans-serif'
+                ],
+
+                display: [
+                    'Baloo 2',
+                    'cursive'
+                ]
+
+            },
+
+            colors: {
+
+                deepgreen: '#217553',
+
+                sagegreen: '#58B47F',
+
+                tangerine: '#F57B20',
+
+                merigold: '#FFB52D',
+
+                cider: '#D96C1D',
+
+                cantaloupe: '#FFCA73',
+
+                sandstone: '#E68A46',
+
+                cream: '#FFFDF4',
+
+                earthtext: '#224438',
+
+                cardbg: '#FFFFFF'
+
             }
 
-            .login-illustration {
-                position: absolute;
-                right: 22px;
-                bottom: 14px;
-                width: min(390px, 62%);
-                height: 330px;
-            }
-            .login-mascot {
-                position: absolute;
-                right: 54px;
-                bottom: 20px;
-                width: 180px;
-                height: 230px;
-            }
-            .login-mascot .head { position:absolute; top:40px; left:48px; width:88px; height:95px; border:5px solid #315F4A; border-radius:48% 48% 46% 46%; background:#F0B082; z-index:3; }
-            .login-mascot .hood { position:absolute; top:22px; left:32px; width:122px; height:120px; border:5px solid #315F4A; border-radius:58% 58% 45% 45%; background:#F7FAF0; z-index:4; clip-path: polygon(0 0,100% 0,84% 100%,16% 100%); }
-            .login-mascot .body { position:absolute; bottom:0; left:25px; width:135px; height:120px; border:5px solid #315F4A; border-radius:54px 54px 30px 30px; background:#5AA77B; z-index:2; }
-            .login-mascot .book { position:absolute; right:-8px; bottom:44px; width:72px; height:54px; border:5px solid #315F4A; border-radius:12px; background:#83CBE6; transform:rotate(8deg); z-index:5; }
-            .login-mascot .spark { position:absolute; width:12px; height:12px; background:#F5A34A; clip-path:polygon(50% 0,60% 35%,100% 50%,60% 65%,50% 100%,40% 65%,0 50%,40% 35%); }
-            .spark.s1 { left: 18px; top: 20px; }
-            .spark.s2 { right: 18px; top: 72px; transform:scale(.75); background:#9ED5EA; }
-            .spark.s3 { left: 10px; bottom: 66px; transform:scale(.58); background:#F5D35A; }
-
-            .login-mosque { position:absolute; left:8px; bottom:8px; width:260px; height:150px; }
-            .login-mosque .ground { position:absolute; left:0; right:0; bottom:0; height:36px; background:#BEE0C8; border-radius:50% 50% 0 0; }
-            .login-mosque .main { position:absolute; left:62px; bottom:24px; width:126px; height:94px; background:#FFF9EF; border:4px solid #4B8F70; border-bottom-width:5px; border-radius:18px 18px 8px 8px; }
-            .login-mosque .dome { position:absolute; left:56px; bottom:107px; width:138px; height:56px; background:#F8D66D; border:4px solid #4B8F70; border-radius:80px 80px 0 0; }
-            .login-mosque .minaret1, .login-mosque .minaret2 { position:absolute; bottom:24px; width:20px; height:104px; background:#FFF9EF; border:4px solid #4B8F70; border-bottom:0; border-radius:10px 10px 0 0; }
-            .login-mosque .minaret1 { left:32px; } .login-mosque .minaret2 { right:26px; }
-            .login-mosque .top { position:absolute; width:30px; height:14px; border:4px solid #4B8F70; border-bottom:0; border-radius:16px 16px 0 0; }
-            .login-mosque .top.t1 { left:27px; bottom:124px; } .login-mosque .top.t2 { right:21px; bottom:124px; }
-            .login-mosque .door { position:absolute; left:55px; bottom:24px; width:26px; height:42px; background:#D6EEDC; border:3px solid #4B8F70; border-radius:14px 14px 0 0; }
-            .login-mosque .window { position:absolute; right:56px; bottom:58px; width:22px; height:30px; border:3px solid #4B8F70; border-radius:12px 12px 0 0; background:#DDF1F7; }
-
-            .login-card {
-                min-height: 640px;
-                border-radius: 36px;
-                background: rgba(255,255,255,.94);
-                border: 1px solid rgba(255,255,255,.98);
-                box-shadow: 0 24px 60px rgba(60,91,73,.11);
-                padding: 32px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-
-            .login-card h1 {
-                margin: 0;
-                font-family: 'Baloo 2', sans-serif;
-                font-size: 34px;
-                color: var(--green-dark);
-                text-align: center;
-            }
-            .login-subtitle { margin: 8px auto 0; text-align:center; color:rgba(41,70,58,.72); font-size:13px; line-height:1.55; font-weight:700; max-width:320px; }
-
-            .login-form { margin-top: 26px; display: grid; gap: 14px; }
-            .login-label { display:block; font-size:12px; font-weight:800; color:rgba(41,70,58,.78); margin-bottom:6px; }
-            .login-input-wrap { position:relative; }
-            .login-input {
-                width: 100%;
-                border: 1px solid rgba(75,143,112,.14);
-                background: #FFFEFB;
-                color: var(--text);
-                padding: 14px 15px 14px 46px;
-                border-radius: 17px;
-                outline: none;
-                font: 700 15px 'Nunito', sans-serif;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 7px 15px rgba(74,103,84,.035);
-            }
-            .login-input:focus { border-color: rgba(75,143,112,.42); box-shadow: 0 0 0 4px rgba(143,200,168,.17); }
-            .login-input-icon { position:absolute; left:15px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:#5A9A79; pointer-events:none; }
-
-            .login-btn {
-                margin-top: 4px;
-                width: 100%;
-                border: 0;
-                border-radius: 18px;
-                padding: 14px 18px;
-                cursor: pointer;
-                background: linear-gradient(90deg, #55A77C, #75BA92);
-                color: white;
-                font: 800 16px 'Nunito', sans-serif;
-                box-shadow: 0 14px 24px rgba(74,151,105,.20);
-                transition: transform .18s ease, box-shadow .18s ease;
-            }
-            .login-btn:hover { transform:translateY(-1px); box-shadow:0 18px 28px rgba(74,151,105,.24); }
-
-            #login-loading {
-                position:fixed; inset:0; z-index:9999; display:none; place-items:center;
-                background: linear-gradient(160deg, rgba(255,248,221,.95), rgba(233,247,238,.96));
-                backdrop-filter: blur(10px);
-            }
-
-            .portal-loading-card {
-                width:min(340px, calc(100vw - 34px));
-                padding:26px 22px 24px;
-                border-radius:34px;
-                background:rgba(255,255,255,.95);
-                border:1px solid rgba(255,255,255,.98);
-                box-shadow:0 28px 65px rgba(67,96,78,.14);
-                text-align:center;
-                position:relative;
-                overflow:hidden;
-            }
-            .portal-loading-illustration { width:160px; height:160px; margin:0 auto 6px; position:relative; display:grid; place-items:center; }
-            .portal-loading-illustration .halo { position:absolute; width:112px; height:112px; border-radius:50%; background:linear-gradient(145deg,#FFF0A8,#E3F5EA); }
-            .portal-loading-illustration .head { position:relative; width:70px; height:70px; border-radius:48%; background:#F4B68A; border:4px solid #27483A; z-index:2; }
-            .portal-loading-illustration .cap { position:absolute; width:76px; height:34px; top:27px; border-radius:40px 40px 18px 18px; background:#F6CF57; border:4px solid #27483A; z-index:3; transform:rotate(-6deg); }
-            .portal-loading-illustration .body { position:absolute; width:82px; height:62px; bottom:8px; background:#59A97C; border-radius:34px 34px 26px 26px; border:4px solid #27483A; z-index:1; }
-            .portal-loading-illustration .book { position:absolute; width:54px; height:40px; right:15px; bottom:12px; background:#82CBE4; border:4px solid #27483A; border-radius:10px; transform:rotate(7deg); z-index:4; }
-            .portal-loading-speech { position:absolute; right:14px; top:8px; background:#FFF; border:3px solid #27483A; border-radius:20px; padding:7px 10px; font-weight:800; font-size:12px; z-index:8; }
-            .portal-loading-bar { margin-top:10px; height:58px; border-radius:999px; background:#E8E9F5; padding:5px; overflow:hidden; }
-            .portal-loading-bar-fill { height:100%; width:64%; min-width:170px; display:flex; align-items:center; justify-content:center; border-radius:999px; background:linear-gradient(90deg,#FFD55C,#FFB842); color:#B76822; font-family:'Baloo 2',sans-serif; font-weight:800; animation:portalLoadPulse 1.6s ease-in-out infinite; }
-            .portal-loading-dots { margin-top:12px; display:flex; justify-content:center; gap:7px; }
-            .portal-loading-dot { width:8px; height:8px; border-radius:50%; background:#F5A34A; animation:portalDot 1.2s infinite; }
-            .portal-loading-dot:nth-child(2){animation-delay:.15s;background:#8FC8A8}.portal-loading-dot:nth-child(3){animation-delay:.3s;background:#9ED5EA}
-            @keyframes portalDot{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-4px);opacity:1}}
-            @keyframes portalLoadPulse{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.97)}}
-
-            @media(max-width:820px){
-                .login-wrap{grid-template-columns:1fr; max-width:620px;}
-                .login-visual{min-height:310px; padding:28px 26px;}
-                .login-card{min-height:auto; padding:28px;}
-                .login-copy{margin-top:30px; max-width:350px;}
-                .login-copy h2{font-size:42px;}
-                .login-illustration{width:330px; height:250px; right:-5px; bottom:-8px; opacity:.92;}
-            }
-            @media(max-width:520px){
-                body{padding:10px;}
-                .login-visual{border-radius:28px; min-height:280px; padding:22px 20px;}
-                .login-card{border-radius:28px; padding:22px 18px;}
-                .login-copy h2{font-size:34px;}
-                .login-copy p{font-size:14px;}
-                .login-mascot{transform:scale(.86); transform-origin:bottom right; right:8px;}
-                .login-mosque{transform:scale(.82); transform-origin:bottom left; left:-8px;}
-            }
-        </style>
-    </head>
-    <body>
-        <div id="login-loading">
-            <div class="portal-loading-card">
-                <div class="portal-loading-illustration" aria-hidden="true">
-                    <div class="halo"></div>
-                    <div class="head"></div>
-                    <div class="cap"></div>
-                    <div class="body"></div>
-                    <div class="book"></div>
-                    <div class="portal-loading-speech">Hi!</div>
-                </div>
-                <div class="portal-loading-bar"><div class="portal-loading-bar-fill">Memuat halaman...</div></div>
-                <div class="portal-loading-dots"><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span></div>
-            </div>
-        </div>
-
-        <div class="login-wrap">
-            <section class="login-visual">
-                <div>
-                    <div class="login-brand">
-                        <div class="login-brand-mark" aria-hidden="true">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 11.2 12 5l8 6.2v7.1c0 .94-.76 1.7-1.7 1.7H5.7c-.94 0-1.7-.76-1.7-1.7v-7.1Z" fill="#4B8F70"/><path d="M9.5 20v-5.5h5V20" stroke="#FFFDF6" stroke-width="1.8" stroke-linecap="round"/></svg>
-                        </div>
-                        <span>PORTAL 2A</span>
-                    </div>
-                    <div class="login-copy">
-                        <h2>Portal<br>Walimurid<br>Kelas 2A</h2>
-                        <p>Assalamualaikum, selamat datang Ayah Bunda.<br>Mohon masukkan Username dan Password</p>
-                    </div>
-                </div>
-
-                <div class="login-illustration" aria-hidden="true">
-                    <div class="login-mosque">
-                        <div class="ground"></div><div class="main"></div><div class="dome"></div>
-                        <div class="minaret1"></div><div class="minaret2"></div><div class="top t1"></div><div class="top t2"></div><div class="door"></div><div class="window"></div>
-                    </div>
-                    <div class="login-mascot">
-                        <div class="spark s1"></div><div class="spark s2"></div><div class="spark s3"></div>
-                        <div class="body"></div><div class="head"></div><div class="hood"></div><div class="book"></div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="login-card">
-                <div>
-                    <h1>PORTAL 2A</h1>
-                    <p class="login-subtitle">Assalamualaikum, selamat datang Ayah Bunda.<br>Mohon masukkan Username dan Password</p>
-                </div>
-                <form action="/login" method="POST" class="login-form" onsubmit="document.getElementById('login-loading').style.display='grid';">
-                    <div>
-                        <label class="login-label">Username</label>
-                        <div class="login-input-wrap">
-                            <svg class="login-input-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 19c.8-3.1 2.9-4.7 6.5-4.7s5.7 1.6 6.5 4.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                            <input type="text" name="first_name" required class="login-input" placeholder="Nama Siswa">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="login-label">Password</label>
-                        <div class="login-input-wrap">
-                            <svg class="login-input-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                            <input type="password" name="password" required class="login-input" placeholder="Password Akun">
-                        </div>
-                    </div>
-                    <button type="submit" class="login-btn">Masuk <span aria-hidden="true">›</span></button>
-                </form>
-            </section>
-        </div>
-    </body>
-    </html>`);
-});
-
-app.post('/login', async (req, res) => {
-    const { first_name, password } = req.body;
-    try {
-        const user = await verifyLogin(first_name, password);
-        if (user && user.id) {
-            const sessionId = Math.random().toString(36).substring(2);
-            const isAdmin = String(user.first_name || '').trim().toLowerCase() === 'admin';
-            sessions[sessionId] = { ...user, isAdmin };
-            res.setHeader('Set-Cookie', `sessionId=${sessionId}; Path=/`);
-            
-            if (isAdmin) {
-                res.redirect('/admin/manage');
-            } else {
-                res.redirect('/dashboard');
-            }
-        } else {
-            res.send(`<script>alert('Username atau Password salah!'); window.location.href='/login';</script>`);
-        }
-    } catch (err) { res.status(500).send("Error connecting to database"); }
-});
-
-app.get('/logout', (req, res) => {
-    res.setHeader('Set-Cookie', 'sessionId=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT');
-    res.redirect('/login');
-});
-
-app.get('/dashboard', checkAuth, (req, res) => {
-    const content = `
-    <div class="mb-7 relative overflow-hidden bg-gradient-to-r from-[#E7F5EA] to-[#FFF7DD] text-earthtext p-6 sm:p-8 rounded-[28px] shadow-lg border border-white/90">
-        <div>
-            <span class="text-[10px] uppercase tracking-widest bg-white/75 px-3 py-1 rounded-full font-bold text-deepgreen border border-white">Dashboard Wali Murid</span>
-            <h2 class="portal-font-display text-2xl sm:text-3xl font-bold mt-2 text-deepgreen">Assalamualaikum, Ayah & Bunda ${String(req.user.first_name)}</h2><div class="mt-3 flex gap-2" aria-hidden="true"><span class="w-2.5 h-2.5 rounded-full bg-[#F5A34A]"></span><span class="w-2.5 h-2.5 rounded-full bg-[#8FC8A8]"></span><span class="w-2.5 h-2.5 rounded-full bg-[#BFE4F2]"></span></div>
-        </div>
-    </div>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <a href="/calendar" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🗓️</div>
-            <div>
-                <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Kalendar Akademik</h3>
-                <p class="text-xs sm:text-sm text-earthtext/80">Agenda kelas & jadwal pribadi siswa.</p>
-            </div>
-        </a>
-        <a href="/kas" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">💰</div>
-            <div>
-                <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Iuran Kas Siswa</h3>
-                <p class="text-xs sm:text-sm text-earthtext/80">Pembayaran kas pribadi setiap siswa.</p>
-            </div>
-        </a>
-        <a href="/finances" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="bg-amber-100/70 text-amber-900 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📊</div>
-            <div>
-                <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-amber-900 transition">Laporan Keuangan</h3>
-                <p class="text-xs sm:text-sm text-earthtext/80">Rincian income & expense kelas 2A.</p>
-            </div>
-        </a>
-        <a href="/announcements" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="bg-sky-100/70 text-sky-900 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔔</div>
-            <div>
-                <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-sky-900 transition">Pengumuman</h3>
-                <p class="text-xs sm:text-sm text-earthtext/80">Informasi resmi dari sekolah.</p>
-            </div>
-        </a>
-        <a href="/summative" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📘</div>
-            <div>
-                <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Materi Sumatif</h3>
-                <p class="text-xs sm:text-sm text-earthtext/80">Kisi-kisi dan materi bulanan lengkap.</p>
-            </div>
-        </a>
-        <a href="/change-password" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔒</div>
-            <div>
-                <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Ganti Password</h3>
-                <p class="text-xs sm:text-sm text-earthtext/80">Ubah kata sandi akun Anda.</p>
-            </div>
-        </a>
-    </div>`;
-    res.send(layout('Dashboard', content));
-});
-
-// --- HALAMAN MATERI SUMATIF ---
-app.get('/summative', checkAuth, async (req, res) => {
-    try {
-        const db = await fetchDb();
-        const period = req.query.period || 'month';
-        const selectedMonth = req.query.month || 'Agustus 2026';
-        const summativeData = db.summative || [];
-
-        const sem1 = ["Agustus 2026", "September 2026", "Oktober 2026", "November 2026", "Ujian Semester"];
-        const sem2 = ["Januari 2027", "Februari 2027", "Maret 2027", "April 2027", "Mei 2027", "Juni 2027", "Ujian Kenaikan Kelas"];
-        const allMonthsList = [...sem1, ...sem2];
-
-        let targetMonths = [];
-        if (period === 'sem1') targetMonths = sem1;
-        else if (period === 'sem2') targetMonths = sem2;
-        else if (period === 'all') targetMonths = allMonthsList;
-        else targetMonths = [selectedMonth];
-
-        let subjects = [
-            "Matematika", "Bahasa Inggris", "Seni", 
-            "Bahasa Jawa", "Bahasa Indonesia", "Pancasila", "PAI"
-        ];
-        
-        const arabicAllowed = ["Oktober", "November", "Ujian Semester", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Ujian Kenaikan Kelas"];
-        let showArabic = (period !== 'month') ? true : arabicAllowed.some(m => selectedMonth.includes(m));
-        if (showArabic) subjects.push("Bahasa Arab");
-
-        const getSubjectBgColor = (subj) => {
-            const s = String(subj || '').trim().toLowerCase();
-            if (s === 'matematika') return 'bg-purple-100/75 backdrop-blur-md border border-white/70'; // Ungu muda
-            if (s === 'bahasa inggris') return 'bg-blue-100/75 backdrop-blur-md border border-white/70'; // Biru muda
-            if (s === 'seni') return 'bg-amber-100/75 backdrop-blur-md border border-white/70'; // Kuning muda
-            if (s === 'bahasa jawa') return 'bg-[#EEDFCC]/75 backdrop-blur-md border border-white/70'; // Cokelat muda
-            if (s === 'bahasa indonesia') return 'bg-rose-100/75 backdrop-blur-md border border-white/70'; // Merah muda
-            if (s === 'pancasila') return 'bg-yellow-100/75 backdrop-blur-md border border-white/70'; // Emas muda
-            if (s === 'pai') return 'bg-emerald-100/75 backdrop-blur-md border border-white/70'; // Hijau muda
-            return 'bg-white/50 backdrop-blur-md border border-white/70';
-        };
-
-        let periodSelect = `
-        <div class="mb-4">
-            <select onchange="window.location.href='?period=' + this.value" class="w-full sm:w-auto p-3.5 border border-white/70 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md text-earthtext outline-none focus:ring-2 focus:ring-tangerine shadow-md">
-                <option value="month" ${period === 'month' ? 'selected' : ''}>Filter: Pilih Bulan Tertentu</option>
-                <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>Tampilkan Semester 1 (Agustus - Ujian Smt)</option>
-                <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>Tampilkan Semester 2 (Januari - UKK)</option>
-                <option value="all" ${period === 'all' ? 'selected' : ''}>Tampilkan Semua Periode (Semua Bulan)</option>
-            </select>
-        </div>`;
-
-        let monthTabs = '';
-        if (period === 'month') {
-            allMonthsList.forEach(m => {
-                const isActive = m === selectedMonth;
-                monthTabs += `<a href="/summative?period=month&month=${encodeURIComponent(m)}" class="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition whitespace-nowrap shadow-sm ${isActive ? 'bg-deepgreen text-white shadow' : 'bg-white/50 text-earthtext border border-white/70 hover:bg-white/80 backdrop-blur-sm'}">${m}</a>`;
-            });
-            monthTabs = `<div class="flex overflow-x-auto gap-2 pb-3 mb-4">${monthTabs}</div>`;
         }
 
-        let subjectCards = '';
-        
-        subjects.forEach((subj) => {
-            const materials = summativeData.filter(s => {
-                const dbMonth = String(s.month || '').trim().toLowerCase();
-                const isMonthMatch = targetMonths.some(tm => {
-                    const selMonth = tm.trim().toLowerCase();
-                    return (dbMonth === selMonth) || selMonth.includes(dbMonth);
-                });
-                const isSubjMatch = String(s.subject || '').trim().toLowerCase() === subj.toLowerCase();
-                return isMonthMatch && isSubjMatch;
-            });
-
-            let materialItems = '';
-            if (materials.length > 0) {
-                materials.forEach(mat => {
-                    let rawUrl = String(mat.link || '').trim();
-                    let fileId = '';
-                    if (rawUrl.includes('/file/d/')) {
-                        fileId = rawUrl.split('/file/d/')[1].split('/')[0];
-                    } else if (rawUrl.includes('id=')) {
-                        fileId = new URLSearchParams(rawUrl.split('?')[1]).get('id');
-                    }
-                    const downloadUrl = fileId ? `https://drive.google.com/uc?export=download&id=${fileId}` : rawUrl;
-
-                    let monthBadge = period !== 'month' ? `<span class="text-[10px] bg-sagegreen/20 text-deepgreen px-2.5 py-0.5 rounded-full mt-1 inline-block font-bold whitespace-nowrap">${mat.month || '-'}</span>` : '';
-
-                    materialItems += `
-                    <div class="p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/70 mb-2.5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                        <div>
-                            <span class="font-bold text-sm text-earthtext block">📄 ${mat.title}</span>
-                            ${monthBadge}
-                        </div>
-                        <div class="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                            <a href="${downloadUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-deepgreen text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-tangerine transition shadow-sm">Download</a>
-                        </div>
-                    </div>`;
-                });
-            } else {
-                materialItems = `<p class="text-xs text-earthtext/60 italic p-3">Materi belum diunggah untuk periode ini.</p>`;
-            }
-
-            const cardBgColor = getSubjectBgColor(subj);
-
-            subjectCards += `
-            <div class="${cardBgColor} p-6 rounded-[2rem] shadow-sm border border-white/70 flex flex-col backdrop-blur-md">
-                <div class="mb-4">
-                    <h3 class="font-bold text-lg text-earthtext">${subj}</h3>
-                </div>
-                <div class="space-y-2 mt-1 max-h-80 overflow-y-auto pr-1">${materialItems}</div>
-            </div>`;
-        });
-
-        const content = `
-        <div class="mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-earthtext">Materi & Kisi-kisi Sumatif</h2>
-            <p class="text-xs sm:text-sm text-earthtext/80">Pilih periode atau bulan spesifik untuk melihat dan mendownload materi.</p>
-        </div>
-
-        ${periodSelect}
-        ${monthTabs}
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-            ${subjectCards}
-        </div>
-
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-tangerine text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
-
-        res.send(layout('Materi Sumatif', content));
-    } catch (e) {
-        console.error("Summative Error:", e);
-        res.status(500).send("Error loading summative materials");
     }
-});
 
-app.get('/calendar', checkAuth, async (req, res) => {
-    try {
-        const db = await fetchDb();
-        const currentDate = new Date();
-        const year = req.query.year || currentDate.getFullYear();
-        const month = req.query.month || String(currentDate.getMonth() + 1).padStart(2, '0');
-        
-        const firstDayIndex = new Date(year, month - 1, 1).getDay();
-        const totalDays = new Date(year, month, 0).getDate();
+};
 
-        const userNotes = db.notes ? db.notes.filter(n => String(n.user_id) === String(req.user.id) && String(n.note_date).startsWith(`${year}-${month}`)) : [];
-        const notesMap = {};
-        userNotes.forEach(n => { notesMap[n.note_date] = n.content; });
+</script>
 
-        const globalEvents = db.events ? db.events
-            .filter(e => e && e.date)
-            .map(e => {
-                let d = new Date(e.date);
-                d.setHours(d.getHours() + 7); 
-                return {
-                    ...e,
-                    date: d.toISOString().split('T')[0]
-                };
-            })
-            .filter(e => String(e.date).startsWith(`${year}-${month}`)) : [];
-        
-        const eventsMap = {};
-        globalEvents.forEach(e => { eventsMap[e.date] = e; });
-        
-        let calendarCells = '';
-        for (let i = 0; i < firstDayIndex; i++) {
-            calendarCells += `<div class="bg-white/10 min-h-[170px] rounded-[2rem] border border-dashed border-white/25"></div>`;
-        }
 
-        for (let d = 1; d <= totalDays; d++) {
-            const dayStr = String(d).padStart(2, '0');
-            const dateKey = `${year}-${month}-${dayStr}`;
-            const existingNote = notesMap[dateKey] || '';
-            const globalEvent = eventsMap[dateKey];
-            const holidayName = nationalHolidays[dateKey];
-            const dayOfWeek = new Date(year, month - 1, d).getDay();
-            const isSunday = (dayOfWeek === 0);
-            const isToday = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}` === dateKey;
+<style>
 
-            const hasAgenda = (existingNote.trim() !== '' || globalEvent);
-            const cellBgClass = hasAgenda ? 'bg-amber-100/90 border-amber-300 backdrop-blur-md shadow-sm' : (isToday ? 'bg-white/90 border-tangerine ring-2 ring-tangerine/20 shadow-md backdrop-blur-md' : 'bg-white/50 border-white/70 backdrop-blur-md');
+:root {
 
-            let eventHtml = '';
-            if (globalEvent) {
-                eventHtml += `
-                <div class="mb-1 p-2 bg-amber-200/90 border border-amber-300 rounded-2xl shadow-sm">
-                    <span class="text-[10px] font-bold text-amber-900 uppercase block tracking-wider">📌 ${globalEvent.title}</span>
-                    <p class="text-[11px] text-amber-950 mt-0.5 leading-tight">${globalEvent.description}</p>
-                </div>`;
-            }
-            if (holidayName) {
-                eventHtml += `
-                <div class="mb-1 p-2 bg-red-100/90 border border-red-200 rounded-2xl shadow-sm">
-                    <span class="text-[10px] font-bold text-red-700 uppercase block tracking-wider">🔴 Libur Nasional</span>
-                    <p class="text-[11px] text-red-800 mt-0.5 leading-tight">${holidayName}</p>
-                </div>`;
-            }
+    --green:
+        #217553;
 
-            calendarCells += `
-            <div class="${cellBgClass} p-3.5 rounded-[2rem] border shadow-sm flex flex-col justify-between min-h-[170px] transition">
-                <div>
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="font-bold text-sm ${isToday ? 'bg-tangerine text-white w-7 h-7 rounded-full flex items-center justify-center' : (isSunday || holidayName ? 'text-red-600 font-extrabold' : 'text-earthtext')}">${d}</span>
-                    </div>
-                    ${eventHtml}
-                </div>
-                <div class="mt-2">
-                    <textarea name="notes[${dateKey}]" rows="2" class="w-full text-xs p-2.5 border border-white/70 rounded-2xl resize-none focus:ring-2 focus:ring-tangerine outline-none bg-white/70 backdrop-blur-sm transition text-earthtext font-medium" placeholder="Catatan pribadi...">${existingNote}</textarea>
-                </div>
-            </div>`;
-        }
+    --green-light:
+        #58B47F;
 
-        const monthsList = [
-            {v: '01', n: 'January'}, {v: '02', n: 'February'}, {v: '03', n: 'March'}, 
-            {v: '04', n: 'April'}, {v: '05', n: 'May'}, {v: '06', n: 'June'}, 
-            {v: '07', n: 'July'}, {v: '08', n: 'August'}, {v: '09', n: 'September'}, 
-            {v: '10', n: 'October'}, {v: '11', n: 'November'}, {v: '12', n: 'December'}
-        ];
+    --orange:
+        #F57B20;
 
-        let monthOptions = monthsList.map(mObj => `<option value="${mObj.v}" ${mObj.v === month ? 'selected' : ''}>${mObj.n}</option>`).join('');
+    --orange-light:
+        #FFB52D;
 
-        const content = `
-        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-deepgreen/90 backdrop-blur-md text-white p-6 rounded-[2rem] shadow-sm border border-white/30">
-            <div>
-                <h2 class="text-xl sm:text-2xl font-bold text-white">Kalendar Akademik 2026/2027</h2>
-            </div>
-            <form method="GET" class="flex flex-wrap items-center gap-2 sm:space-x-3 w-full md:w-auto">
-                <select name="month" onchange="this.form.submit()" class="border border-white/40 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/90 backdrop-blur-sm outline-none focus:ring-2 focus:ring-white cursor-pointer text-earthtext shadow-md">${monthOptions}</select>
-                <input type="number" name="year" value="${year}" onchange="this.form.submit()" class="border border-white/40 px-3 py-2.5 rounded-2xl text-sm font-bold w-28 bg-white/90 backdrop-blur-sm outline-none focus:ring-2 focus:ring-white text-earthtext shadow-md">
-            </form>
-        </div>
+    --cream:
+        #FFFDF4;
 
-        <form action="/calendar/save" method="POST">
-            <input type="hidden" name="year" value="${year}">
-            <input type="hidden" name="month" value="${month}">
-            
-            <div class="bg-white/50 backdrop-blur-md rounded-[2rem] shadow-sm border border-white/70 p-4 sm:p-6 overflow-x-auto">
-                <div class="min-w-[1000px]">
-                    <div class="grid grid-cols-7 gap-3 mb-3 text-center font-bold text-xs text-deepgreen uppercase tracking-wider">
-                        <div class="text-red-600 font-bold">Sun</div>
-                        <div>Mon</div>
-                        <div>Tue</div>
-                        <div>Wed</div>
-                        <div>Thu</div>
-                        <div>Fri</div>
-                        <div class="text-red-600 font-bold">Sat</div>
-                    </div>
-                    <div class="grid grid-cols-7 gap-3">
-                        ${calendarCells}
-                    </div>
-                </div>
-            </div>
+    --text:
+        #224438;
 
-            <div class="mt-6 flex justify-end">
-                <button type="submit" class="w-full sm:w-auto bg-deepgreen hover:bg-sagegreen text-white px-8 py-3.5 rounded-2xl font-bold text-sm shadow-md transition">💾 Simpan jadwal pribadi siswa</button>
-            </div>
-        </form>
+}
 
-        <div class="mt-6">
-            <a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-tangerine text-sm font-bold">&larr; Kembali ke Beranda</a>
-        </div>`;
 
-        res.send(layout('Kalendar Akademik', content));
-    } catch (e) { res.status(500).send("Error loading calendar"); }
-});
+* {
 
-app.post('/calendar/save', checkAuth, async (req, res) => {
-    const { year, month, notes } = req.body;
-    try {
-        const params = new URLSearchParams({
-            action: 'saveAllNotes',
-            user_id: req.user.id,
-            year: year,
-            month: month,
-            notes: JSON.stringify(notes || {})
-        });
-        await fetch(`${SCRIPT_URL}?${params.toString()}`);
-        cacheData = null;
-        res.redirect(`/calendar?year=${year}&month=${month}`);
-    } catch (e) { res.status(500).send("Error saving notes"); }
-});
+    box-sizing:
+        border-box;
 
-app.get('/kas', checkAuth, async (req, res) => {
-    try {
-        const db = await fetchDb();
-        const userKas = db.kas.filter(k => String(k.user_id) === String(req.user.id));
-        const period = req.query.period || 'sem1';
+}
 
-        const sem1Months = ["Juli 2026", "Agustus 2026", "September 2026", "Oktober 2026", "November 2026", "Desember 2026"];
-        const sem2Months = ["Januari 2027", "Februari 2027", "Maret 2027", "April 2027", "Mei 2027", "Juni 2027"];
-        let targetMonths = (period === 'sem2') ? sem2Months : (period === 'all' ? [...sem1Months, ...sem2Months] : sem1Months);
 
-        const isPaid = (status) => String(status || '').trim().toLowerCase() === 'lunas';
+html {
 
-        const getRowAmount = (k, isKaos = false) => {
-            if (k?.amount !== undefined && k?.amount !== null && k?.amount !== "") {
-                let amt = Number(k.amount);
-                if (!isNaN(amt)) return amt;
-            }
-            return isKaos ? 68000 : 25000;
-        };
+    scroll-behavior:
+        smooth;
 
-        let kasCardsHtml = '';
-        let checkboxes = '';
-        
-        const kaosFound = userKas.find(k => String(k.month || '').trim().toLowerCase().includes('kaos'));
-        const kaosAmount = getRowAmount(kaosFound, true);
-        const isKaosPaid = isPaid(kaosFound?.status);
-        
-        if (period !== 'sem2') {
-            const cardBg = isKaosPaid ? 'bg-amber-100/80 border-amber-200' : 'bg-red-100/80 border-red-200';
-            kasCardsHtml += `
-            <div class="flex items-center justify-between p-4 ${cardBg} rounded-2xl border shadow-[0_4px_10px_rgba(0,0,0,0.05),inset_0_2px_3px_rgba(255,255,255,0.9)] transition">
-                <div>
-                    <span class="font-bold text-sm text-earthtext whitespace-nowrap block">Iuran Kaos</span>
-                    <span class="text-xs text-earthtext/80 whitespace-nowrap">Rp ${kaosAmount.toLocaleString()}</span>
-                </div>
-                <div>
-                    <span class="px-3 py-1 rounded-full text-xs font-bold ${isKaosPaid ? 'bg-green-200 text-green-900' : 'bg-red-200 text-red-900'}">${isKaosPaid ? 'Lunas' : 'Belum Bayar'}</span>
-                </div>
-            </div>`;
+}
 
-            if (!isKaosPaid) {
-                checkboxes += `
-                <label class="flex items-center justify-between gap-3 p-3.5 bg-white/60 backdrop-blur-sm rounded-2xl cursor-pointer hover:bg-white/90 border border-white/75 transition shadow-sm">
-                    <div class="flex items-center gap-3">
-                        <input type="checkbox" class="w-4 h-4 calc-item accent-[#215F47]" data-price="${kaosAmount}" onchange="calcTotal()">
-                        <span class="text-sm font-bold text-earthtext whitespace-nowrap">Iuran Kaos</span>
-                    </div>
-                    <span class="text-xs font-bold text-earthtext/70 whitespace-nowrap">Rp ${kaosAmount.toLocaleString()}</span>
-                </label>`;
-            }
-        }
 
-        targetMonths.forEach((m) => {
-            const found = userKas.find(k => String(k.month || '').trim().toLowerCase() === m.split(' ')[0].toLowerCase());
-            const paid = isPaid(found?.status);
-            const rowAmount = getRowAmount(found, false);
-            const cardBg = paid ? 'bg-amber-100/80 border-amber-200' : 'bg-red-100/80 border-red-200';
-            
-            kasCardsHtml += `
-            <div class="flex items-center justify-between p-4 ${cardBg} rounded-2xl border shadow-[0_4px_10px_rgba(0,0,0,0.05),inset_0_2px_3px_rgba(255,255,255,0.9)] transition">
-                <div>
-                    <span class="font-bold text-sm text-earthtext whitespace-nowrap block">${m}</span>
-                    <span class="text-xs text-earthtext/80 whitespace-nowrap">Rp ${rowAmount.toLocaleString()}</span>
-                </div>
-                <div>
-                    <span class="px-3 py-1 rounded-full text-xs font-bold ${paid ? 'bg-green-200 text-green-900' : 'bg-red-200 text-red-900'}">${paid ? 'Lunas' : 'Belum Bayar'}</span>
-                </div>
-            </div>`;
-            
-            if (!paid) {
-                checkboxes += `
-                <label class="flex items-center justify-between gap-3 p-3.5 bg-white/60 backdrop-blur-sm rounded-2xl cursor-pointer hover:bg-white/90 border border-white/75 transition shadow-sm">
-                    <div class="flex items-center gap-3">
-                        <input type="checkbox" class="w-4 h-4 calc-item accent-[#215F47]" data-price="${rowAmount}" onchange="calcTotal()">
-                        <span class="text-sm font-bold text-earthtext whitespace-nowrap">${m}</span>
-                    </div>
-                    <span class="text-xs font-bold text-earthtext/70 whitespace-nowrap">Rp ${rowAmount.toLocaleString()}</span>
-                </label>`;
-            }
-        });
+body {
 
-        const content = `
-        <div class="mb-6 bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-[2rem] shadow-sm border border-white/70">
-            <h2 class="text-2xl font-bold mb-4 text-earthtext">Iuran Kas Siswa</h2>
-            <select onchange="window.location.href='?period=' + this.value" class="w-full p-3.5 border border-white/70 rounded-2xl mb-6 bg-white/70 backdrop-blur-md text-earthtext font-bold text-sm outline-none focus:ring-2 focus:ring-tangerine shadow-md">
-                <option value="sem1" ${period === 'sem1' ? 'selected' : ''}>Semester 1 (Juli - Desember 2026)</option>
-                <option value="sem2" ${period === 'sem2' ? 'selected' : ''}>Semester 2 (Januari - Juni 2027)</option>
-                <option value="all" ${period === 'all' ? 'selected' : ''}>Semua Periode</option>
-            </select>
-            
-            <div class="grid lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 space-y-3 bg-white/50 backdrop-blur-md rounded-[2rem] shadow-sm border border-white/70 p-4 max-h-[500px] overflow-y-auto">
-                    ${kasCardsHtml}
-                </div>
-                
-                <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70 flex flex-col justify-between">
-                    <div>
-                        <h3 class="font-bold mb-3 text-earthtext">🧮 Kalkulator Pembayaran</h3>
-                        <p class="text-xs mb-4 text-earthtext/80">Centang item di bawah untuk menghitung total pembayaran:</p>
-                        
-                        <label class="flex items-center gap-3 p-3.5 bg-white/70 backdrop-blur-sm border border-white/75 rounded-2xl mb-3 cursor-pointer font-bold text-deepgreen shadow-sm">
-                            <input type="checkbox" id="selectAll" class="w-4 h-4 accent-[#215F47]" onchange="selectAll(this)"> Pilih Semua
-                        </label>
-                        
-                        <div class="space-y-2.5 max-h-[300px] overflow-y-auto mb-4 pr-1">${checkboxes}</div>
-                    </div>
+    margin:
+        0;
 
-                    <div>
-                        <div class="mt-4 p-4 bg-white/70 backdrop-blur-md rounded-2xl text-xs sm:text-sm border border-white/75 text-earthtext shadow-sm">
-                            <p class="mb-2 font-bold text-deepgreen">Info Pembayaran:</p>
-                            <p>BCA: 0971149581</p>
-                            <p>BNI: 286855891</p>
-                            <p>a.n. Nisa Syakrina</p>
-                            <a href="https://wa.me/6285800327444" target="_blank" class="inline-flex items-center justify-center w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition shadow-sm mt-3">Konfirmasi Transfer</a>
-                        </div>
-                        
-                        <div class="mt-4 pt-3 border-t border-white/30 font-bold text-earthtext text-sm text-center">Total Pembayaran: Rp <span id="totalDisplay">0</span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    min-height:
+        100vh;
 
-        <script>
-            function calcTotal() {
-                let total = 0;
-                document.querySelectorAll('.calc-item').forEach(c => {
-                    const label = c.closest('label');
-                    if (c.checked) {
-                        total += parseInt(c.dataset.price);
-                        label.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-                    } else {
-                        label.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
-                    }
-                });
-                document.getElementById('totalDisplay').innerText = total.toLocaleString();
-            }
-            function selectAll(source) {
-                document.querySelectorAll('.calc-item').forEach(c => c.checked = source.checked);
-                calcTotal();
-            }
-        </script>
+    font-family:
+        'Nunito',
+        sans-serif;
 
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-tangerine text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
-        
-        res.send(layout('Iuran Kas', content));
-    } catch (e) { res.status(500).send("Error"); }
-});
+    color:
+        var(--text);
 
-app.get('/finances', checkAuth, async (req, res) => {
-    try {
-        const db = await fetchDb();
-        const usersMap = {};
-        if (db.users) {
-            db.users.forEach(u => { usersMap[String(u.id)] = u.first_name; });
-        }
-        
-        const txData = (db.transactions || []).filter(tx => 
-            (tx.description || tx.desc) && 
-            String(tx.description || tx.desc).trim() !== "" && 
-            String(tx.description || tx.desc).trim() !== "-"
+    background:
+
+        radial-gradient(
+            circle at 5% 5%,
+            rgba(255,181,45,.28),
+            transparent 26%
+        ),
+
+        radial-gradient(
+            circle at 95% 20%,
+            rgba(88,180,127,.20),
+            transparent 28%
+        ),
+
+        linear-gradient(
+            145deg,
+            #F8F6EA,
+            #EEF7EF 48%,
+            #FFF5E8
         );
 
-        const search = (req.query.search || '').toLowerCase();
-        const typeFilter = req.query.type || 'all';
-        const monthFilter = req.query.monthFilter || 'all';
-        const startDate = req.query.start_date || '';
-        const endDate = req.query.end_date || '';
-        const page = parseInt(req.query.page) || 1;
-        const limit = 10;
+}
 
-        const kasData = db.kas || [];
 
-        let totalKas = 0, totalKaos = 0, totalLainnya = 0, totalExpense = 0;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
 
-        kasData.forEach(item => {
-            if (String(item.status || '').trim().toLowerCase() === "lunas") {
-                const amt = Number(item.amount || 0);
-                if (String(item.month || '').trim().toLowerCase() === "kaos") {
-                    totalKaos += amt;
-                } else {
-                    totalKas += amt;
-                }
-            }
-        });
+    font-family:
+        'Baloo 2',
+        cursive !important;
 
-        txData.forEach(tx => {
-            const amt = Number(tx.amount || 0);
-            if (String(tx.type || '').trim().toLowerCase() === 'income') {
-                totalLainnya += amt;
-            } else {
-                totalExpense += amt;
-            }
-        });
+}
 
-        let allTransactions = [];
 
-        kasData.forEach(k => {
-            if (String(k.status || '').trim().toLowerCase() === "lunas") {
-                const name = usersMap[String(k.user_id)] || ('ID ' + k.user_id);
-                const isKaos = String(k.month || '').trim().toLowerCase() === "kaos";
-                allTransactions.push({
-                    rawDate: k.date || "",
-                    date: formatDateID(k.date),
-                    desc: `${isKaos ? "Iuran Kaos" : "Iuran Kas (" + k.month + ")"} - ${name}`,
-                    type: 'income',
-                    amount: Number(k.amount || 0),
-                    category: isKaos ? "Kaos" : "Kas",
-                    month: k.month
-                });
-            }
-        });
+button,
+input,
+textarea,
+select {
 
-        txData.forEach(tx => {
-            const isInc = String(tx.type || '').trim().toLowerCase() === 'income';
-            allTransactions.push({
-                rawDate: tx.date || "",
-                date: formatDateID(tx.date),
-                desc: tx.description || tx.desc || "-",
-                type: isInc ? 'income' : 'expense',
-                amount: Number(tx.amount || 0),
-                category: tx.category || "Lainnya",
-                month: ""
-            });
-        });
+    font-family:
+        'Nunito',
+        sans-serif;
 
-        if (search) {
-            allTransactions = allTransactions.filter(t => t.desc.toLowerCase().includes(search) || t.category.toLowerCase().includes(search));
-        }
-        if (typeFilter !== 'all') {
-            allTransactions = allTransactions.filter(t => t.type === typeFilter);
-        }
-        if (monthFilter !== 'all') {
-            allTransactions = allTransactions.filter(t => t.category === "Kas" && String(t.month).trim().toLowerCase() === monthFilter.toLowerCase());
-        }
-        if (startDate && endDate) {
-            allTransactions = allTransactions.filter(t => {
-                if (!t.rawDate || t.rawDate === "-") return false;
-                return t.rawDate >= startDate && t.rawDate <= endDate;
-            });
-        }
+}
 
-        allTransactions.sort((a, b) => {
-            if (!a.rawDate || !b.rawDate) return 0;
-            return new Date(b.rawDate) - new Date(a.rawDate);
-        });
 
-        const totalPages = Math.ceil(allTransactions.length / limit) || 1;
-        const paginatedTxs = allTransactions.slice((page - 1) * limit, page * limit);
+input,
+select,
+textarea {
 
-        let rows = '';
-        paginatedTxs.forEach(tx => {
-            const isIncome = tx.type === 'income';
-            const badge = isIncome 
-                ? '<span class="text-emerald-800 bg-emerald-100/90 border border-emerald-200 px-2.5 py-0.5 rounded-full text-[11px] font-bold">Pemasukan</span>' 
-                : '<span class="text-red-800 bg-red-100/90 border border-red-200 px-2.5 py-0.5 rounded-full text-[11px] font-bold">Pengeluaran</span>';
-            
-            rows += `
-            <tr class="border-b border-white/20 hover:bg-white/20 transition align-top">
-                <td class="py-3.5 px-3 sm:px-6 text-xs text-earthtext/85 text-center whitespace-nowrap w-[120px] font-semibold">${tx.date}</td>
-                <td class="py-3.5 px-3 sm:px-6 font-bold text-earthtext text-xs sm:text-sm text-left break-words max-w-[180px] sm:max-w-md">${tx.desc}</td>
-                <td class="py-3.5 px-3 sm:px-6 text-center whitespace-nowrap w-[100px]">${badge}</td>
-                <td class="py-3.5 px-3 sm:px-6 font-bold text-earthtext text-xs sm:text-sm text-left whitespace-nowrap w-[160px] sm:w-[200px]">Rp ${tx.amount.toLocaleString()}</td>
-            </tr>`;
-        });
+    background:
+        rgba(255,255,255,.96)
+        !important;
 
-        const grandTotalIncome = totalKas + totalKaos + totalLainnya;
-        const balance = grandTotalIncome - totalExpense;
+    color:
+        var(--text)
+        !important;
 
-        const monthsList = ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
-        let monthOptions = `<option value="all">Semua Bulan Kas</option>`;
-        monthsList.forEach(m => {
-            monthOptions += `<option value="${m}" ${monthFilter === m ? 'selected' : ''}>Cek Kas Bulan: ${m}</option>`;
-        });
+    border-color:
+        #E6DECE
+        !important;
 
-        let pageOptions = '';
-        for (let i = 1; i <= totalPages; i++) {
-            pageOptions += `<option value="?page=${i}&search=${encodeURIComponent(search)}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" ${i === page ? 'selected' : ''}>Halaman ${i}</option>`;
-        }
+    border-radius:
+        16px
+        !important;
 
-        const content = `
-        <div class="mb-6"><h2 class="text-xl sm:text-2xl font-bold text-earthtext">Laporan Keuangan</h2><p class="text-xs sm:text-sm text-earthtext/80">Rincian pemasukan kas, kaos, transaksi lainnya, dan pengeluaran kelas 2A.</p></div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-amber-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-amber-200"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Total Kas</span><h3 class="text-xl font-bold text-amber-900 mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
-            <div class="bg-orange-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-orange-200"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Total Kaos</span><h3 class="text-xl font-bold text-orange-900 mt-1">Rp ${totalKaos.toLocaleString()}</h3></div>
-            <div class="bg-amber-100/65 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-amber-300"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Pendapatan Lain</span><h3 class="text-xl font-bold text-amber-950 mt-1">Rp ${totalLainnya.toLocaleString()}</h3></div>
-            <div class="bg-red-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-red-200"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Pengeluaran</span><h3 class="text-xl font-bold text-red-800 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
-        </div>
+}
 
-        <div class="bg-gradient-to-r from-deepgreen via-[#3A7A61] to-sagegreen backdrop-blur-md text-white p-6 rounded-[2rem] shadow-md border border-white/30 mb-6">
-            <div>
-                <span class="text-xs font-bold uppercase tracking-wider text-white/90">Saldo Akhir Kas Kelas</span>
-                <h3 class="text-2xl sm:text-3xl font-bold text-white mt-1">Rp ${balance.toLocaleString()}</h3>
-            </div>
-        </div>
 
-        <div class="bg-white/50 backdrop-blur-md p-5 sm:p-6 rounded-[2rem] shadow-md border border-white/70 mb-6">
-            <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
-                <div>
-                    <label class="block text-xs font-bold text-earthtext/80 uppercase mb-1">Cari Nama / Keterangan</label>
-                    <input type="text" name="search" value="${search}" placeholder="Cari nama siswa, kaos, dll..." class="w-full border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext shadow-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-earthtext/80 uppercase mb-1">Bulan Kas</label>
-                    <select name="monthFilter" class="w-full border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext shadow-sm">
-                        ${monthOptions}
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-earthtext/80 uppercase mb-1">Jenis</label>
-                    <select name="type" class="w-full border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext shadow-sm">
-                        <option value="all" ${typeFilter === 'all' ? 'selected' : ''}>Semua</option>
-                        <option value="income" ${typeFilter === 'income' ? 'selected' : ''}>Pemasukan</option>
-                        <option value="expense" ${typeFilter === 'expense' ? 'selected' : ''}>Pengeluaran</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-earthtext/80 uppercase mb-1">Dari Tanggal</label>
-                    <input type="date" name="start_date" value="${startDate}" class="w-full border border-white/70 px-3 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext shadow-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-earthtext/80 uppercase mb-1">Sampai Tanggal</label>
-                    <input type="date" name="end_date" value="${endDate}" class="w-full border border-white/70 px-3 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext shadow-sm">
-                </div>
-                <div class="flex gap-2 w-full">
-                    <button type="submit" class="flex-1 bg-deepgreen hover:bg-sagegreen text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-sm transition">Filter</button>
-                    <a href="/finances" class="flex-1 bg-white/50 hover:bg-white/80 text-deepgreen px-4 py-2.5 rounded-2xl text-sm font-bold transition flex items-center justify-center border border-white/70 shadow-sm">Reset</a>
-                </div>
-            </form>
-        </div>
+input:focus,
+select:focus,
+textarea:focus {
 
-        <div class="bg-white/50 backdrop-blur-md rounded-[2rem] shadow-sm border border-white/70 overflow-x-auto mb-6">
-            <table class="w-full min-w-[600px]">
-                <thead>
-                    <tr class="bg-deepgreen text-white text-xs uppercase tracking-wider font-bold">
-                        <th class="py-3.5 px-3 sm:px-6 text-center w-[120px]">Tanggal</th>
-                        <th class="py-3 px-3 sm:px-6 text-left">Keterangan</th>
-                        <th class="py-3 px-3 sm:px-6 text-center w-[100px]">Tipe</th>
-                        <th class="py-3 px-3 sm:px-6 text-left w-[160px] sm:w-[200px]">Jumlah</th>
-                    </tr>
-                </thead>
-                <tbody>${rows || `<tr><td colspan="4" class="text-center py-8 text-earthtext/60 text-sm font-bold">Tidak ada data keuangan yang ditemukan.</td></tr>`}</tbody>
-            </table>
-        </div>
+    outline:
+        none
+        !important;
 
-        <div class="flex justify-center items-center gap-3 mb-6 flex-wrap">
-            <a href="?page=1&search=${encodeURIComponent(search)}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white/60 border border-white/75 rounded-2xl text-sm font-bold text-deepgreen hover:bg-white/90 backdrop-blur-sm shadow-sm">First</a>
-            ${page > 1 ? `<a href="?page=${page-1}&search=${encodeURIComponent(search)}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white/60 border border-white/75 rounded-2xl text-sm font-bold text-deepgreen hover:bg-white/90 backdrop-blur-sm shadow-sm">Prev</a>` : ''}
-            
-            <select onchange="window.location.href=this.value" class="px-4 py-2 bg-white/80 border border-white/75 rounded-2xl text-sm font-bold text-deepgreen outline-none shadow-sm cursor-pointer">
-                ${pageOptions}
-            </select>
+    border-color:
+        #8CC4A5
+        !important;
 
-            ${page < totalPages ? `<a href="?page=${page+1}&search=${encodeURIComponent(search)}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-4 py-2 bg-white/60 border border-white/75 rounded-2xl text-sm font-bold text-deepgreen hover:bg-white/90 backdrop-blur-sm shadow-sm">Next</a>` : ''}
-            <a href="?page=${totalPages}&search=${encodeURIComponent(search)}&type=${typeFilter}&monthFilter=${monthFilter}&start_date=${startDate}&end_date=${endDate}" class="px-3 py-2 bg-white/60 border border-white/75 rounded-2xl text-sm font-bold text-deepgreen hover:bg-white/90 backdrop-blur-sm shadow-sm">Last</a>
-        </div>
+    box-shadow:
+        0 0 0 4px
+        rgba(88,180,127,.13)
+        !important;
 
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-tangerine text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
-        
-        res.send(layout('Laporan Keuangan', content));
-    } catch (e) { 
-        console.error("Finance Error:", e);
-        res.status(500).send("Error loading financial report"); 
+}
+
+
+/* =====================================================
+   NAV
+===================================================== */
+
+.portal-nav {
+
+    position:
+        sticky;
+
+    top:
+        0;
+
+    z-index:
+        500;
+
+    background:
+        rgba(255,253,244,.93);
+
+    backdrop-filter:
+        blur(18px);
+
+    border-bottom:
+        1px solid
+        rgba(33,117,83,.10);
+
+    box-shadow:
+        0 7px 28px
+        rgba(41,77,62,.07);
+
+}
+
+
+.portal-nav-inner {
+
+    width:
+        min(1120px, calc(100% - 24px));
+
+    min-height:
+        70px;
+
+    margin:
+        auto;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        12px;
+
+}
+
+
+.portal-brand {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+    color:
+        var(--green);
+
+    text-decoration:
+        none;
+
+    font-family:
+        'Baloo 2',
+        cursive;
+
+    font-size:
+        23px;
+
+    font-weight:
+        800;
+
+}
+
+
+.portal-brand-mark {
+
+    width:
+        42px;
+
+    height:
+        42px;
+
+    display:
+        grid;
+
+    place-items:
+        center;
+
+    border-radius:
+        15px;
+
+    color:
+        white;
+
+    font-size:
+        13px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #FFBB43,
+            #F57B20
+        );
+
+    box-shadow:
+        0 8px 18px
+        rgba(245,123,32,.20);
+
+}
+
+
+.portal-logout {
+
+    background:
+        #FFE4E0
+        !important;
+
+    color:
+        #D64E41
+        !important;
+
+    border-radius:
+        999px
+        !important;
+
+    padding:
+        9px 16px
+        !important;
+
+    font-weight:
+        900
+        !important;
+
+    text-decoration:
+        none;
+
+}
+
+
+/* =====================================================
+   MAIN
+===================================================== */
+
+.portal-main {
+
+    width:
+        min(1120px, calc(100% - 24px));
+
+    margin:
+        18px auto 28px;
+
+}
+
+
+.portal-panel {
+
+    background:
+        rgba(255,253,244,.88);
+
+    border:
+        1px solid
+        rgba(255,255,255,.96);
+
+    border-radius:
+        28px;
+
+    padding:
+        24px;
+
+    box-shadow:
+        0 18px 55px
+        rgba(54,87,70,.10);
+
+}
+
+
+.portal-card {
+
+    background:
+        rgba(255,255,255,.92);
+
+    border:
+        1px solid
+        rgba(33,117,83,.08);
+
+    border-radius:
+        24px;
+
+    box-shadow:
+        0 10px 28px
+        rgba(36,73,56,.08);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+
+}
+
+
+.portal-card:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 14px 34px
+        rgba(36,73,56,.12);
+
+}
+
+
+.portal-icon {
+
+    width:
+        58px;
+
+    height:
+        58px;
+
+    min-width:
+        58px;
+
+    display:
+        grid;
+
+    place-items:
+        center;
+
+    border-radius:
+        20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #FFF8E9,
+            #E9F6ED
+        );
+
+    box-shadow:
+        inset 0 1px white,
+        0 8px 18px
+        rgba(34,68,54,.11);
+
+    font-size:
+        28px;
+
+}
+
+
+/* =====================================================
+   ILLUSTRATION
+===================================================== */
+
+.portal-art {
+
+    width:
+        100%;
+
+    height:
+        auto;
+
+    display:
+        block;
+
+}
+
+
+.portal-float {
+
+    animation:
+        portalFloat
+        3s
+        ease-in-out
+        infinite;
+
+    transform-origin:
+        center;
+
+}
+
+
+.portal-float-delay {
+
+    animation:
+        portalFloat
+        3.3s
+        ease-in-out
+        .25s
+        infinite;
+
+    transform-origin:
+        center;
+
+}
+
+
+@keyframes portalFloat {
+
+    0%,
+    100% {
+
+        transform:
+            translateY(0);
+
     }
+
+    50% {
+
+        transform:
+            translateY(-6px);
+
+    }
+
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.loading-overlay {
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        99999;
+
+    display:
+        none;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        20px;
+
+    background:
+        rgba(255,253,244,.97);
+
+    backdrop-filter:
+        blur(10px);
+
+}
+
+
+.loading-card {
+
+    width:
+        min(350px, 92vw);
+
+    padding:
+        23px;
+
+    background:
+        white;
+
+    border:
+        1px solid
+        #F0E5D3;
+
+    border-radius:
+        30px;
+
+    box-shadow:
+        0 22px 60px
+        rgba(39,78,61,.14);
+
+    text-align:
+        center;
+
+}
+
+
+.loading-art {
+
+    max-height:
+        220px;
+
+    overflow:
+        hidden;
+
+}
+
+
+.loading-title {
+
+    font-family:
+        'Baloo 2',
+        cursive;
+
+    font-size:
+        28px;
+
+    font-weight:
+        800;
+
+    color:
+        var(--green);
+
+}
+
+
+.loading-pill {
+
+    height:
+        47px;
+
+    margin:
+        6px auto 0;
+
+    max-width:
+        235px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        999px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #FFD34E,
+            #FF8A23
+        );
+
+    color:
+        white;
+
+    font-family:
+        'Baloo 2',
+        cursive;
+
+    font-size:
+        20px;
+
+    font-weight:
+        800;
+
+}
+
+
+.loading-dots {
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    gap:
+        8px;
+
+    margin-top:
+        12px;
+
+}
+
+
+.loading-dots span {
+
+    width:
+        10px;
+
+    height:
+        10px;
+
+    border-radius:
+        50%;
+
+    animation:
+        loadingDot
+        1.05s
+        ease-in-out
+        infinite;
+
+}
+
+
+.loading-dots span:nth-child(1) {
+
+    background:
+        #F57B20;
+
+}
+
+
+.loading-dots span:nth-child(2) {
+
+    background:
+        #FFB52D;
+
+    animation-delay:
+        .14s;
+
+}
+
+
+.loading-dots span:nth-child(3) {
+
+    background:
+        #58B47F;
+
+    animation-delay:
+        .28s;
+
+}
+
+
+@keyframes loadingDot {
+
+    0%,
+    60%,
+    100% {
+
+        transform:
+            translateY(0);
+
+        opacity:
+            .45;
+
+    }
+
+    30% {
+
+        transform:
+            translateY(-7px);
+
+        opacity:
+            1;
+
+    }
+
+}
+
+
+/* =====================================================
+   MOBILE NAVIGATION
+===================================================== */
+
+.mobile-nav {
+
+    display:
+        none;
+
+}
+
+
+@media(max-width:760px) {
+
+    .portal-main {
+
+        width:
+            calc(100% - 12px);
+
+        padding:
+            10px 0 85px;
+
+    }
+
+
+    .portal-panel {
+
+        padding:
+            14px;
+
+        border-radius:
+            22px;
+
+    }
+
+
+    .portal-card {
+
+        border-radius:
+            20px;
+
+    }
+
+
+    .portal-nav-inner {
+
+        width:
+            calc(100% - 16px);
+
+        min-height:
+            62px;
+
+    }
+
+
+    .portal-brand {
+
+        font-size:
+            19px;
+
+    }
+
+
+    .portal-brand-mark {
+
+        width:
+            38px;
+
+        height:
+            38px;
+
+    }
+
+
+    .portal-brand span:last-child {
+
+        display:
+            none;
+
+    }
+
+
+    .portal-logout {
+
+        padding:
+            8px 14px
+            !important;
+
+        font-size:
+            11px
+            !important;
+
+    }
+
+
+    .mobile-nav {
+
+        display:
+            grid;
+
+        grid-template-columns:
+            repeat(4, 1fr);
+
+        gap:
+            7px;
+
+        position:
+            fixed;
+
+        left:
+            9px;
+
+        right:
+            9px;
+
+        bottom:
+            9px;
+
+        z-index:
+            1000;
+
+        background:
+            rgba(255,253,244,.97);
+
+        backdrop-filter:
+            blur(16px);
+
+        border:
+            1px solid
+            #E8DFD0;
+
+        border-radius:
+            21px;
+
+        padding:
+            8px;
+
+        box-shadow:
+            0 14px 38px
+            rgba(39,78,61,.13);
+
+    }
+
+
+    .mobile-nav a {
+
+        display:
+            flex;
+
+        flex-direction:
+            column;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
+
+        gap:
+            2px;
+
+        min-height:
+            52px;
+
+        border-radius:
+            15px;
+
+        color:
+            #829087;
+
+        text-decoration:
+            none;
+
+        font-size:
+            10px;
+
+        font-weight:
+            800;
+
+    }
+
+
+    .mobile-nav a.active {
+
+        background:
+            #E5F4EA;
+
+        color:
+            #217553;
+
+    }
+
+
+    .mobile-nav span:first-child {
+
+        font-size:
+            20px;
+
+        line-height:
+            1;
+
+    }
+
+
+    table {
+
+        font-size:
+            12px;
+
+    }
+
+
+    .overflow-x-auto {
+
+        -webkit-overflow-scrolling:
+            touch;
+
+    }
+
+}
+
+
+@media(max-width:430px) {
+
+    .portal-main {
+
+        width:
+            calc(100% - 8px);
+
+    }
+
+
+    .portal-panel {
+
+        padding:
+            11px;
+
+    }
+
+
+    .portal-icon {
+
+        width:
+            53px;
+
+        min-width:
+            53px;
+
+        height:
+            53px;
+
+        font-size:
+            25px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- LOADING -->
+
+<div
+    id="loading-overlay"
+    class="loading-overlay"
+>
+
+    <div class="loading-card">
+
+        <div class="loading-art">
+
+            ${portalArt}
+
+        </div>
+
+
+        <div class="loading-title">
+            PORTAL 2A
+        </div>
+
+
+        <div class="loading-pill">
+            Memuat...
+        </div>
+
+
+        <div class="loading-dots">
+
+            <span></span>
+            <span></span>
+            <span></span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- NAV -->
+
+<nav class="portal-nav">
+
+    <div class="portal-nav-inner">
+
+        <a
+            href="/dashboard"
+            class="portal-brand"
+        >
+
+            <span class="portal-brand-mark">
+                2A
+            </span>
+
+            <span>
+                PORTAL 2A
+            </span>
+
+        </a>
+
+
+        <a
+            href="/logout"
+            class="portal-logout"
+        >
+            Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- MAIN -->
+
+<main class="portal-main">
+
+    <div class="portal-panel">
+
+        ${content}
+
+    </div>
+
+</main>
+
+
+<!-- MOBILE NAV -->
+
+<div class="mobile-nav">
+
+    <a href="/dashboard">
+
+        <span>🏠</span>
+        <span>Home</span>
+
+    </a>
+
+
+    <a href="/summative">
+
+        <span>📚</span>
+        <span>Materi</span>
+
+    </a>
+
+
+    <a href="/kas">
+
+        <span>💰</span>
+        <span>Kas</span>
+
+    </a>
+
+
+    <a href="/calendar">
+
+        <span>📅</span>
+        <span>Agenda</span>
+
+    </a>
+
+</div>
+
+
+<script>
+
+function showLoading() {
+
+    const overlay =
+        document.getElementById(
+            'loading-overlay'
+        );
+
+    if (!overlay) return;
+
+    overlay.style.display =
+        'flex';
+
+}
+
+
+function hideLoading() {
+
+    const overlay =
+        document.getElementById(
+            'loading-overlay'
+        );
+
+    if (!overlay) return;
+
+    overlay.style.display =
+        'none';
+
+}
+
+
+window.addEventListener(
+    'load',
+    function () {
+
+        hideLoading();
+
+    }
+);
+
+
+document.addEventListener(
+    'click',
+    function (e) {
+
+        const link =
+            e.target.closest('a');
+
+        if (
+            link &&
+            link.href &&
+            link.href.startsWith(
+                window.location.origin
+            ) &&
+            !link.getAttribute('target') &&
+            !link.href.includes('#')
+        ) {
+
+            showLoading();
+
+        }
+
+    }
+);
+
+
+document.addEventListener(
+    'submit',
+    function () {
+
+        showLoading();
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>
+
+`;
+
+
+// =========================================================
+// LOGIN
+// =========================================================
+
+app.get('/login', (req, res) => {
+
+    res.send(`
+
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="
+        width=device-width,
+        initial-scale=1.0,
+        maximum-scale=1.0,
+        viewport-fit=cover
+    "
+>
+
+
+<title>
+    Login - PORTAL 2A
+</title>
+
+
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
+
+
+<link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+>
+
+
+<link
+    href="
+    https://fonts.googleapis.com/css2?
+    family=Baloo+2:wght@500;600;700;800&
+    family=Nunito:wght@500;600;700;800;900&
+    display=swap
+    "
+    rel="stylesheet"
+>
+
+
+<style>
+
+:root {
+
+    --green:
+        #217553;
+
+    --green-light:
+        #58B47F;
+
+    --orange:
+        #F57B20;
+
+    --yellow:
+        #FFD34E;
+
+    --cream:
+        #FFFDF4;
+
+}
+
+
+* {
+
+    box-sizing:
+        border-box;
+
+}
+
+
+body {
+
+    margin:
+        0;
+
+    min-height:
+        100vh;
+
+    font-family:
+        'Nunito',
+        sans-serif;
+
+    background:
+
+        radial-gradient(
+            circle at 5% 4%,
+            rgba(255,211,78,.32),
+            transparent 27%
+        ),
+
+        radial-gradient(
+            circle at 95% 10%,
+            rgba(88,180,127,.20),
+            transparent 30%
+        ),
+
+        linear-gradient(
+            145deg,
+            #F8F6EA,
+            #EDF7EE 48%,
+            #FFF5E8
+        );
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        16px;
+
+}
+
+
+.login-wrapper {
+
+    width:
+        min(970px,100%);
+
+}
+
+
+.login-card {
+
+    overflow:
+        hidden;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    background:
+        rgba(255,255,255,.94);
+
+    border:
+        1px solid
+        rgba(255,255,255,.98);
+
+    border-radius:
+        34px;
+
+    box-shadow:
+        0 25px 70px
+        rgba(39,78,61,.14);
+
+}
+
+
+.login-visual {
+
+    position:
+        relative;
+
+    min-height:
+        650px;
+
+    overflow:
+        hidden;
+
+    padding:
+        32px;
+
+    background:
+
+        radial-gradient(
+            circle at 15% 10%,
+            rgba(255,211,78,.34),
+            transparent 23%
+        ),
+
+        radial-gradient(
+            circle at 87% 21%,
+            rgba(88,180,127,.20),
+            transparent 25%
+        ),
+
+        linear-gradient(
+            155deg,
+            #F7FCF8,
+            #E4F5EA
+        );
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+}
+
+
+.login-brand {
+
+    text-align:
+        center;
+
+    position:
+        relative;
+
+    z-index:
+        2;
+
+}
+
+
+.login-brand h1 {
+
+    margin:
+        0;
+
+    font-family:
+        'Baloo 2',
+        cursive;
+
+    font-size:
+        clamp(42px,6vw,66px);
+
+    line-height:
+        .84;
+
+    font-weight:
+        800;
+
+    color:
+        var(--green);
+
+}
+
+
+.login-brand h1 span {
+
+    color:
+        var(--orange);
+
+}
+
+
+.login-tag {
+
+    display:
+        inline-flex;
+
+    margin-top:
+        15px;
+
+    padding:
+        8px 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #FFD34E,
+            #FFAC32
+        );
+
+    border-radius:
+        999px;
+
+    font-family:
+        'Baloo 2',
+        cursive;
+
+    font-size:
+        13px;
+
+    font-weight:
+        800;
+
+    color:
+        #704609;
+
+}
+
+
+.login-art {
+
+    width:
+        min(370px,100%);
+
+    margin-top:
+        15px;
+
+}
+
+
+.login-form {
+
+    padding:
+        48px 43px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+}
+
+
+.login-inner {
+
+    width:
+        100%;
+
+    max-width:
+        390px;
+
+    margin:
+        auto;
+
+}
+
+
+.login-inner h2 {
+
+    margin:
+        0;
+
+    font-family:
+        'Baloo 2',
+        cursive;
+
+    font-size:
+        32px;
+
+    font-weight:
+        800;
+
+    color:
+        #24362D;
+
+}
+
+
+.login-description {
+
+    margin:
+        3px 0 25px;
+
+    color:
+        #708078;
+
+    font-size:
+        13px;
+
+    line-height:
+        1.7;
+
+}
+
+
+.login-field {
+
+    margin-bottom:
+        16px;
+
+}
+
+
+.login-label {
+
+    display:
+        block;
+
+    margin-bottom:
+        7px;
+
+    font-size:
+        13px;
+
+    font-weight:
+        900;
+
+    color:
+        #405047;
+
+}
+
+
+.login-input {
+
+    width:
+        100%;
+
+    height:
+        54px;
+
+    padding:
+        0 16px;
+
+    border:
+        1px solid
+        #E3E8E3;
+
+    border-radius:
+        17px;
+
+    background:
+        #FBFCFA;
+
+    outline:
+        none;
+
+    color:
+        #24362D;
+
+    font-size:
+        14px;
+
+    font-weight:
+        700;
+
+}
+
+
+.login-input::placeholder {
+
+    color:
+        #9BA7A0;
+
+}
+
+
+.login-input:focus {
+
+    border-color:
+        #79B994;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(62,155,110,.10);
+
+}
+
+
+.login-button {
+
+    width:
+        100%;
+
+    height:
+        55px;
+
+    border:
+        0;
+
+    border-radius:
+        18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #FF9D31,
+            #F57B20
+        );
+
+    color:
+        white;
+
+    font-family:
+        'Baloo 2',
+        cursive;
+
+    font-size:
+        20px;
+
+    font-weight:
+        800;
+
+    cursor:
+        pointer;
+
+    box-shadow:
+        0 10px 23px
+        rgba(245,123,32,.22);
+
+}
+
+
+#login-loading {
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        99999;
+
+    display:
+        none;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        18px;
+
+    background:
+        rgba(255,253,244,.97);
+
+    backdrop-filter:
+        blur(10px);
+
+}
+
+
+.login-loading-card {
+
+    width:
+        min(350px,92vw);
+
+    background:
+        white;
+
+    border-radius:
+        30px;
+
+    padding:
+        22px;
+
+    box-shadow:
+        0 24px 60px
+        rgba(39,78,61,.15);
+
+    text-align:
+        center;
+
+}
+
+
+.login-loading-card h3 {
+
+    margin:
+        0;
+
+    font-family:
+        'Baloo 2',
+        cursive;
+
+    font-size:
+        27px;
+
+    color:
+        var(--green);
+
+}
+
+
+.login-loading-pill {
+
+    height:
+        47px;
+
+    margin-top:
+        10px;
+
+    border-radius:
+        999px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    background:
+        linear-gradient(
+            90deg,
+            #FFD34E,
+            #FF8A23
+        );
+
+    color:
+        white;
+
+    font-family:
+        'Baloo 2',
+        cursive;
+
+    font-size:
+        19px;
+
+    font-weight:
+        800;
+
+}
+
+
+.login-loading-dots {
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    gap:
+        8px;
+
+    margin-top:
+        13px;
+
+}
+
+
+.login-loading-dots span {
+
+    width:
+        9px;
+
+    height:
+        9px;
+
+    border-radius:
+        50%;
+
+    animation:
+        loginDot
+        1s
+        infinite;
+
+}
+
+
+.login-loading-dots span:nth-child(1) {
+
+    background:
+        #F57B20;
+
+}
+
+
+.login-loading-dots span:nth-child(2) {
+
+    background:
+        #FFD34E;
+
+    animation-delay:
+        .15s;
+
+}
+
+
+.login-loading-dots span:nth-child(3) {
+
+    background:
+        #58B47F;
+
+    animation-delay:
+        .3s;
+
+}
+
+
+@keyframes loginDot {
+
+    0%,
+    70%,
+    100% {
+
+        transform:
+            translateY(0);
+
+        opacity:
+            .45;
+
+    }
+
+    35% {
+
+        transform:
+            translateY(-6px);
+
+        opacity:
+            1;
+
+    }
+
+}
+
+
+@media(max-width:760px) {
+
+    body {
+
+        padding:
+            9px;
+
+    }
+
+
+    .login-card {
+
+        grid-template-columns:
+            1fr;
+
+        border-radius:
+            27px;
+
+        max-width:
+            500px;
+
+        margin:
+            auto;
+
+    }
+
+
+    .login-visual {
+
+        min-height:
+            auto;
+
+        padding:
+            21px 17px 10px;
+
+    }
+
+
+    .login-brand h1 {
+
+        font-size:
+            43px;
+
+    }
+
+
+    .login-art {
+
+        width:
+            min(280px,83%);
+
+        margin-top:
+            4px;
+
+    }
+
+
+    .login-form {
+
+        padding:
+            23px 18px 28px;
+
+    }
+
+
+    .login-inner h2 {
+
+        font-size:
+            27px;
+
+    }
+
+
+    .login-description {
+
+        font-size:
+            12px;
+
+        margin-bottom:
+            20px;
+
+    }
+
+
+    .login-input {
+
+        height:
+            52px;
+
+    }
+
+
+    .login-button {
+
+        height:
+            53px;
+
+    }
+
+}
+
+
+@media(max-width:390px) {
+
+    .login-brand h1 {
+
+        font-size:
+            38px;
+
+    }
+
+
+    .login-art {
+
+        width:
+            230px;
+
+    }
+
+
+    .login-form {
+
+        padding:
+            20px 14px 24px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- LOGIN LOADING -->
+
+<div id="login-loading">
+
+    <div class="login-loading-card">
+
+        ${portalArt}
+
+        <h3>
+            PORTAL 2A
+        </h3>
+
+        <div class="login-loading-pill">
+            Memuat...
+        </div>
+
+        <div class="login-loading-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="login-wrapper">
+
+    <div class="login-card">
+
+
+        <!-- LEFT -->
+
+        <section class="login-visual">
+
+            <div class="login-brand">
+
+                <h1>
+                    PORTAL
+                    <br>
+                    <span>2A</span>
+                </h1>
+
+                <div class="login-tag">
+                    Portal Walimurid Kelas 2A
+                </div>
+
+            </div>
+
+
+            ${portalArt}
+
+        </section>
+
+
+        <!-- RIGHT -->
+
+        <section class="login-form">
+
+            <div class="login-inner">
+
+                <h2>
+                    Assalamualaikum 👋
+                </h2>
+
+
+                <p class="login-description">
+                    Assalamualaikum, selamat datang Ayah Bunda.<br>
+                    Mohon masukkan Username dan Password
+                </p>
+
+
+                <form
+                    action="/login"
+                    method="POST"
+                    onsubmit="
+                        document.getElementById(
+                            'login-loading'
+                        ).style.display='flex';
+                    "
+                >
+
+
+                    <div class="login-field">
+
+                        <label class="login-label">
+                            Username
+                        </label>
+
+                        <input
+                            type="text"
+                            name="first_name"
+                            required
+                            class="login-input"
+                            placeholder="Nama Siswa"
+                        >
+
+                    </div>
+
+
+                    <div class="login-field">
+
+                        <label class="login-label">
+                            Password
+                        </label>
+
+                        <input
+                            type="password"
+                            name="password"
+                            required
+                            class="login-input"
+                            placeholder="Password Akun"
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="login-button"
+                    >
+                        Masuk →
+                    </button>
+
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
+
+    `);
+
 });
 
-app.get('/announcements', checkAuth, async (req, res) => {
+
+// =========================================================
+// LOGIN POST — ORIGINAL FUNCTION
+// =========================================================
+
+app.post('/login', async (req, res) => {
+
+    const {
+        first_name,
+        password
+    } = req.body;
+
+
     try {
-        const db = await fetchDb();
-        const search = (req.query.search || '').toLowerCase();
-        const filter = req.query.filter || 'all';
-        const page = parseInt(req.query.page) || 1;
-        const limit = 5;
 
-        let data = (db.announcements || []).sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        if (search) {
-            data = data.filter(a => 
-                String(a.title).toLowerCase().includes(search) || 
-                String(a.content).toLowerCase().includes(search)
+        const user =
+            await verifyLogin(
+                first_name,
+                password
             );
-        }
-        
-        if (filter === 'weekly') {
-            const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-            data = data.filter(a => new Date(a.date) >= weekAgo);
-        }
 
-        const totalPages = Math.ceil(data.length / limit) || 1;
-        const paginated = data.slice((page - 1) * limit, page * limit);
 
-        let cards = '';
-        paginated.forEach(a => {
-            let imageHtml = '';
-            let actionButtonsHtml = '';
-            const rawUrl = (a.lampiran || a.image || a.file || '').trim();
-            
-            if (rawUrl !== '') {
-                let fileId = '';
-                if (rawUrl.includes('/file/d/')) {
-                    const parts = rawUrl.split('/file/d/');
-                    if (parts[1]) fileId = parts[1].split('/')[0];
-                } else if (rawUrl.includes('id=')) {
-                    const urlParams = new URLSearchParams(rawUrl.split('?')[1]);
-                    fileId = urlParams.get('id');
-                }
+        if (
+            user &&
+            user.id
+        ) {
 
-                if (fileId) {
-                    const embedUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
-                    const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-                    imageHtml = `<div class="mt-4"><img src="${embedUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-2xl max-h-80 w-auto object-cover border border-white/70" onerror="this.parentElement.style.display='none'"></div>`;
-                    actionButtonsHtml = `
-                    <div class="mt-3 flex flex-wrap gap-2">
-                        <a href="${downloadUrl}" target="_blank" class="inline-flex items-center space-x-2 bg-deepgreen hover:bg-tangerine text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
-                    </div>`;
-                } else {
-                    imageHtml = `<div class="mt-4"><img src="${rawUrl}" alt="Lampiran Pengumuman" loading="lazy" class="rounded-2xl max-h-80 w-auto object-cover border border-white/70" onerror="this.parentElement.style.display='none'"></div>`;
-                    actionButtonsHtml = `
-                    <div class="mt-3 flex flex-wrap gap-2">
-                        <a href="${rawUrl}" download target="_blank" class="inline-flex items-center space-x-2 bg-deepgreen hover:bg-tangerine text-white px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-sm transition"><span>📥</span><span>Download Lampiran</span></a>
-                    </div>`;
-                }
+            const sessionId =
+                Math.random()
+                    .toString(36)
+                    .substring(2);
+
+
+            const isAdmin =
+                String(
+                    user.first_name || ''
+                )
+                .trim()
+                .toLowerCase() ===
+                'admin';
+
+
+            sessions[sessionId] = {
+                ...user,
+                isAdmin
+            };
+
+
+            res.setHeader(
+                'Set-Cookie',
+                `sessionId=${sessionId}; Path=/`
+            );
+
+
+            if (isAdmin) {
+
+                res.redirect(
+                    '/admin/manage'
+                );
+
+            } else {
+
+                res.redirect(
+                    '/dashboard'
+                );
+
             }
 
-            const contentText = String(a.content || '').replace(/\\n/g, '\n');
-            const formattedDate = formatDateID(a.date);
+        } else {
 
-            cards += `
-            <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70 mb-5">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
-                    <h3 class="font-bold text-lg text-earthtext">${a.title}</h3>
-                    <span class="text-[10px] font-bold bg-white/70 backdrop-blur-sm text-earthtext/80 px-2.5 py-0.5 rounded-full border border-white/75 flex items-center space-x-1 shadow-sm whitespace-nowrap">
-                        <span>🗓️</span><span>${formattedDate}</span>
+            res.send(`
+                <script>
+                    alert(
+                        'Username atau Password salah!'
+                    );
+
+                    window.location.href =
+                        '/login';
+                </script>
+            `);
+
+        }
+
+    } catch (err) {
+
+        res.status(500).send(
+            "Error connecting to database"
+        );
+
+    }
+
+});
+
+
+// =========================================================
+// LOGOUT — ORIGINAL
+// =========================================================
+
+app.get('/logout', (req, res) => {
+
+    res.setHeader(
+        'Set-Cookie',
+        'sessionId=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    );
+
+    res.redirect('/login');
+
+});
+
+
+// =========================================================
+// DASHBOARD
+// =========================================================
+
+app.get(
+    '/dashboard',
+    checkAuth,
+    (req, res) => {
+
+        const content = `
+
+        <div
+            class="
+                portal-card
+                p-5
+                sm:p-7
+                mb-5
+                overflow-hidden
+            "
+            style="
+                background:
+                linear-gradient(
+                    135deg,
+                    #EAF7EE 0%,
+                    #FFFDF4 62%,
+                    #FFF0D9 100%
+                );
+            "
+        >
+
+            <div
+                class="
+                    grid
+                    md:grid-cols-[1fr_280px]
+                    gap-4
+                    items-center
+                "
+            >
+
+                <div>
+
+                    <span
+                        class="
+                            inline-flex
+                            items-center
+                            px-3
+                            py-1.5
+                            rounded-full
+                            bg-white
+                            text-[10px]
+                            uppercase
+                            tracking-widest
+                            font-extrabold
+                            text-deepgreen
+                        "
+                    >
+                        Dashboard Wali Murid
                     </span>
+
+
+                    <h2
+                        class="
+                            text-2xl
+                            sm:text-3xl
+                            font-display
+                            font-extrabold
+                            mt-3
+                            text-deepgreen
+                        "
+                    >
+                        Assalamualaikum,
+                        Ayah & Bunda
+                        ${String(req.user.first_name)}
+                    </h2>
+
+
+                    <p
+                        class="
+                            text-sm
+                            sm:text-base
+                            mt-1
+                            text-earthtext/70
+                            font-semibold
+                        "
+                    >
+                        Semoga hari ini menjadi hari
+                        yang penuh berkah 🌿
+                    </p>
+
                 </div>
-                <p class="text-earthtext/85 text-sm leading-relaxed whitespace-pre-wrap break-words font-medium">${contentText}</p>
-                ${imageHtml}
-                ${actionButtonsHtml}
-            </div>`;
-        });
 
-        let pageOptions = '';
-        for (let i = 1; i <= totalPages; i++) {
-            pageOptions += `<option value="?page=${i}&search=${encodeURIComponent(search)}&filter=${filter}" ${i === page ? 'selected' : ''}>Halaman ${i}</option>`;
-        }
 
-        const content = `
-        <div class="mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-earthtext">Pengumuman Sekolah</h2>
-            <p class="text-xs sm:text-sm text-earthtext/80">Informasi dan pengumuman resmi dari pihak sekolah untuk walimurid kelas 2A.</p>
-        </div>
-        <div class="bg-white/50 backdrop-blur-md p-4 rounded-[2rem] shadow-md border border-white/70 mb-6">
-            <form method="GET" class="flex flex-wrap gap-3 items-center">
-                <input type="text" name="search" value="${search}" placeholder="Cari judul/isi pengumuman..." class="border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine flex-grow text-earthtext shadow-sm">
-                <select name="filter" class="border border-white/70 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white/70 backdrop-blur-md outline-none focus:ring-2 focus:ring-tangerine text-earthtext shadow-sm">
-                    <option value="all" ${filter === 'all' ? 'selected' : ''}>Semua Waktu</option>
-                    <option value="weekly" ${filter === 'weekly' ? 'selected' : ''}>Minggu Ini</option>
-                </select>
-                <button type="submit" class="bg-deepgreen text-white px-5 py-2.5 rounded-2xl text-sm font-bold hover:bg-sagegreen transition shadow-sm">Cari</button>
-            </form>
-        </div>
-        <div class="space-y-4">${cards || '<div class="bg-white/50 backdrop-blur-md p-8 rounded-[2rem] text-center text-earthtext/60 border border-white/70 font-bold">Tidak ada pengumuman yang ditemukan.</div>'}</div>
-        
-        <div class="mt-6 flex justify-center items-center gap-3">
-            ${page > 1 ? `<a href="?page=${page-1}&search=${encodeURIComponent(search)}&filter=${filter}" class="px-4 py-2 bg-white/60 border border-white/75 rounded-2xl text-sm font-bold text-deepgreen hover:bg-white/90 backdrop-blur-sm shadow-sm">Prev</a>` : ''}
-            <select onchange="window.location.href=this.value" class="px-4 py-2 bg-white/80 border border-white/75 rounded-2xl text-sm font-bold text-deepgreen outline-none shadow-sm cursor-pointer">
-                ${pageOptions}
-            </select>
-            ${page < totalPages ? `<a href="?page=${page+1}&search=${encodeURIComponent(search)}&filter=${filter}" class="px-4 py-2 bg-white/60 border border-white/75 rounded-2xl text-sm font-bold text-deepgreen hover:bg-white/90 backdrop-blur-sm shadow-sm">Next</a>` : ''}
-        </div>
+                <div
+                    class="
+                        hidden
+                        md:block
+                    "
+                >
+                    ${portalArt}
+                </div>
 
-        <div class="mt-6"><a href="/dashboard" class="inline-flex items-center text-deepgreen hover:text-tangerine text-sm font-bold">&larr; Kembali ke Beranda</a></div>`;
-        res.send(layout('Pengumuman', content));
-    } catch (e) { res.status(500).send("Error"); }
-});
-
-app.get('/change-password', checkAuth, (req, res) => {
-    const context = `
-    <div class="max-w-md mx-auto bg-white/50 backdrop-blur-md p-8 rounded-[2rem] shadow-sm border border-white/70">
-        <h2 class="text-xl font-bold text-earthtext mb-6">Ganti Password</h2>
-        <form action="/change-password" method="POST" class="space-y-4">
-            <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/80 mb-1">Password Lama</label>
-                <input type="password" name="oldPassword" required class="w-full px-4 py-2.5 border border-white/70 rounded-2xl outline-none focus:ring-2 focus:ring-tangerine bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
             </div>
-            <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-earthtext/80 mb-1">Password Baru</label>
-                <input type="password" name="newPassword" required class="w-full px-4 py-2.5 border border-white/70 rounded-2xl outline-none focus:ring-2 focus:ring-tangerine bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-            </div>
-            <button type="submit" class="w-full bg-deepgreen text-white py-3 rounded-2xl font-bold hover:bg-sagegreen transition shadow-md">Simpan Password Baru</button>
-        </form>
-        <div class="mt-6"><a href="/dashboard" class="text-deepgreen font-bold hover:text-tangerine">&larr; Kembali ke Beranda</a></div>
-    </div>`;
-    res.send(layout('Ganti Password', context));
-});
 
-app.post('/change-password', checkAuth, async (req, res) => {
-    const { oldPassword, newPassword } = req.body;
-    if (String(req.user.password).trim() !== String(oldPassword).trim()) {
-        return res.send(`<script>alert('Password lama salah!'); window.location.href='/change-password';</script>`);
+        </div>
+
+
+        <div
+            class="
+                grid
+                grid-cols-1
+                sm:grid-cols-2
+                lg:grid-cols-3
+                gap-4
+            "
+        >
+
+
+            <!-- CALENDAR -->
+
+            <a
+                href="/calendar"
+                class="
+                    portal-card
+                    p-5
+                    flex
+                    items-center
+                    gap-4
+                    group
+                "
+            >
+
+                <div class="portal-icon">
+                    📅
+                </div>
+
+                <div class="min-w-0">
+
+                    <h3
+                        class="
+                            font-display
+                            font-extrabold
+                            text-lg
+                        "
+                    >
+                        Kalendar Akademik
+                    </h3>
+
+                    <p
+                        class="
+                            text-xs
+                            sm:text-sm
+                            text-earthtext/70
+                            font-semibold
+                        "
+                    >
+                        Agenda kelas & jadwal pribadi siswa.
+                    </p>
+
+                </div>
+
+                <span
+                    class="
+                        ml-auto
+                        text-xl
+                        text-deepgreen
+                    "
+                >
+                    ›
+                </span>
+
+            </a>
+
+
+            <!-- KAS -->
+
+            <a
+                href="/kas"
+                class="
+                    portal-card
+                    p-5
+                    flex
+                    items-center
+                    gap-4
+                    group
+                "
+            >
+
+                <div class="portal-icon">
+                    💰
+                </div>
+
+                <div class="min-w-0">
+
+                    <h3
+                        class="
+                            font-display
+                            font-extrabold
+                            text-lg
+                        "
+                    >
+                        Iuran Kas Siswa
+                    </h3>
+
+                    <p
+                        class="
+                            text-xs
+                            sm:text-sm
+                            text-earthtext/70
+                            font-semibold
+                        "
+                    >
+                        Pembayaran kas pribadi setiap siswa.
+                    </p>
+
+                </div>
+
+                <span
+                    class="
+                        ml-auto
+                        text-xl
+                        text-deepgreen
+                    "
+                >
+                    ›
+                </span>
+
+            </a>
+
+
+            <!-- FINANCE -->
+
+            <a
+                href="/finances"
+                class="
+                    portal-card
+                    p-5
+                    flex
+                    items-center
+                    gap-4
+                    group
+                "
+            >
+
+                <div class="portal-icon">
+                    📊
+                </div>
+
+                <div class="min-w-0">
+
+                    <h3
+                        class="
+                            font-display
+                            font-extrabold
+                            text-lg
+                        "
+                    >
+                        Laporan Keuangan
+                    </h3>
+
+                    <p
+                        class="
+                            text-xs
+                            sm:text-sm
+                            text-earthtext/70
+                            font-semibold
+                        "
+                    >
+                        Rincian income & expense kelas 2A.
+                    </p>
+
+                </div>
+
+                <span
+                    class="
+                        ml-auto
+                        text-xl
+                        text-deepgreen
+                    "
+                >
+                    ›
+                </span>
+
+            </a>
+
+
+            <!-- ANNOUNCEMENTS -->
+
+            <a
+                href="/announcements"
+                class="
+                    portal-card
+                    p-5
+                    flex
+                    items-center
+                    gap-4
+                    group
+                "
+            >
+
+                <div class="portal-icon">
+                    📢
+                </div>
+
+                <div class="min-w-0">
+
+                    <h3
+                        class="
+                            font-display
+                            font-extrabold
+                            text-lg
+                        "
+                    >
+                        Pengumuman
+                    </h3>
+
+                    <p
+                        class="
+                            text-xs
+                            sm:text-sm
+                            text-earthtext/70
+                            font-semibold
+                        "
+                    >
+                        Informasi resmi dari sekolah.
+                    </p>
+
+                </div>
+
+                <span
+                    class="
+                        ml-auto
+                        text-xl
+                        text-deepgreen
+                    "
+                >
+                    ›
+                </span>
+
+            </a>
+
+
+            <!-- SUMMATIVE -->
+
+            <a
+                href="/summative"
+                class="
+                    portal-card
+                    p-5
+                    flex
+                    items-center
+                    gap-4
+                    group
+                "
+            >
+
+                <div class="portal-icon">
+                    📚
+                </div>
+
+                <div class="min-w-0">
+
+                    <h3
+                        class="
+                            font-display
+                            font-extrabold
+                            text-lg
+                        "
+                    >
+                        Materi Sumatif
+                    </h3>
+
+                    <p
+                        class="
+                            text-xs
+                            sm:text-sm
+                            text-earthtext/70
+                            font-semibold
+                        "
+                    >
+                        Kisi-kisi dan materi bulanan lengkap.
+                    </p>
+
+                </div>
+
+                <span
+                    class="
+                        ml-auto
+                        text-xl
+                        text-deepgreen
+                    "
+                >
+                    ›
+                </span>
+
+            </a>
+
+
+            <!-- PASSWORD -->
+
+            <a
+                href="/change-password"
+                class="
+                    portal-card
+                    p-5
+                    flex
+                    items-center
+                    gap-4
+                    group
+                "
+            >
+
+                <div class="portal-icon">
+                    🔐
+                </div>
+
+                <div class="min-w-0">
+
+                    <h3
+                        class="
+                            font-display
+                            font-extrabold
+                            text-lg
+                        "
+                    >
+                        Ganti Password
+                    </h3>
+
+                    <p
+                        class="
+                            text-xs
+                            sm:text-sm
+                            text-earthtext/70
+                            font-semibold
+                        "
+                    >
+                        Ubah kata sandi akun Anda.
+                    </p>
+
+                </div>
+
+                <span
+                    class="
+                        ml-auto
+                        text-xl
+                        text-deepgreen
+                    "
+                >
+                    ›
+                </span>
+
+            </a>
+
+
+        </div>
+
+        `;
+
+        res.send(
+            layout(
+                'Dashboard',
+                content
+            )
+        );
+
     }
-    try {
-        const params = new URLSearchParams({
-            action: 'updatePassword',
-            user_id: req.user.id,
-            newPassword: newPassword
-        });
-        await fetch(`${SCRIPT_URL}?${params.toString()}`);
-        cacheData = null; 
-        res.send(`<script>alert('Password berhasil diubah, silakan login kembali.'); window.location.href='/logout';</script>`);
-    } catch (e) { res.status(500).send("Error updating password"); }
-});
-
-// --- DASHBOARD UTAMA ADMIN TERPUSAT (/admin/manage) ---
-app.get('/admin/manage', checkAuth, async (req, res) => {
-    if (!req.user.isAdmin && String(req.user.first_name || '').trim().toLowerCase() !== 'admin') {
-        return res.send('<script>alert("Hanya Admin yang dapat mengakses halaman ini!"); window.location.href="/dashboard";</script>');
-    }
-
-    try {
-        cacheData = null; 
-        const db = await fetchDb();
-        const dbJson = JSON.stringify(db, null, 2);
-
-        const targetUserId = req.query.student_id || (db.users[0] ? db.users[0].id : '');
-        const userKas = db.kas.filter(k => String(k.user_id) === String(targetUserId));
-
-        const sem1Months = ["Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        const sem2Months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni"];
-        const allMonths = ["Kaos", ...sem1Months, ...sem2Months];
-
-        let checkboxesHtml = '';
-        allMonths.forEach(m => {
-            const found = userKas.find(k => String(k.month || '').trim().toLowerCase() === m.toLowerCase());
-            const isPaid = String(found?.status || '').trim().toLowerCase() === 'lunas';
-            
-            let defaultAmt = (m.toLowerCase() === 'kaos') ? 68000 : 25000;
-            let amt = (found && found.amount !== undefined && found.amount !== "") ? Number(found.amount) : defaultAmt;
-            if (isNaN(amt)) amt = defaultAmt;
-
-            const labelName = m === 'Kaos' ? `Iuran Kaos (Rp ${amt.toLocaleString()})` : `${m} (Rp ${amt.toLocaleString()})`;
-            
-            checkboxesHtml += `
-            <label class="flex items-center space-x-3 p-3 bg-white/60 backdrop-blur-sm border border-white/75 rounded-2xl cursor-pointer hover:bg-white/90 transition shadow-sm">
-                <input type="checkbox" name="months" value="${m}" ${isPaid ? 'checked' : ''} class="w-4 h-4 accent-[#215F47]">
-                <span class="text-sm font-bold text-earthtext">${labelName}</span>
-            </label>`;
-        });
-
-        let studentOptions = db.users.map(u => `<option value="${u.id}" ${String(u.id) === String(targetUserId) ? 'selected' : ''}>${u.first_name}</option>`).join('');
-
-        const content = `
-        <div class="max-w-6xl mx-auto space-y-8 pb-12">
-            <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-deepgreen">PORTAL 2A</h2>
-                    <p class="text-xs sm:text-sm text-earthtext/80">Kelola data kas, transaksi keuangan, agenda kalender, materi sumatif, dan backup database.</p>
-                </div>
-                <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-2xl text-sm font-bold transition shadow-sm whitespace-nowrap">Logout</a>
-            </div>
-
-            <!-- 1. BULK UPDATE STATUS KAS & KAOS -->
-            <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70">
-                <h3 class="font-bold text-lg text-earthtext mb-2">💵 Kelola Status Pembayaran Kas & Kaos Siswa (Bulk Update)</h3>
-                <p class="text-xs text-earthtext/70 mb-4">Pilih siswa, lalu centang bulan/item yang sudah lunas dan klik Simpan.</p>
-                
-                <form action="/admin/update-kas-bulk" method="POST" class="space-y-4">
-                    <input type="hidden" name="user_id" value="${targetUserId}">
-                    <div>
-                        <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Pilih Nama Siswa:</label>
-                        <select onchange="window.location.href='/admin/manage?student_id=' + this.value" class="border border-white/70 p-3 rounded-2xl w-full sm:w-72 bg-white/70 backdrop-blur-md font-bold text-sm outline-none focus:ring-2 focus:ring-tangerine text-earthtext shadow-sm">${studentOptions}</select>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                        ${checkboxesHtml}
-                    </div>
-
-                    <div>
-                        <button type="submit" class="bg-deepgreen hover:bg-sagegreen text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-md transition">💾 Simpan Perubahan Kas (Bulk)</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- 2. TAMBAH TRANSAKSI -->
-            <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70">
-                <h3 class="font-bold text-lg text-earthtext mb-4">📊 Tambah Transaksi Keuangan (Pemasukan / Pengeluaran)</h3>
-                <form action="/admin/add-transaction" method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-                    <div>
-                        <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Tanggal</label>
-                        <input type="date" name="date" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Tipe</label>
-                        <select name="type" class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-                            <option value="income">Pemasukan</option>
-                            <option value="expense">Pengeluaran</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Keterangan</label>
-                        <input type="text" name="desc" placeholder="Contoh: Beli alat kelas" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Jumlah (Rp)</label>
-                        <input type="number" name="amount" placeholder="50000" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-                    </div>
-                    <div class="w-full">
-                        <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-2.5 px-4 rounded-2xl font-bold text-sm h-[42px] shadow-sm">Simpan Transaksi</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- 3. TAMBAH MATERI SUMATIF -->
-            <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70">
-                <h3 class="font-bold text-lg text-earthtext mb-3">📚 Unggah Materi Sumatif</h3>
-                <form action="/admin/add-summative" method="POST" class="space-y-3">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Pilih Bulan / Ujian</label>
-                            <select name="month" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-                                <option value="Juni 2026">Juni 2026</option>
-                                <option value="Juli 2026">Juli 2026</option>
-                                <option value="Agustus 2026">Agustus 2026</option>
-                                <option value="September 2026">September 2026</option>
-                                <option value="Oktober 2026">Oktober 2026</option>
-                                <option value="November 2026">November 2026</option>
-                                <option value="Ujian Semester">Ujian Semester (Desember)</option>
-                                <option value="Januari 2027">Januari 2027</option>
-                                <option value="Februari 2027">Februari 2027</option>
-                                <option value="Maret 2027">Maret 2027</option>
-                                <option value="April 2027">April 2027</option>
-                                <option value="Mei 2027">Mei 2027</option>
-                                <option value="Juni 2027">Juni 2027</option>
-                                <option value="Ujian Kenaikan Kelas">Ujian Kenaikan Kelas (Juli 2027)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Mata Pelajaran</label>
-                            <select name="subject" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-                                <option value="Matematika">Matematika</option>
-                                <option value="Bahasa Inggris">Bahasa Inggris</option>
-                                <option value="Seni">Seni</option>
-                                <option value="Bahasa Jawa">Bahasa Jawa</option>
-                                <option value="Bahasa Indonesia">Bahasa Indonesia</option>
-                                <option value="Pancasila">Pancasila</option>
-                                <option value="PAI">PAI</option>
-                                <option value="Bahasa Arab">Bahasa Arab</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Judul Materi / Bab</label>
-                        <input type="text" name="title" placeholder="Contoh: Bab 1 Penjumlahan & Pengurangan" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Link Google Drive File</label>
-                        <input type="url" name="link" placeholder="https://drive.google.com/file/d/..." required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-                    </div>
-                    <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-3 rounded-2xl font-bold text-sm shadow-sm transition">Simpan Materi Sumatif</button>
-                </form>
-            </div>
-
-            <!-- 4. TAMBAH KALENDER & PENGUMUMAN -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70">
-                    <h3 class="font-bold text-lg text-earthtext mb-3">📅 Tambah Agenda Kalender Kelas</h3>
-                    <form action="/admin/add-event" method="POST" class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Tanggal</label>
-                            <input type="date" name="date" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Judul Agenda</label>
-                            <input type="text" name="title" placeholder="Contoh: Ujian Tengah Semester" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Keterangan</label>
-                            <input type="text" name="description" placeholder="Keterangan singkat kegiatan" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-                        </div>
-                        <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-2.5 rounded-2xl font-bold text-sm shadow-sm">Simpan Kalender</button>
-                    </form>
-                </div>
-
-                <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70">
-                    <h3 class="font-bold text-lg text-earthtext mb-3">📢 Buat Pengumuman Sekolah</h3>
-                    <form action="/admin/add-announcement" method="POST" class="space-y-3">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <input type="date" name="date" required class="border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-                            <input type="text" name="title" placeholder="Judul Pengumuman" required class="border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-                        </div>
-                        <textarea name="content" rows="2" placeholder="Isi pengumuman..." required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md resize-none text-earthtext font-bold shadow-sm"></textarea>
-                        <input type="url" name="lampiran" placeholder="Link Google Drive (Opsional)" class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
-                        <button type="submit" class="w-full bg-deepgreen hover:bg-sagegreen text-white py-2.5 rounded-2xl font-bold text-sm shadow-sm">Publikasikan</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- 5. BACKUP DATABASE (JSON) -->
-            <div class="bg-gradient-to-r from-blue-50/60 to-indigo-50/60 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-blue-200 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div>
-                    <h3 class="font-bold text-lg text-blue-900">💾 Cadangan Database (Backup)</h3>
-                    <p class="text-xs text-blue-800 font-medium">Unduh file database (.json) saat ini ke komputer sebagai cadangan.</p>
-                </div>
-                <a id="downloadBtn" href="#" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl font-bold text-sm shadow-sm transition whitespace-nowrap">Download JSON</a>
-            </div>
-        </div>
-
-        <script>
-            const data = ${dbJson};
-            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            document.getElementById('downloadBtn').href = url;
-            document.getElementById('downloadBtn').download = 'backup_portal_kelas_' + new Date().toISOString().split('T')[0] + '.json';
-        </script>`;
-        
-        res.send(layout('Panel Utama Admin', content));
-    } catch (e) {
-        console.error("Admin Manage Error:", e);
-        res.status(500).send("Error loading admin page");
-    }
-});
-
-app.post('/admin/update-kas-bulk', checkAuth, async (req, res) => {
-    if (!req.user.isAdmin && String(req.user.first_name || '').trim().toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
-    try {
-        let monthsInput = req.body.months || [];
-        if (!Array.isArray(monthsInput)) {
-            monthsInput = [monthsInput];
-        }
-
-        const params = new URLSearchParams({
-            action: 'updateKasBulk',
-            user_id: req.body.user_id,
-            months: monthsInput.join(',')
-        });
-        
-        await fetch(`${SCRIPT_URL}?${params.toString()}`);
-        cacheData = null; 
-        res.redirect(`/admin/manage?student_id=${req.body.user_id}`);
-    } catch (e) { res.status(500).send("Gagal mengupdate kas"); }
-});
-
-app.post('/admin/add-transaction', checkAuth, async (req, res) => {
-    if (!req.user.isAdmin && String(req.user.first_name || '').trim().toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
-    try {
-        const params = new URLSearchParams({ action: 'addTransaction', ...req.body });
-        await fetch(`${SCRIPT_URL}?${params.toString()}`);
-        cacheData = null;
-        res.redirect('/admin/manage');
-    } catch (e) { res.status(500).send("Gagal menambah transaksi"); }
-});
-
-app.post('/admin/add-event', checkAuth, async (req, res) => {
-    if (!req.user.isAdmin && String(req.user.first_name || '').trim().toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
-    try {
-        const params = new URLSearchParams({ action: 'addEvent', ...req.body });
-        await fetch(`${SCRIPT_URL}?${params.toString()}`);
-        cacheData = null;
-        res.redirect('/admin/manage');
-    } catch (e) { res.status(500).send("Gagal menyimpan agenda"); }
-});
-
-app.post('/admin/add-announcement', checkAuth, async (req, res) => {
-    if (!req.user.isAdmin && String(req.user.first_name || '').trim().toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
-    try {
-        const params = new URLSearchParams({ action: 'addAnnouncement', ...req.body });
-        await fetch(`${SCRIPT_URL}?${params.toString()}`);
-        cacheData = null;
-        res.redirect('/admin/manage');
-    } catch (e) { res.status(500).send("Gagal mempublikasikan pengumuman"); }
-});
-
-app.post('/admin/add-summative', checkAuth, async (req, res) => {
-    if (!req.user.isAdmin && String(req.user.first_name || '').trim().toLowerCase() !== 'admin') return res.status(403).send("Unauthorized");
-    try {
-        const params = new URLSearchParams({ action: 'addSummative', ...req.body });
-        await fetch(`${SCRIPT_URL}?${params.toString()}`);
-        cacheData = null;
-        res.redirect('/admin/manage');
-    } catch (e) { res.status(500).send("Gagal menambah materi sumatif"); }
-});
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+);
