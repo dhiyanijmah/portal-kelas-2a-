@@ -1,8 +1,7 @@
 const express = require('express');
 const app = express();
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`PORTAL 2A running on port ${PORT}`);
-});
+
+const PORT = process.env.PORT || 3000;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -3045,93 +3044,38 @@ body {
 // LOGIN POST — ORIGINAL FUNCTION
 // =========================================================
 
-app.post('/login', async (req, res) => {
-
-    const {
-        first_name,
-        password
-    } = req.body;
-
-
-    try {
-
-        const user =
-            await verifyLogin(
-                first_name,
-                password
-            );
-
-
-        if (
-            user &&
-            user.id
-        ) {
-
-            const sessionId =
-                Math.random()
-                    .toString(36)
-                    .substring(2);
-
-
-            const isAdmin =
-                String(
-                    user.first_name || ''
-                )
-                .trim()
-                .toLowerCase() ===
-                'admin';
-
-
-            sessions[sessionId] = {
-                ...user,
-                isAdmin
-            };
-
-
-            res.setHeader(
-                'Set-Cookie',
-                `sessionId=${sessionId}; Path=/`
-            );
-
-
-            if (isAdmin) {
-
-                res.redirect(
-                    '/admin/manage'
-                );
-
-            } else {
-
-                res.redirect(
-                    '/dashboard'
-                );
-
-            }
-
-        } else {
-
-            res.send(`
-                <script>
-                    alert(
-                        'Username atau Password salah!'
-                    );
-
-                    window.location.href =
-                        '/login';
-                </script>
-            `);
-
-        }
-
-    } catch (err) {
-
-        res.status(500).send(
-            "Error connecting to database"
-        );
-
+app.post('/admin/add-summative', checkAuth, async (req, res) => {
+    if (
+        !req.user.isAdmin &&
+        String(req.user.first_name || '').trim().toLowerCase() !== 'admin'
+    ) {
+        return res.status(403).send("Unauthorized");
     }
 
+    try {
+        const params = new URLSearchParams({
+            action: 'addSummative',
+            ...req.body
+        });
+
+        await fetch(`${SCRIPT_URL}?${params.toString()}`);
+
+        cacheData = null;
+
+        res.redirect('/admin/manage');
+
+    } catch (e) {
+        res.status(500).send(
+            "Gagal menambah materi sumatif"
+        );
+    }
 });
+
+app.listen(
+    PORT,
+    '0.0.0.0',
+    () => console.log(`PORTAL 2A running on port ${PORT}`)
+);
 
 
 // =========================================================
