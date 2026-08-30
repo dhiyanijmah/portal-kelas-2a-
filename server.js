@@ -1,9 +1,11 @@
 const express = require('express');
+const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use('/assets', express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
     res.redirect('/login');
@@ -117,7 +119,7 @@ const layout = (title, content) => `
     <title>${title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -125,7 +127,7 @@ const layout = (title, content) => `
                 extend: {
                     fontFamily: {
                         sans: ['Quicksand', 'sans-serif'],
-                        display: ['Quicksand', 'sans-serif'],
+                        display: ['Quicksand', 'Quicksand', 'sans-serif'],
                     },
                     colors: {
                         deepgreen: '#4B8F70',
@@ -205,7 +207,7 @@ const layout = (title, content) => `
             box-shadow: -38px -32px 0 #F8E4D5;
         }
 
-        .portal-font-display { font-family: 'Quicksand', sans-serif; }
+        .portal-font-display { font-family: 'Quicksand', 'Quicksand', sans-serif; }
 
         .portal-nav {
             position: sticky;
@@ -234,9 +236,9 @@ const layout = (title, content) => `
             gap: 12px;
             color: var(--portal-green-dark) !important;
             text-decoration: none;
-            font-family: 'Quicksand', sans-serif;
+            font-family: 'Quicksand', 'Quicksand', sans-serif;
             font-size: 1.12rem;
-            font-weight: 800;
+            font-weight: 700;
             letter-spacing: .02em;
         }
 
@@ -349,6 +351,72 @@ const layout = (title, content) => `
         a, button { -webkit-tap-highlight-color: transparent; }
         button, a[class*="bg-deepgreen"] { transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease; }
         button:hover, a[class*="bg-deepgreen"]:hover { transform: translateY(-1px); }
+
+        /* =====================================================
+           REFERENCE-BASED VISUALS + RESPONSIVE SAFETY
+        ===================================================== */
+        .portal-shell::before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            bottom: -45px;
+            width: 240px;
+            height: 180px;
+            background-image: url('/assets/portal-reference.png');
+            background-size: 460% auto;
+            background-position: 6% 96%;
+            background-repeat: no-repeat;
+            opacity: .07;
+            pointer-events: none;
+            border-radius: 28px;
+            transform: rotate(-2deg);
+        }
+
+        .portal-shell img,
+        .portal-card img,
+        .portal-main img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .portal-main {
+            overflow-x: hidden;
+        }
+
+        .portal-panel,
+        .portal-shell,
+        .portal-card,
+        form,
+        section,
+        article {
+            min-width: 0;
+        }
+
+        .overflow-x-auto,
+        [style*="overflow-x: auto"] {
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+
+        table {
+            max-width: 100%;
+        }
+
+        @media (max-width: 640px) {
+            body { font-size: 14px; }
+            .portal-nav-inner { gap: 8px; }
+            .portal-main { padding: 10px 0 24px; }
+            .portal-shell { padding: 13px; border-radius: 24px; }
+            .portal-footer { font-size: 11px; padding-top: 18px; margin-top: 18px; }
+            .portal-brand-badge { width: 36px; height: 36px; }
+            .portal-logout { min-width: 72px; padding: 8px 12px !important; }
+            input, select, textarea { max-width: 100%; }
+            button { max-width: 100%; }
+            .grid { min-width: 0; }
+            .flex { min-width: 0; }
+        }
 
         .portal-icon-badge {
             width: 54px;
@@ -487,7 +555,7 @@ const layout = (title, content) => `
             border: 3px solid #27483A;
             border-radius: 20px;
             padding: 7px 10px;
-            font-weight: 800;
+            font-weight: 700;
             font-size: 12px;
             z-index: 8;
         }
@@ -514,7 +582,7 @@ const layout = (title, content) => `
             background: linear-gradient(90deg, #FFD55C, #FFB842);
             color: #B76822;
             font-family: 'Quicksand', sans-serif;
-            font-weight: 800;
+            font-weight: 700;
             letter-spacing: .04em;
             animation: portalLoadPulse 1.6s ease-in-out infinite;
         }
@@ -534,447 +602,22 @@ const layout = (title, content) => `
             .portal-brand { font-size: 1rem; }
             .portal-brand-badge { width: 38px; height: 38px; border-radius: 14px; }
         }
-    
-        /* =====================================================
-           PORTAL 2A — UI POLISH / RESPONSIVE LAYER
-        ===================================================== */
-
-        :root {
-            --portal-green: #4B8F70;
-            --portal-green-dark: #356C54;
-            --portal-orange: #F28B3C;
-            --portal-orange-dark: #D96D20;
-            --portal-yellow: #F8D66D;
-            --portal-cream: #FFF9EF;
-            --portal-mint: #E8F5EC;
-            --portal-blue: #E7F5FA;
-            --portal-peach: #FFF0E5;
-            --portal-text: #29463A;
-        }
-
-        body,
-        button,
-        input,
-        select,
-        textarea {
-            font-family: 'Quicksand', sans-serif !important;
-        }
-
-        h1, h2, h3, h4, h5, h6,
-        .font-display,
-        .portal-font-display {
-            font-family: 'Quicksand', sans-serif !important;
-            font-weight: 800;
-        }
-
-        /* Fresh green + orange visual language */
-        .portal-nav {
-            background: rgba(255, 253, 247, .94) !important;
-            border-bottom: 1px solid rgba(75,143,112,.12) !important;
-        }
-
-        .portal-brand {
-            color: var(--portal-green-dark) !important;
-            font-family: 'Quicksand', sans-serif !important;
-            font-weight: 800 !important;
-        }
-
-        .portal-brand-badge {
-            background: linear-gradient(145deg, #FFE47A, #FFBE50) !important;
-            box-shadow: 0 8px 18px rgba(242,139,60,.15) !important;
-        }
-
-        .portal-logout {
-            background: #FFF0EA !important;
-            color: #C65A4F !important;
-            border-color: #FFD9D1 !important;
-        }
-
-        /* Replace flat dashboard emoji blocks with a cute "toy / 3D" treatment */
-        .portal-card a,
-        a.portal-card {
-            position: relative;
-            overflow: hidden;
-        }
-
-        a.portal-card > div:first-child,
-        .portal-icon,
-        .portal-icon-badge {
-            border: 1px solid rgba(255,255,255,.86) !important;
-            box-shadow:
-                inset 0 2px 0 rgba(255,255,255,.95),
-                inset 0 -4px 10px rgba(75,143,112,.06),
-                0 8px 16px rgba(52,87,67,.10) !important;
-            transform: translateZ(0);
-        }
-
-        a.portal-card:hover > div:first-child {
-            transform: translateY(-2px) rotate(-1deg) scale(1.025) !important;
-        }
-
-        /* Green button + orange secondary language */
-        button[class*="bg-deepgreen"],
-        a[class*="bg-deepgreen"] {
-            background: linear-gradient(145deg, #60AD82, #4B8F70) !important;
-            box-shadow:
-                0 8px 16px rgba(75,143,112,.16),
-                inset 0 1px 0 rgba(255,255,255,.35) !important;
-        }
-
-        button[class*="bg-tangerine"],
-        a[class*="bg-tangerine"] {
-            background: linear-gradient(145deg, #FFAE61, #F28B3C) !important;
-        }
-
-        /* Cute pill / badges */
-        .portal-shell .rounded-full {
-            font-weight: 800 !important;
-        }
-
-        /* Tables: never break the mobile viewport */
-        .portal-shell table {
-            width: 100%;
-            min-width: 620px;
-        }
-
-        .portal-shell .overflow-x-auto {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: auto !important;
-            overscroll-behavior-x: contain;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* Long forms */
-        .portal-shell form {
-            min-width: 0;
-        }
-
-        .portal-shell input,
-        .portal-shell select,
-        .portal-shell textarea,
-        .portal-shell button {
-            max-width: 100%;
-        }
-
-        /* Decorative illustration containers */
-        .portal-illustration {
-            pointer-events: none;
-            user-select: none;
-        }
-
-        /* Loading: soft, animated, centered */
-        #loading-overlay {
-            background:
-                radial-gradient(circle at 12% 10%, rgba(255,226,133,.60), transparent 28%),
-                radial-gradient(circle at 88% 85%, rgba(185,226,203,.48), transparent 30%),
-                linear-gradient(160deg, #FFF9E8 0%, #EEF8F1 100%) !important;
-            backdrop-filter: blur(9px) !important;
-        }
-
-        .portal-loading-card {
-            position: relative;
-            width: min(360px, calc(100vw - 28px));
-            padding: 24px 20px 22px;
-            border-radius: 32px;
-            background: rgba(255,255,255,.96);
-            border: 1px solid rgba(255,255,255,.98);
-            box-shadow: 0 25px 60px rgba(46,84,65,.14);
-            overflow: hidden;
-            text-align: center;
-        }
-
-        .portal-loading-art {
-            width: min(250px, 86vw);
-            margin: 0 auto 6px;
-            display: block;
-            animation: portalArtFloat 3.4s ease-in-out infinite;
-        }
-
-        .portal-loading-bar {
-            position: relative;
-            height: 54px;
-            border-radius: 999px;
-            background: #EBEAF1;
-            padding: 5px;
-            overflow: hidden;
-        }
-
-        .portal-loading-bar-fill {
-            width: 64%;
-            min-width: 175px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 999px;
-            background: linear-gradient(90deg, #FFD85E, #FFA94A);
-            color: #A95F22;
-            font-family: 'Quicksand', sans-serif;
-            font-weight: 800;
-            animation: portalProgress 1.7s ease-in-out infinite;
-        }
-
-        .portal-loading-dots {
-            margin-top: 11px;
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .portal-loading-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            animation: portalDot 1.05s ease-in-out infinite;
-        }
-
-        .portal-loading-dot:nth-child(1) { background: #F28B3C; }
-        .portal-loading-dot:nth-child(2) { background: #7BB88F; animation-delay: .15s; }
-        .portal-loading-dot:nth-child(3) { background: #9ED5EA; animation-delay: .30s; }
-
-        @keyframes portalArtFloat {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        @keyframes portalProgress {
-            0%,100% { transform: translateX(0); }
-            50% { transform: translateX(7px); }
-        }
-
-        @keyframes portalDot {
-            0%,100% { transform: translateY(0); opacity: .45; }
-            50% { transform: translateY(-5px); opacity: 1; }
-        }
-
-        /* =====================================================
-           MOBILE — whole application
-        ===================================================== */
-
-        @media (max-width: 768px) {
-            body {
-                overflow-x: hidden;
-            }
-
-            .portal-main {
-                width: min(100% - 12px, 1100px) !important;
-                padding-top: 9px !important;
-                padding-bottom: 20px !important;
-            }
-
-            .portal-shell {
-                width: 100%;
-                min-height: auto !important;
-                padding: 14px !important;
-                border-radius: 24px !important;
-            }
-
-            .portal-nav-inner {
-                width: calc(100% - 14px) !important;
-                min-height: 64px !important;
-                padding: 10px 0 !important;
-            }
-
-            .portal-brand {
-                font-size: 17px !important;
-            }
-
-            .portal-brand-badge {
-                width: 38px !important;
-                height: 38px !important;
-                border-radius: 13px !important;
-            }
-
-            .portal-logout {
-                min-width: auto !important;
-                padding: 8px 13px !important;
-                font-size: 11px !important;
-            }
-
-            /* Existing Tailwind grids collapse where needed */
-            .portal-shell .grid.md\:grid-cols-2,
-            .portal-shell .grid.lg\:grid-cols-3 {
-                grid-template-columns: 1fr !important;
-            }
-
-            .portal-shell .grid.sm\:grid-cols-2 {
-                grid-template-columns: 1fr !important;
-            }
-
-            /* Flexible page headings */
-            .portal-shell h1,
-            .portal-shell h2,
-            .portal-shell h3 {
-                overflow-wrap: anywhere;
-            }
-
-            /* Mobile-friendly cards */
-            .portal-card {
-                border-radius: 20px !important;
-            }
-
-            a.portal-card {
-                padding: 16px !important;
-            }
-
-            /* Inputs/buttons need good touch targets */
-            .portal-shell input,
-            .portal-shell select {
-                min-height: 46px;
-            }
-
-            .portal-shell button {
-                min-height: 46px;
-            }
-
-            /* Hide decorative doodles where they would collide */
-            .portal-doodle {
-                opacity: .45 !important;
-                transform: scale(.72);
-                transform-origin: top right;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .portal-main {
-                width: calc(100% - 8px) !important;
-            }
-
-            .portal-shell {
-                padding: 10px !important;
-                border-radius: 21px !important;
-            }
-
-            .portal-brand span:last-child {
-                display: none;
-            }
-
-            .portal-loading-card {
-                width: min(340px, calc(100vw - 24px));
-                padding: 20px 15px 18px;
-            }
-        }
-
-
-        .portal-float-left {
-            animation: portalFloatLeft 3s ease-in-out infinite;
-            transform-origin: center;
-        }
-
-        .portal-float-right {
-            animation: portalFloatRight 3.3s ease-in-out .15s infinite;
-            transform-origin: center;
-        }
-
-        @keyframes portalFloatLeft {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        @keyframes portalFloatRight {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-7px); }
-        }
-
-
-        .portal-mini-illustration {
-            width: 58px;
-            height: 58px;
-            min-width: 58px;
-            border-radius: 19px;
-            display: grid;
-            place-items: center;
-            background: linear-gradient(145deg, #F4FBF5, #DDF1E7);
-            border: 1px solid rgba(255,255,255,.9);
-            box-shadow:
-                inset 0 2px 0 rgba(255,255,255,.95),
-                0 8px 16px rgba(52,87,67,.10);
-        }
-        .portal-mini-illustration.warm {
-            background: linear-gradient(145deg, #FFF9EA, #FFE8D6);
-        }
-        .portal-mini-illustration.blue {
-            background: linear-gradient(145deg, #F5FBFD, #E1F3F8);
-        }
-
-        @media (max-width: 480px) {
-            .portal-mini-illustration {
-                width: 52px;
-                min-width: 52px;
-                height: 52px;
-                border-radius: 16px;
-            }
-        }
-
-</style>
+    </style>
 </head>
 <body class="text-earthtext min-h-screen flex flex-col selection:bg-merigold selection:text-earthtext">
-    <div
-        id="loading-overlay"
-        class="fixed inset-0 flex flex-col items-center justify-center z-[9999]"
-        style="display:none;"
-    >
+    <div id="loading-overlay" class="fixed inset-0 flex flex-col items-center justify-center z-[9999]" style="display: none;">
         <div class="portal-loading-card">
-            <svg
-                class="portal-loading-art"
-                viewBox="0 0 300 235"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-            >
-                <!-- soft ground -->
-                <ellipse cx="150" cy="210" rx="105" ry="12" fill="#BFDCC7" opacity=".45"/>
-
-                <!-- little mosque in the background -->
-                <g opacity=".95">
-                    <rect x="78" y="112" width="145" height="80" rx="18" fill="#FFF9EF" stroke="#4B8F70" stroke-width="3"/>
-                    <path d="M98 117 C102 86 124 69 150 69 C176 69 198 86 202 117Z" fill="#8FC8A8"/>
-                    <path d="M140 70 C142 59 146 50 150 44 C154 50 158 59 160 70Z" fill="#F5A34A"/>
-                    <circle cx="150" cy="41" r="3.2" fill="#F8D66D"/>
-                    <rect x="62" y="97" width="10" height="95" rx="4" fill="#F8D66D"/>
-                    <path d="M58 99L67 78L76 99Z" fill="#F5A34A"/>
-                    <rect x="228" y="97" width="10" height="95" rx="4" fill="#F8D66D"/>
-                    <path d="M224 99L233 78L242 99Z" fill="#F5A34A"/>
-                    <path d="M136 191V154C136 137 164 137 164 154V191Z" fill="#356C54"/>
-                </g>
-
-                <!-- shalih boy -->
-                <g class="portal-float-left">
-                    <ellipse cx="105" cy="213" rx="37" ry="8" fill="#B7D5C1" opacity=".45"/>
-                    <path d="M73 151 C73 137 84 127 98 127H111C125 127 137 137 137 151V205H73Z" fill="#4B8F70" stroke="#315F4A" stroke-width="3"/>
-                    <path d="M84 155 C91 150 99 148 105 148C113 148 120 150 127 155V205H84Z" fill="#FFF9EF"/>
-                    <circle cx="105" cy="110" r="27" fill="#F0B082" stroke="#315F4A" stroke-width="3"/>
-                    <path d="M80 106C82 87 91 76 105 76C119 76 128 87 130 106C122 100 114 97 105 97C96 97 88 100 80 106Z" fill="#FFF9EF" stroke="#315F4A" stroke-width="3"/>
-                    <path d="M83 85C87 73 95 66 105 66C115 66 123 73 127 85C114 81 96 81 83 85Z" fill="#27483A"/>
-                    <rect x="108" y="158" width="31" height="38" rx="5" fill="#F5A34A" stroke="#315F4A" stroke-width="3" transform="rotate(-8 108 158)"/>
-                    <path d="M123 160V194" stroke="#FFE2B8" stroke-width="2"/>
-                </g>
-
-                <!-- shalihah girl -->
-                <g class="portal-float-right">
-                    <ellipse cx="198" cy="213" rx="37" ry="8" fill="#B7D5C1" opacity=".45"/>
-                    <path d="M166 151 C166 137 178 127 192 127H205C219 127 231 137 231 151V205H166Z" fill="#F5A34A" stroke="#315F4A" stroke-width="3"/>
-                    <path d="M176 155 C183 150 191 148 198 148C206 148 214 150 221 155V205H176Z" fill="#FFF9EF"/>
-                    <path d="M172 110C172 87 184 70 199 70C216 70 229 87 229 110C229 137 218 150 199 150C181 150 172 137 172 110Z" fill="#4B8F70" stroke="#315F4A" stroke-width="3"/>
-                    <circle cx="200" cy="110" r="25" fill="#C9906D" stroke="#315F4A" stroke-width="3"/>
-                    <path d="M177 107C182 97 190 92 200 92C210 92 218 97 223 107V125C217 134 209 138 200 138C191 138 183 134 177 125Z" fill="#FFF9EF"/>
-                    <rect x="168" y="159" width="31" height="38" rx="5" fill="#F8D66D" stroke="#315F4A" stroke-width="3" transform="rotate(8 168 159)"/>
-                    <path d="M184 161V195" stroke="#FFF3BD" stroke-width="2"/>
-                </g>
-
-                <!-- stars -->
-                <g fill="#F8D66D">
-                    <path d="M38 56L42 65L52 69L42 73L38 83L34 73L24 69L34 65Z"/>
-                    <path d="M257 48L260 56L268 59L260 62L257 70L254 62L246 59L254 56Z"/>
-                </g>
-            </svg>
-
-            <div class="portal-loading-bar">
-                <div class="portal-loading-bar-fill">
-                    Memuat halaman...
-                </div>
+            <div class="portal-loading-illustration" aria-hidden="true">
+                <div class="halo"></div>
+                <div class="head"></div>
+                <div class="cap"></div>
+                <div class="body"></div>
+                <div class="book"></div>
+                <div class="portal-loading-speech">Hi!</div>
             </div>
-
+            <div class="portal-loading-bar">
+                <div id="portal-loading-progress" class="portal-loading-bar-fill">Memuat halaman... 0%</div>
+            </div>
             <div class="portal-loading-dots" aria-hidden="true">
                 <span class="portal-loading-dot"></span>
                 <span class="portal-loading-dot"></span>
@@ -1000,16 +643,6 @@ const layout = (title, content) => `
 
     <main class="portal-main flex-grow">
         <div class="portal-shell">
-            <div class="portal-doodle" aria-hidden="true">
-                <svg viewBox="0 0 120 90" width="100%" height="100%" fill="none">
-                    <path d="M12 70h95" stroke="#8FC8A8" stroke-width="4" stroke-linecap="round"/>
-                    <path d="M26 69V45h22v24" fill="#FFF3C4" stroke="#4B8F70" stroke-width="2.4"/>
-                    <path d="M34 45V34c0-7 6-12 12-12s12 5 12 12v11" fill="#F8D66D" stroke="#4B8F70" stroke-width="2.4"/>
-                    <path d="M71 69V50h16v19" fill="#E7F5FA" stroke="#4B8F70" stroke-width="2.4"/>
-                    <path d="M79 50V40" stroke="#4B8F70" stroke-width="2.4" stroke-linecap="round"/>
-                    <path d="m81 27 3 6 7 1-5 4 1 7-6-3-6 3 1-7-5-4 7-1 3-6Z" fill="#F5A34A"/>
-                </svg>
-            </div>
             <div class="relative z-[2]">
                 ${content}
             </div>
@@ -1018,32 +651,60 @@ const layout = (title, content) => `
     </main>
 
     <script>
-        window.addEventListener('load', function() {
+        let portalLoadingFrame = null;
+        let portalLoadingStart = 0;
+
+        function startPortalLoading() {
             const overlay = document.getElementById('loading-overlay');
-            if (overlay) {
-                overlay.style.opacity = '0';
-                setTimeout(() => { overlay.style.display = 'none'; }, 300);
+            const text = document.getElementById('portal-loading-progress');
+            if (!overlay || !text) return;
+
+            overlay.style.display = 'flex';
+            overlay.style.opacity = '1';
+
+            cancelAnimationFrame(portalLoadingFrame);
+            portalLoadingStart = performance.now();
+
+            const duration = 1800;
+
+            function tick(now) {
+                const elapsed = now - portalLoadingStart;
+                const pct = Math.min(100, Math.round((elapsed / duration) * 100));
+                text.textContent = "Memuat halaman... " + pct + "%";
+
+                if (pct < 100) {
+                    portalLoadingFrame = requestAnimationFrame(tick);
+                }
             }
-        });
+
+            portalLoadingFrame = requestAnimationFrame(tick);
+        }
+
+        function hidePortalLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            if (!overlay) return;
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 260);
+        }
+
+        window.addEventListener('load', hidePortalLoading);
 
         document.addEventListener('click', function(e) {
             const link = e.target.closest('a');
-            if (link && link.href && link.href.startsWith(window.location.origin) && !link.getAttribute('target')) {
-                const overlay = document.getElementById('loading-overlay');
-                if (overlay) {
-                    overlay.style.display = 'flex';
-                    overlay.style.opacity = '1';
-                }
+            if (
+                link &&
+                link.href &&
+                link.href.startsWith(window.location.origin) &&
+                !link.getAttribute('target') &&
+                !link.href.includes('#')
+            ) {
+                startPortalLoading();
             }
         });
 
-        document.addEventListener('submit', function(e) {
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) {
-                overlay.style.display = 'flex';
-                overlay.style.opacity = '1';
-            }
-        });
+        document.addEventListener('submit', startPortalLoading);
     </script>
 </body>
 </html>
@@ -1060,7 +721,7 @@ app.get('/login', (req, res) => {
         <title>PORTAL 2A</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
         <style>
             :root {
@@ -1130,7 +791,7 @@ app.get('/login', (req, res) => {
                 color: var(--green-dark);
                 font-family: 'Quicksand', sans-serif;
                 font-size: 24px;
-                font-weight: 800;
+                font-weight: 700;
                 letter-spacing: .03em;
             }
 
@@ -1167,37 +828,50 @@ app.get('/login', (req, res) => {
 
             .login-illustration {
                 position: absolute;
-                right: 22px;
-                bottom: 14px;
-                width: min(390px, 62%);
-                height: 330px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                height: 350px;
+                overflow: hidden;
+                pointer-events: none;
+                display: flex;
+                align-items: flex-end;
+                justify-content: center;
             }
-            .login-mascot {
-                position: absolute;
-                right: 54px;
-                bottom: 20px;
-                width: 180px;
-                height: 230px;
-            }
-            .login-mascot .head { position:absolute; top:40px; left:48px; width:88px; height:95px; border:5px solid #315F4A; border-radius:48% 48% 46% 46%; background:#F0B082; z-index:3; }
-            .login-mascot .hood { position:absolute; top:22px; left:32px; width:122px; height:120px; border:5px solid #315F4A; border-radius:58% 58% 45% 45%; background:#F7FAF0; z-index:4; clip-path: polygon(0 0,100% 0,84% 100%,16% 100%); }
-            .login-mascot .body { position:absolute; bottom:0; left:25px; width:135px; height:120px; border:5px solid #315F4A; border-radius:54px 54px 30px 30px; background:#5AA77B; z-index:2; }
-            .login-mascot .book { position:absolute; right:-8px; bottom:44px; width:72px; height:54px; border:5px solid #315F4A; border-radius:12px; background:#83CBE6; transform:rotate(8deg); z-index:5; }
-            .login-mascot .spark { position:absolute; width:12px; height:12px; background:#F5A34A; clip-path:polygon(50% 0,60% 35%,100% 50%,60% 65%,50% 100%,40% 65%,0 50%,40% 35%); }
-            .spark.s1 { left: 18px; top: 20px; }
-            .spark.s2 { right: 18px; top: 72px; transform:scale(.75); background:#9ED5EA; }
-            .spark.s3 { left: 10px; bottom: 66px; transform:scale(.58); background:#F5D35A; }
 
-            .login-mosque { position:absolute; left:8px; bottom:8px; width:260px; height:150px; }
-            .login-mosque .ground { position:absolute; left:0; right:0; bottom:0; height:36px; background:#BEE0C8; border-radius:50% 50% 0 0; }
-            .login-mosque .main { position:absolute; left:62px; bottom:24px; width:126px; height:94px; background:#FFF9EF; border:4px solid #4B8F70; border-bottom-width:5px; border-radius:18px 18px 8px 8px; }
-            .login-mosque .dome { position:absolute; left:56px; bottom:107px; width:138px; height:56px; background:#F8D66D; border:4px solid #4B8F70; border-radius:80px 80px 0 0; }
-            .login-mosque .minaret1, .login-mosque .minaret2 { position:absolute; bottom:24px; width:20px; height:104px; background:#FFF9EF; border:4px solid #4B8F70; border-bottom:0; border-radius:10px 10px 0 0; }
-            .login-mosque .minaret1 { left:32px; } .login-mosque .minaret2 { right:26px; }
-            .login-mosque .top { position:absolute; width:30px; height:14px; border:4px solid #4B8F70; border-bottom:0; border-radius:16px 16px 0 0; }
-            .login-mosque .top.t1 { left:27px; bottom:124px; } .login-mosque .top.t2 { right:21px; bottom:124px; }
-            .login-mosque .door { position:absolute; left:55px; bottom:24px; width:26px; height:42px; background:#D6EEDC; border:3px solid #4B8F70; border-radius:14px 14px 0 0; }
-            .login-mosque .window { position:absolute; right:56px; bottom:58px; width:22px; height:30px; border:3px solid #4B8F70; border-radius:12px 12px 0 0; background:#DDF1F7; }
+            .login-reference-bg {
+                position: absolute;
+                inset: 0;
+                background-image: url('/assets/portal-reference.png');
+                background-size: cover;
+                background-position: center 35%;
+                opacity: .09;
+                filter: saturate(.95);
+            }
+
+            .login-scene-glow {
+                position: absolute;
+                left: 50%;
+                bottom: 8px;
+                width: 340px;
+                height: 180px;
+                transform: translateX(-50%);
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(248,214,109,.42), rgba(232,245,236,.10) 67%, transparent 72%);
+            }
+
+            .login-kids-image {
+                position: relative;
+                z-index: 3;
+                width: min(470px, 105%);
+                max-width: none;
+                height: auto;
+                transform: translateY(4px);
+                filter: saturate(.98) contrast(.99);
+                border-radius: 22px;
+                box-shadow: 0 18px 38px rgba(46,88,66,.08);
+            }
 
             .login-card {
                 min-height: 640px;
@@ -1221,7 +895,7 @@ app.get('/login', (req, res) => {
             .login-subtitle { margin: 8px auto 0; text-align:center; color:rgba(41,70,58,.72); font-size:13px; line-height:1.55; font-weight:700; max-width:320px; }
 
             .login-form { margin-top: 26px; display: grid; gap: 14px; }
-            .login-label { display:block; font-size:12px; font-weight:800; color:rgba(41,70,58,.78); margin-bottom:6px; }
+            .login-label { display:block; font-size:12px; font-weight:700; color:rgba(41,70,58,.78); margin-bottom:6px; }
             .login-input-wrap { position:relative; }
             .login-input {
                 width: 100%;
@@ -1231,7 +905,7 @@ app.get('/login', (req, res) => {
                 padding: 14px 15px 14px 46px;
                 border-radius: 17px;
                 outline: none;
-                font: 700 15px 'Quicksand', sans-serif;
+                font: 600 15px 'Quicksand', sans-serif;
                 box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 7px 15px rgba(74,103,84,.035);
             }
             .login-input:focus { border-color: rgba(75,143,112,.42); box-shadow: 0 0 0 4px rgba(143,200,168,.17); }
@@ -1246,7 +920,7 @@ app.get('/login', (req, res) => {
                 cursor: pointer;
                 background: linear-gradient(90deg, #55A77C, #75BA92);
                 color: white;
-                font: 800 16px 'Quicksand', sans-serif;
+                font: 700 16px 'Quicksand', sans-serif;
                 box-shadow: 0 14px 24px rgba(74,151,105,.20);
                 transition: transform .18s ease, box-shadow .18s ease;
             }
@@ -1270,14 +944,15 @@ app.get('/login', (req, res) => {
                 overflow:hidden;
             }
             .portal-loading-illustration { width:160px; height:160px; margin:0 auto 6px; position:relative; display:grid; place-items:center; }
+            .login-loading-kids { width: 100%; height: 100%; object-fit: cover; object-position: center 82%; border-radius: 20px; box-shadow: 0 10px 24px rgba(55,88,69,.08); }
             .portal-loading-illustration .halo { position:absolute; width:112px; height:112px; border-radius:50%; background:linear-gradient(145deg,#FFF0A8,#E3F5EA); }
             .portal-loading-illustration .head { position:relative; width:70px; height:70px; border-radius:48%; background:#F4B68A; border:4px solid #27483A; z-index:2; }
             .portal-loading-illustration .cap { position:absolute; width:76px; height:34px; top:27px; border-radius:40px 40px 18px 18px; background:#F6CF57; border:4px solid #27483A; z-index:3; transform:rotate(-6deg); }
             .portal-loading-illustration .body { position:absolute; width:82px; height:62px; bottom:8px; background:#59A97C; border-radius:34px 34px 26px 26px; border:4px solid #27483A; z-index:1; }
             .portal-loading-illustration .book { position:absolute; width:54px; height:40px; right:15px; bottom:12px; background:#82CBE4; border:4px solid #27483A; border-radius:10px; transform:rotate(7deg); z-index:4; }
-            .portal-loading-speech { position:absolute; right:14px; top:8px; background:#FFF; border:3px solid #27483A; border-radius:20px; padding:7px 10px; font-weight:800; font-size:12px; z-index:8; }
+            .portal-loading-speech { position:absolute; right:14px; top:8px; background:#FFF; border:3px solid #27483A; border-radius:20px; padding:7px 10px; font-weight:700; font-size:12px; z-index:8; }
             .portal-loading-bar { margin-top:10px; height:58px; border-radius:999px; background:#E8E9F5; padding:5px; overflow:hidden; }
-            .portal-loading-bar-fill { height:100%; width:64%; min-width:170px; display:flex; align-items:center; justify-content:center; border-radius:999px; background:linear-gradient(90deg,#FFD55C,#FFB842); color:#B76822; font-family:'Quicksand',sans-serif; font-weight:800; animation:portalLoadPulse 1.6s ease-in-out infinite; }
+            .portal-loading-bar-fill { height:100%; width:64%; min-width:170px; display:flex; align-items:center; justify-content:center; border-radius:999px; background:linear-gradient(90deg,#FFD55C,#FFB842); color:#B76822; font-family:'Quicksand',sans-serif; font-weight:700; animation:portalLoadPulse 1.6s ease-in-out infinite; }
             .portal-loading-dots { margin-top:12px; display:flex; justify-content:center; gap:7px; }
             .portal-loading-dot { width:8px; height:8px; border-radius:50%; background:#F5A34A; animation:portalDot 1.2s infinite; }
             .portal-loading-dot:nth-child(2){animation-delay:.15s;background:#8FC8A8}.portal-loading-dot:nth-child(3){animation-delay:.3s;background:#9ED5EA}
@@ -1290,141 +965,27 @@ app.get('/login', (req, res) => {
                 .login-card{min-height:auto; padding:28px;}
                 .login-copy{margin-top:30px; max-width:350px;}
                 .login-copy h2{font-size:42px;}
-                .login-illustration{width:330px; height:250px; right:-5px; bottom:-8px; opacity:.92;}
+                .login-illustration{width:100%; height:250px; right:0; bottom:-8px; opacity:.96;}
+                .login-kids-image{width:390px; max-width:120%;}
             }
             @media(max-width:520px){
                 body{padding:10px;}
-                .login-visual{border-radius:28px; min-height:280px; padding:22px 20px;}
+                .login-visual{border-radius:28px; min-height:300px; padding:22px 20px;}
                 .login-card{border-radius:28px; padding:22px 18px;}
                 .login-copy h2{font-size:34px;}
                 .login-copy p{font-size:14px;}
                 .login-mascot{transform:scale(.86); transform-origin:bottom right; right:8px;}
                 .login-mosque{transform:scale(.82); transform-origin:bottom left; left:-8px;}
             }
-        
-            /* FINAL LOGIN POLISH */
-            body, button, input, select, textarea {
-                font-family: 'Quicksand', sans-serif !important;
-            }
-
-            .login-brand,
-            .login-brand h1,
-            .login-brand span,
-            .login-copy h2,
-            .login-card h1,
-            .login-label,
-            .login-btn {
-                font-family: 'Quicksand', sans-serif !important;
-            }
-
-            .login-copy h2,
-            .login-card h1 {
-                font-weight: 800;
-            }
-
-            .login-btn {
-                background: linear-gradient(90deg, #58AA7D, #73B88F) !important;
-            }
-
-            .login-visual {
-                isolation: isolate;
-            }
-
-            .login-illustration {
-                z-index: 1;
-            }
-
-            .login-brand,
-            .login-copy {
-                position: relative;
-                z-index: 3;
-            }
-
-            @media (max-width: 820px) {
-                .login-illustration {
-                    width: 340px !important;
-                    max-width: 72% !important;
-                    height: 270px !important;
-                    right: -8px !important;
-                    bottom: -3px !important;
-                }
-
-                .login-copy {
-                    margin-top: 24px !important;
-                }
-            }
-
-            @media (max-width: 520px) {
-                .login-visual {
-                    min-height: 330px !important;
-                    padding: 23px 18px 12px !important;
-                }
-
-                .login-illustration {
-                    width: 300px !important;
-                    max-width: 88% !important;
-                    height: 235px !important;
-                    right: 50% !important;
-                    transform: translateX(50%);
-                    bottom: -10px !important;
-                }
-
-                .login-copy {
-                    margin-top: 18px !important;
-                    max-width: 270px !important;
-                }
-
-                .login-copy h2 {
-                    font-size: 31px !important;
-                }
-
-                .login-copy p {
-                    font-size: 12px !important;
-                }
-
-                .login-card {
-                    min-height: auto !important;
-                    padding: 23px 18px !important;
-                }
-
-                .login-input {
-                    font-size: 14px !important;
-                }
-
-                .login-btn {
-                    min-height: 52px !important;
-                }
-            }
-
-            @media (max-width: 380px) {
-                .login-visual {
-                    min-height: 310px !important;
-                }
-
-                .login-copy h2 {
-                    font-size: 28px !important;
-                }
-
-                .login-illustration {
-                    width: 270px !important;
-                    height: 215px !important;
-                }
-            }
-
-</style>
+        </style>
     </head>
     <body>
         <div id="login-loading">
             <div class="portal-loading-card">
                 <div class="portal-loading-illustration" aria-hidden="true">
-                    <div class="halo"></div>
-                    <div class="head"></div>
-                    <div class="cap"></div>
-                    <div class="body"></div>
-                    <div class="book"></div>
-                    
+                    <img src="/assets/login-kids.png" alt="" class="login-loading-kids">
                 </div>
-                <div class="portal-loading-bar"><div class="portal-loading-bar-fill">Memuat halaman...</div></div>
+                <div class="portal-loading-bar"><div id="portal-loading-progress" class="portal-loading-bar-fill">Memuat halaman... 0%</div></div>
                 <div class="portal-loading-dots"><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span></div>
             </div>
         </div>
@@ -1434,18 +995,10 @@ app.get('/login', (req, res) => {
                 <div>
                     <div class="login-brand">
                         <div class="login-brand-mark" aria-hidden="true">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                                <path d="M4 11.2 12 5l8 6.2v7.1c0 .94-.76 1.7-1.7 1.7H5.7c-.94 0-1.7-.76-1.7-1.7v-7.1Z"
-                                      fill="#4B8F70"/>
-                                <path d="M9.5 20v-5.5h5V20"
-                                      stroke="#FFFDF6"
-                                      stroke-width="1.8"
-                                      stroke-linecap="round"/>
-                            </svg>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 11.2 12 5l8 6.2v7.1c0 .94-.76 1.7-1.7 1.7H5.7c-.94 0-1.7-.76-1.7-1.7v-7.1Z" fill="#4B8F70"/><path d="M9.5 20v-5.5h5V20" stroke="#FFFDF6" stroke-width="1.8" stroke-linecap="round"/></svg>
                         </div>
                         <span>PORTAL 2A</span>
                     </div>
-
                     <div class="login-copy">
                         <h2>Portal<br>Walimurid<br>Kelas 2A</h2>
                         <p>Assalamualaikum, selamat datang Ayah Bunda.<br>Mohon masukkan Username dan Password</p>
@@ -1453,106 +1006,14 @@ app.get('/login', (req, res) => {
                 </div>
 
                 <div class="login-illustration" aria-hidden="true">
-                    <svg
-                        viewBox="0 0 430 350"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="100%"
-                        height="100%"
+                    <div class="login-reference-bg"></div>
+                    <div class="login-scene-glow"></div>
+                    <img
+                        src="/assets/login-kids.png"
+                        alt=""
+                        class="login-kids-image"
+                        loading="eager"
                     >
-                        <!-- background hills -->
-                        <path d="M0 304 C75 270 121 283 173 301 C231 322 291 296 344 281 C377 272 401 275 430 286 V350 H0Z"
-                              fill="#D8EFE0"/>
-                        <path d="M0 325 C70 306 117 315 169 328 C235 345 301 321 354 310 C384 304 408 307 430 314 V350 H0Z"
-                              fill="#F7E9BE"
-                              opacity=".68"/>
-
-                        <!-- mosque, kept safely behind characters -->
-                        <g transform="translate(34,95)">
-                            <rect x="77" y="88" width="226" height="107" rx="24"
-                                  fill="#FFF9EF"
-                                  stroke="#4B8F70"
-                                  stroke-width="4"/>
-                            <path d="M99 92 C103 48 141 23 190 23 C239 23 277 48 281 92Z"
-                                  fill="#9ACBAD"
-                                  stroke="#4B8F70"
-                                  stroke-width="4"/>
-                            <path d="M181 24 C184 12 188 3 190 0 C193 3 197 12 199 24Z"
-                                  fill="#F5A34A"/>
-                            <circle cx="190" cy="-3" r="4" fill="#F8D66D"/>
-
-                            <rect x="53" y="70" width="18" height="125" rx="7" fill="#F8D66D"/>
-                            <path d="M44 72L62 39L80 72Z" fill="#F5A34A"/>
-
-                            <rect x="309" y="70" width="18" height="125" rx="7" fill="#F8D66D"/>
-                            <path d="M300 72L318 39L336 72Z" fill="#F5A34A"/>
-
-                            <path d="M171 195V144 C171 122 209 122 209 144V195Z"
-                                  fill="#356C54"/>
-
-                            <rect x="104" y="135" width="27" height="34" rx="13"
-                                  fill="#DDF1F7" stroke="#4B8F70" stroke-width="3"/>
-                            <rect x="239" y="135" width="27" height="34" rx="13"
-                                  fill="#DDF1F7" stroke="#4B8F70" stroke-width="3"/>
-                        </g>
-
-                        <!-- shalih boy -->
-                        <g transform="translate(56,96)">
-                            <ellipse cx="90" cy="238" rx="59" ry="10" fill="#AFCDB9" opacity=".50"/>
-                            <path d="M44 173 C44 152 61 137 82 137 H99 C121 137 138 152 138 173 V234 H44Z"
-                                  fill="#4B8F70"
-                                  stroke="#315F4A"
-                                  stroke-width="4"/>
-                            <path d="M61 177 C69 170 80 166 90 166 C101 166 112 170 121 177 V234 H61Z"
-                                  fill="#FFF9EF"/>
-                            <circle cx="90" cy="111" r="38" fill="#F0B082" stroke="#315F4A" stroke-width="4"/>
-                            <path d="M55 112 C58 84 70 70 90 70 C110 70 123 84 125 112 C115 104 103 100 90 100 C77 100 65 104 55 112Z"
-                                  fill="#FFF9EF"
-                                  stroke="#315F4A"
-                                  stroke-width="4"/>
-                            <path d="M59 83 C65 65 76 56 90 56 C104 56 115 65 121 83 C102 77 78 77 59 83Z"
-                                  fill="#27483A"/>
-
-                            <rect x="101" y="168" width="42" height="54" rx="7"
-                                  fill="#F5A34A"
-                                  stroke="#315F4A"
-                                  stroke-width="4"
-                                  transform="rotate(-8 101 168)"/>
-                            <path d="M122 170 V218" stroke="#FFE3C0" stroke-width="2.5"/>
-                        </g>
-
-                        <!-- shalihah -->
-                        <g transform="translate(245,99)">
-                            <ellipse cx="88" cy="235" rx="58" ry="10" fill="#AFCDB9" opacity=".50"/>
-                            <path d="M43 172 C43 151 59 137 81 137 H97 C119 137 136 151 136 172 V233 H43Z"
-                                  fill="#F5A34A"
-                                  stroke="#315F4A"
-                                  stroke-width="4"/>
-                            <path d="M58 176 C67 169 77 166 88 166 C99 166 109 169 119 176 V233 H58Z"
-                                  fill="#FFF9EF"/>
-
-                            <path d="M49 111 C49 80 67 58 89 58 C112 58 130 80 130 111 C130 145 116 164 89 164 C62 164 49 145 49 111Z"
-                                  fill="#4B8F70"
-                                  stroke="#315F4A"
-                                  stroke-width="4"/>
-                            <circle cx="89" cy="111" r="31" fill="#C9906D" stroke="#315F4A" stroke-width="4"/>
-                            <path d="M61 108 C67 95 77 88 89 88 C102 88 112 95 118 108 V130 C111 141 101 147 89 147 C78 147 68 141 61 130Z"
-                                  fill="#FFF9EF"/>
-
-                            <rect x="54" y="170" width="42" height="54" rx="7"
-                                  fill="#F8D66D"
-                                  stroke="#315F4A"
-                                  stroke-width="4"
-                                  transform="rotate(8 54 170)"/>
-                            <path d="M75 172 V220" stroke="#FFF3BE" stroke-width="2.5"/>
-                        </g>
-
-                        <!-- decorative stars -->
-                        <g fill="#F8D66D">
-                            <path d="M38 55L43 67L56 72L43 77L38 90L33 77L20 72L33 67Z"/>
-                            <path d="M380 66L384 75L394 79L384 83L380 93L376 83L366 79L376 75Z"/>
-                            <circle cx="319" cy="48" r="6"/>
-                        </g>
-                    </svg>
                 </div>
             </section>
 
@@ -1561,7 +1022,7 @@ app.get('/login', (req, res) => {
                     <h1>PORTAL 2A</h1>
                     <p class="login-subtitle">Assalamualaikum, selamat datang Ayah Bunda.<br>Mohon masukkan Username dan Password</p>
                 </div>
-                <form action="/login" method="POST" class="login-form" onsubmit="document.getElementById('login-loading').style.display='grid';">
+                <form action="/login" method="POST" class="login-form" onsubmit="startLoginLoading();">
                     <div>
                         <label class="login-label">Username</label>
                         <div class="login-input-wrap">
@@ -1580,6 +1041,25 @@ app.get('/login', (req, res) => {
                 </form>
             </section>
         </div>
+
+        <script>
+            let loginLoadingFrame = null;
+            function startLoginLoading() {
+                const overlay = document.getElementById('login-loading');
+                const text = document.getElementById('portal-loading-progress');
+                if (!overlay || !text) return;
+                overlay.style.display = 'grid';
+                cancelAnimationFrame(loginLoadingFrame);
+                const start = performance.now();
+                const duration = 1800;
+                function tick(now) {
+                    const pct = Math.min(100, Math.round(((now - start) / duration) * 100));
+                    text.textContent = 'Memuat halaman... ' + pct + '%';
+                    if (pct < 100) loginLoadingFrame = requestAnimationFrame(tick);
+                }
+                loginLoadingFrame = requestAnimationFrame(tick);
+            }
+        </script>
     </body>
     </html>`);
 });
@@ -1621,87 +1101,42 @@ app.get('/dashboard', checkAuth, (req, res) => {
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         <a href="/calendar" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="portal-mini-illustration" aria-hidden="true">
-        <svg width="30" height="30" viewBox="0 0 40 40">
-            <rect x="6" y="8" width="28" height="26" rx="8" fill="#E9F6EC"/>
-            <rect x="6" y="10" width="28" height="8" rx="4" fill="#4B8F70"/>
-            <rect x="12" y="5" width="4" height="10" rx="2" fill="#F5A34A"/>
-            <rect x="24" y="5" width="4" height="10" rx="2" fill="#F5A34A"/>
-            <circle cx="14" cy="23" r="2.5" fill="#F5A34A"/>
-            <circle cx="21" cy="23" r="2.5" fill="#8FC8A8"/>
-            <circle cx="28" cy="23" r="2.5" fill="#BFE4F2"/>
-            <circle cx="14" cy="29" r="2.5" fill="#8FC8A8"/>
-            <circle cx="21" cy="29" r="2.5" fill="#F5A34A"/>
-        </svg>
-    </div>
+            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🗓️</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Kalendar Akademik</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Agenda kelas & jadwal pribadi siswa.</p>
             </div>
         </a>
         <a href="/kas" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="portal-mini-illustration warm" aria-hidden="true">
-        <svg width="30" height="30" viewBox="0 0 40 40">
-            <circle cx="20" cy="20" r="14" fill="#FFF0E5"/>
-            <circle cx="20" cy="20" r="10" fill="#F5A34A"/>
-            <path d="M20 13v14M16.5 16.5c1.3-1.6 6-1.5 7 0 .9 1.5-.3 2.6-3.5 3.1-3.2.5-4.4 1.6-3.5 3.1 1 1.5 5.7 1.6 7 .0" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-    </div>
+            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">💰</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Iuran Kas Siswa</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Pembayaran kas pribadi setiap siswa.</p>
             </div>
         </a>
         <a href="/finances" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="portal-mini-illustration blue" aria-hidden="true">
-        <svg width="30" height="30" viewBox="0 0 40 40">
-            <rect x="6" y="7" width="28" height="27" rx="8" fill="#FFF8D8"/>
-            <rect x="11" y="21" width="4" height="8" rx="2" fill="#F5A34A"/>
-            <rect x="18" y="17" width="4" height="12" rx="2" fill="#8FC8A8"/>
-            <rect x="25" y="12" width="4" height="17" rx="2" fill="#BFE4F2"/>
-            <path d="M10 31h21" stroke="#4B8F70" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-    </div>
+            <div class="bg-amber-100/70 text-amber-900 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📊</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-amber-900 transition">Laporan Keuangan</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Rincian income & expense kelas 2A.</p>
             </div>
         </a>
         <a href="/announcements" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="portal-mini-illustration blue" aria-hidden="true">
-        <svg width="30" height="30" viewBox="0 0 40 40">
-            <path d="M12 25h16l-2-3v-6a6 6 0 0 0-12 0v6l-2 3Z" fill="#DDF1F7" stroke="#4B8F70" stroke-width="2"/>
-            <path d="M18 29c.7 1 2.3 1 3 0" stroke="#F5A34A" stroke-width="2.2" stroke-linecap="round"/>
-            <circle cx="31" cy="11" r="4" fill="#F5A34A"/>
-        </svg>
-    </div>
+            <div class="bg-sky-100/70 text-sky-900 p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔔</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-sky-900 transition">Pengumuman</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Informasi resmi dari sekolah.</p>
             </div>
         </a>
         <a href="/summative" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="portal-mini-illustration" aria-hidden="true">
-        <svg width="30" height="30" viewBox="0 0 40 40">
-            <path d="M7 9h10c3 0 5 2 5 5v18c-1.4-2-3.2-3-5-3H7Z" fill="#E9F6EC" stroke="#4B8F70" stroke-width="2"/>
-            <path d="M33 9H23c-3 0-5 2-5 5v18c1.4-2 3.2-3 5-3h10Z" fill="#FFF0E5" stroke="#F5A34A" stroke-width="2"/>
-            <path d="M20 15v10" stroke="#F5A34A" stroke-width="2"/>
-        </svg>
-    </div>
+            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">📘</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Materi Sumatif</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Kisi-kisi dan materi bulanan lengkap.</p>
             </div>
         </a>
         <a href="/change-password" class="portal-card p-5 sm:p-6 flex items-center space-x-4 group transition duration-300">
-            <div class="portal-mini-illustration" aria-hidden="true">
-        <svg width="30" height="30" viewBox="0 0 40 40">
-            <rect x="9" y="17" width="22" height="17" rx="6" fill="#E9F6EC" stroke="#4B8F70" stroke-width="2"/>
-            <path d="M14 17v-4a6 6 0 0 1 12 0v4" fill="none" stroke="#F5A34A" stroke-width="2.4" stroke-linecap="round"/>
-            <circle cx="20" cy="25" r="2" fill="#4B8F70"/>
-            <path d="M20 27v3" stroke="#4B8F70" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-    </div>
+            <div class="bg-sagegreen/20 text-deepgreen p-4 rounded-2xl text-2xl group-hover:scale-105 transition shadow-sm">🔒</div>
             <div>
                 <h3 class="font-bold text-base sm:text-lg text-earthtext group-hover:text-deepgreen transition">Ganti Password</h3>
                 <p class="text-xs sm:text-sm text-earthtext/80">Ubah kata sandi akun Anda.</p>
@@ -1825,7 +1260,7 @@ app.get('/summative', checkAuth, async (req, res) => {
         const content = `
         <div class="mb-6">
             <h2 class="text-xl sm:text-2xl font-bold text-earthtext">Materi & Kisi-kisi Sumatif</h2>
-            <p class="text-xs sm:text-sm text-earthtext/80">Pilih periode atau bulan spesifik untuk melihat dan mendownload materi.</p>
+            
         </div>
 
         ${periodSelect}
@@ -2271,7 +1706,7 @@ app.get('/finances', checkAuth, async (req, res) => {
         }
 
         const content = `
-        <div class="mb-6"><h2 class="text-xl sm:text-2xl font-bold text-earthtext">Laporan Keuangan</h2><p class="text-xs sm:text-sm text-earthtext/80">Rincian pemasukan kas, kaos, transaksi lainnya, dan pengeluaran kelas 2A.</p></div>
+        <div class="mb-6"><h2 class="text-xl sm:text-2xl font-bold text-earthtext">Laporan Keuangan</h2></div>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="bg-amber-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-amber-200"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Total Kas</span><h3 class="text-xl font-bold text-amber-900 mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
@@ -2440,7 +1875,7 @@ app.get('/announcements', checkAuth, async (req, res) => {
         const content = `
         <div class="mb-6">
             <h2 class="text-xl sm:text-2xl font-bold text-earthtext">Pengumuman Sekolah</h2>
-            <p class="text-xs sm:text-sm text-earthtext/80">Informasi dan pengumuman resmi dari pihak sekolah untuk walimurid kelas 2A.</p>
+            
         </div>
         <div class="bg-white/50 backdrop-blur-md p-4 rounded-[2rem] shadow-md border border-white/70 mb-6">
             <form method="GET" class="flex flex-wrap gap-3 items-center">
