@@ -1218,21 +1218,25 @@ const layout = (title, content) => `
             const bar = document.getElementById('portal-loading-progress');
             const percent = document.getElementById('portal-loading-percent');
             const heart = document.getElementById('portal-loading-heart');
-            if (!bar || !percent || !heart) return;
+            const track = bar ? bar.parentElement : null;
+            if (!bar || !percent || !heart || !track) return;
 
             pct = Math.max(0, Math.min(100, Math.round(pct)));
             bar.style.width = pct + '%';
             percent.textContent = pct + '%';
 
-            // Heart follows the leading edge of the filled area, from left to right.
-            const track = heart.parentElement;
-            const trackWidth = track ? track.clientWidth : 0;
+            // Use the same padded width calculation as the filled bar.
+            // The heart's CENTER sits exactly on the fill's leading edge.
+            const trackWidth = track.clientWidth || 0;
+            const inset = 5;
             const heartSize = window.innerWidth <= 640 ? 32 : 36;
-            const innerLeft = 5;
-            const innerRight = 5;
-            const usableWidth = Math.max(0, trackWidth - heartSize - innerLeft - innerRight);
-            const x = innerLeft + usableWidth * (pct / 100);
-            heart.style.left = x + 'px';
+            const fillWidth = Math.max(0, trackWidth - (inset * 2));
+            const leadingEdge = inset + (fillWidth * pct / 100);
+            const minCenter = inset + heartSize / 2;
+            const maxCenter = Math.max(minCenter, trackWidth - inset - heartSize / 2);
+            const centerX = Math.max(minCenter, Math.min(maxCenter, leadingEdge));
+
+            heart.style.left = centerX + 'px';
         }
 
         function startPortalLoading() {
@@ -1247,23 +1251,23 @@ const layout = (title, content) => `
             overlay.style.opacity = '1';
             setPortalProgress(0);
 
-            // Progress advances gradually to 95% and waits there until the
-            // browser reports that the destination page has finished loading.
-            // The heart and filled track always follow the same percentage.
-            const duration = 1800;
+            // Move gradually from 0% toward 95%. The same numeric percentage
+            // drives both the bar width and heart position. 95% is held until
+            // the destination document reports that it has finished loading.
+            const duration = 5000;
             const maxBeforeLoad = 95;
 
             function tick(now) {
                 if (!portalLoadingVisible) return;
+
                 const elapsed = now - portalLoadingStart;
-                const raw = Math.min(maxBeforeLoad, (elapsed / duration) * maxBeforeLoad);
-                // Ease slightly so the movement feels smooth but still visibly
-                // follows the percentage shown to the user.
-                const eased = raw >= maxBeforeLoad
-                    ? maxBeforeLoad
-                    : raw - (Math.sin((raw / maxBeforeLoad) * Math.PI * 0.5) - raw / maxBeforeLoad) * 1.5;
-                setPortalProgress(Math.max(0, Math.min(maxBeforeLoad, eased)));
-                if (raw < maxBeforeLoad) {
+                const progress = Math.min(1, elapsed / duration);
+                const smooth = 1 - Math.pow(1 - progress, 1.8);
+                const pct = Math.min(maxBeforeLoad, smooth * maxBeforeLoad);
+
+                setPortalProgress(pct);
+
+                if (progress < 1) {
                     portalLoadingFrame = requestAnimationFrame(tick);
                 }
             }
@@ -1284,13 +1288,17 @@ const layout = (title, content) => `
 
             setTimeout(() => {
                 overlay.style.display = 'none';
+                overlay.style.opacity = '0';
                 setPortalProgress(0);
-            }, 90);
+            }, 140);
         }
 
         window.addEventListener('load', finishPortalLoading);
 
-        window.addEventListener('pageshow', function() {
+        window.addEventListener('pageshow', function(event) {
+            // Restore a clean state when this document is shown from bfcache.
+            // Do not interfere with a normal first-load transition.
+            if (!event.persisted) return;
             const overlay = document.getElementById('loading-overlay');
             if (overlay) {
                 portalLoadingVisible = false;
@@ -1686,9 +1694,12 @@ app.get('/login', (req, res) => {
            - slower, smoother progress while destination loads
            - centered download buttons on phones
         ===================================================== */
-        .portal-shell::after {
+        /* Remove the decorative yellow half-circle on every page */
+        .portal-shell::after,
+        .portal-shell::before {
             content: none !important;
             display: none !important;
+            background: none !important;
         }
 
         .portal-shell {
@@ -1716,20 +1727,44 @@ app.get('/login', (req, res) => {
         }
 
         .portal-loading-bar {
+            position: relative !important;
             overflow: hidden !important;
+            isolation: isolate;
         }
 
         .portal-loading-bar-fill {
+            position: absolute !important;
             left: 5px !important;
             right: auto !important;
             top: 5px !important;
             bottom: 5px !important;
             width: 0 !important;
+            min-width: 0 !important;
+            max-width: calc(100% - 10px) !important;
+            z-index: 1 !important;
+        }
+
+        .portal-loading-percent {
+            z-index: 3 !important;
         }
 
         .portal-loading-heart {
+            position: absolute !important;
             left: 5px !important;
-            transition: left .04s linear !important;
+            top: 50% !important;
+            width: 36px !important;
+            height: 36px !important;
+            transform: translate(-50%, -50%) !important;
+            margin: 0 !important;
+            z-index: 4 !important;
+            transition: left .05s linear !important;
+            pointer-events: none !important;
+        }
+
+        .portal-loading-heart svg {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
         }
 
         .page-header {
@@ -1813,9 +1848,149 @@ app.get('/login', (req, res) => {
                 max-width: 250px !important;
             }
             .summative-download-btn {
-                width: max-content !important;
-                min-width: 112px !important;
-                flex: 0 0 auto !important;
+                width: 132px !important;
+                min-width: 132px !important;
+                max-width: 132px !important;
+                flex: 0 0 132px !important;
+                font-size: 13px !important;
+            }
+        }
+
+        /* FINAL V8 OVERRIDES */
+
+        /* Remove the decorative top-right half-circle everywhere. */
+        .portal-shell::before,
+        .portal-shell::after {
+            content: none !important;
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        /* Keep the loading UI centered and make the heart track the actual
+           filled progress edge in the loading bar. */
+        #loading-overlay {
+            position: fixed !important;
+            inset: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            display: none;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 16px !important;
+        }
+
+        .portal-loading-card {
+            margin: 0 !important;
+            width: min(360px, calc(100vw - 24px)) !important;
+        }
+
+        .portal-loading-bar {
+            position: relative !important;
+            width: 100% !important;
+            overflow: hidden !important;
+        }
+
+        .portal-loading-bar-fill {
+            position: absolute !important;
+            left: 5px !important;
+            top: 5px !important;
+            bottom: 5px !important;
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: calc(100% - 10px) !important;
+            transition: width .08s linear !important;
+        }
+
+        .portal-loading-heart {
+            position: absolute !important;
+            top: 50% !important;
+            left: 23px !important;
+            width: 36px !important;
+            height: 36px !important;
+            margin: 0 !important;
+            transform: translate(-50%, -50%) !important;
+            z-index: 4 !important;
+            transition: left .08s linear !important;
+        }
+
+        .portal-loading-heart svg {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Download button: never shrink and always center its label. */
+        .summative-download-btn-parent {
+            width: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 8px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        .summative-download-btn,
+        .summative-download-btn:visited,
+        .summative-download-btn:hover,
+        .summative-download-btn:active {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            width: 132px !important;
+            min-width: 132px !important;
+            max-width: 132px !important;
+            height: 42px !important;
+            min-height: 42px !important;
+            flex: 0 0 132px !important;
+            flex-grow: 0 !important;
+            flex-shrink: 0 !important;
+            padding: 0 12px !important;
+            margin: 0 !important;
+            font-size: 13px !important;
+            line-height: 1 !important;
+            white-space: nowrap !important;
+            box-sizing: border-box !important;
+        }
+
+        @media (max-width: 640px) {
+            #loading-overlay {
+                padding: 12px !important;
+            }
+
+            .portal-loading-card {
+                width: min(350px, calc(100vw - 22px)) !important;
+            }
+
+            .portal-loading-bar {
+                height: 52px !important;
+            }
+
+            .portal-loading-heart {
+                width: 32px !important;
+                height: 32px !important;
+            }
+
+            .summative-download-btn-parent {
+                width: 100% !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            .summative-download-btn,
+            .summative-download-btn:visited,
+            .summative-download-btn:hover,
+            .summative-download-btn:active {
+                width: 132px !important;
+                min-width: 132px !important;
+                max-width: 132px !important;
+                flex: 0 0 132px !important;
+                height: 42px !important;
+                min-height: 42px !important;
                 font-size: 13px !important;
             }
         }
@@ -2085,7 +2260,7 @@ app.get('/summative', checkAuth, async (req, res) => {
                             ${monthBadge}
                         </div>
                         <div class="summative-download-btn-parent flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                            <a href="${downloadUrl}" target="_blank" class="summative-download-btn flex-1 sm:flex-none text-center bg-deepgreen text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-tangerine transition shadow-sm">Download</a>
+                            <a href="${downloadUrl}" target="_blank" class="summative-download-btn bg-deepgreen text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-tangerine transition shadow-sm">Download</a>
                         </div>
                     </div>`;
                 });
