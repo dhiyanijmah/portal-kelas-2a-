@@ -1227,8 +1227,11 @@ const layout = (title, content) => `
             // Heart follows the leading edge of the filled area, from left to right.
             const track = heart.parentElement;
             const trackWidth = track ? track.clientWidth : 0;
-            const heartHalf = 18;
-            const x = (trackWidth - heartHalf * 2) * (pct / 100);
+            const heartSize = window.innerWidth <= 640 ? 32 : 36;
+            const innerLeft = 5;
+            const innerRight = 5;
+            const usableWidth = Math.max(0, trackWidth - heartSize - innerLeft - innerRight);
+            const x = innerLeft + usableWidth * (pct / 100);
             heart.style.left = x + 'px';
         }
 
@@ -1244,18 +1247,23 @@ const layout = (title, content) => `
             overlay.style.opacity = '1';
             setPortalProgress(0);
 
-            // Move quickly to 90%, then hold there until the destination page
-            // really finishes loading. This prevents the animation from
-            // finishing while the next page is still opening.
-            const duration = 320;
-            const maxBeforeLoad = 90;
+            // Progress advances gradually to 95% and waits there until the
+            // browser reports that the destination page has finished loading.
+            // The heart and filled track always follow the same percentage.
+            const duration = 1800;
+            const maxBeforeLoad = 95;
 
             function tick(now) {
                 if (!portalLoadingVisible) return;
                 const elapsed = now - portalLoadingStart;
-                const pct = Math.min(maxBeforeLoad, (elapsed / duration) * maxBeforeLoad);
-                setPortalProgress(pct);
-                if (pct < maxBeforeLoad) {
+                const raw = Math.min(maxBeforeLoad, (elapsed / duration) * maxBeforeLoad);
+                // Ease slightly so the movement feels smooth but still visibly
+                // follows the percentage shown to the user.
+                const eased = raw >= maxBeforeLoad
+                    ? maxBeforeLoad
+                    : raw - (Math.sin((raw / maxBeforeLoad) * Math.PI * 0.5) - raw / maxBeforeLoad) * 1.5;
+                setPortalProgress(Math.max(0, Math.min(maxBeforeLoad, eased)));
+                if (raw < maxBeforeLoad) {
                     portalLoadingFrame = requestAnimationFrame(tick);
                 }
             }
@@ -1277,7 +1285,7 @@ const layout = (title, content) => `
             setTimeout(() => {
                 overlay.style.display = 'none';
                 setPortalProgress(0);
-            }, 120);
+            }, 90);
         }
 
         window.addEventListener('load', finishPortalLoading);
@@ -1668,6 +1676,104 @@ app.get('/login', (req, res) => {
             .summative-download-btn-parent {
                 width: 100% !important;
                 justify-content: center !important;
+            }
+        }
+
+        /* =====================================================
+           V7 POLISH
+           - no top-right half circle
+           - loading progress/heart follow the displayed percentage
+           - slower, smoother progress while destination loads
+           - centered download buttons on phones
+        ===================================================== */
+        .portal-shell::after {
+            content: none !important;
+            display: none !important;
+        }
+
+        .portal-shell {
+            overflow: hidden;
+        }
+
+        .summative-download-btn-parent {
+            width: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        .summative-download-btn {
+            width: 132px !important;
+            min-width: 132px !important;
+            max-width: 132px !important;
+            flex: 0 0 132px !important;
+            text-align: center !important;
+            justify-content: center !important;
+            white-space: nowrap !important;
+            font-size: 13px !important;
+        }
+
+        .portal-loading-bar {
+            overflow: hidden !important;
+        }
+
+        .portal-loading-bar-fill {
+            left: 5px !important;
+            right: auto !important;
+            top: 5px !important;
+            bottom: 5px !important;
+            width: 0 !important;
+        }
+
+        .portal-loading-heart {
+            left: 5px !important;
+            transition: left .04s linear !important;
+        }
+
+        .page-header {
+            margin-top: 18px !important;
+            margin-bottom: 20px !important;
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+        }
+
+        h2.page-title,
+        .page-header .page-title {
+            margin: 0 !important;
+            font-size: 30px !important;
+            line-height: 1.12 !important;
+        }
+
+        @media (max-width: 640px) {
+            .page-header {
+                margin-top: 20px !important;
+                margin-bottom: 18px !important;
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+            }
+
+            h2.page-title,
+            .page-header .page-title {
+                font-size: 27px !important;
+                line-height: 1.15 !important;
+            }
+
+            .summative-download-btn-parent {
+                width: 100% !important;
+                justify-content: center !important;
+                margin-top: 10px !important;
+            }
+
+            .summative-download-btn {
+                width: 132px !important;
+                min-width: 132px !important;
+                max-width: 132px !important;
+                flex: 0 0 132px !important;
+                font-size: 13px !important;
+                padding-left: 12px !important;
+                padding-right: 12px !important;
             }
         }
 
