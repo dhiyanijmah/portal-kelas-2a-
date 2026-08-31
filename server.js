@@ -1050,16 +1050,17 @@ const layout = (title, content) => `
         }
         .portal-loading-card {
             position: relative;
-            margin-top: 14px;
+            margin-top: 0 !important;
         }
         #loading-overlay {
-            align-items: flex-start !important;
+            align-items: center !important;
             justify-content: center !important;
-            padding-top: 12px !important;
+            padding: 16px !important;
         }
         #login-loading {
-            align-items: flex-start !important;
-            padding-top: 12px !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 16px !important;
         }
         .login-visual {
             min-height: 0 !important;
@@ -1243,25 +1244,23 @@ const layout = (title, content) => `
             overlay.style.opacity = '1';
             setPortalProgress(0);
 
-            // Keep navigation feeling instant. The progress is deliberately fast.
-            const duration = 650;
+            // Move quickly to 90%, then hold there until the destination page
+            // really finishes loading. This prevents the animation from
+            // finishing while the next page is still opening.
+            const duration = 320;
+            const maxBeforeLoad = 90;
 
             function tick(now) {
                 if (!portalLoadingVisible) return;
                 const elapsed = now - portalLoadingStart;
-                const pct = Math.min(100, (elapsed / duration) * 100);
+                const pct = Math.min(maxBeforeLoad, (elapsed / duration) * maxBeforeLoad);
                 setPortalProgress(pct);
-                if (pct < 100) {
+                if (pct < maxBeforeLoad) {
                     portalLoadingFrame = requestAnimationFrame(tick);
                 }
             }
 
             portalLoadingFrame = requestAnimationFrame(tick);
-
-            // Safety fallback: never let the overlay trap the user on a slow page.
-            portalLoadingHideTimer = setTimeout(() => {
-                finishPortalLoading();
-            }, 900);
         }
 
         function finishPortalLoading() {
@@ -1272,14 +1271,13 @@ const layout = (title, content) => `
             clearTimeout(portalLoadingHideTimer);
             setPortalProgress(100);
 
+            portalLoadingVisible = false;
+            overlay.style.opacity = '0';
+
             setTimeout(() => {
-                portalLoadingVisible = false;
-                overlay.style.opacity = '0';
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                    setPortalProgress(0);
-                }, 140);
-            }, 90);
+                overlay.style.display = 'none';
+                setPortalProgress(0);
+            }, 120);
         }
 
         window.addEventListener('load', finishPortalLoading);
@@ -1648,7 +1646,29 @@ app.get('/login', (req, res) => {
             align-items: center !important;
             justify-content: center !important;
             text-align: center !important;
-            min-width: 108px;
+            min-width: 112px !important;
+            width: max-content !important;
+            flex: 0 0 auto !important;
+            white-space: nowrap !important;
+            font-size: 13px !important;
+            line-height: 1 !important;
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+        }
+
+
+        .summative-download-btn { position: relative; }
+        .summative-download-btn-parent {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 100% !important;
+        }
+        @media (max-width: 640px) {
+            .summative-download-btn-parent {
+                width: 100% !important;
+                justify-content: center !important;
+            }
         }
 
         /* Phone-first polish */
@@ -1687,8 +1707,10 @@ app.get('/login', (req, res) => {
                 max-width: 250px !important;
             }
             .summative-download-btn {
-                width: 100% !important;
-                min-width: 0 !important;
+                width: max-content !important;
+                min-width: 112px !important;
+                flex: 0 0 auto !important;
+                font-size: 13px !important;
             }
         }
 </style>
@@ -1718,7 +1740,7 @@ app.get('/login', (req, res) => {
                 </div>
                 <div class="login-copy">
                     <h2>Portal<br>Walimurid<br>Kelas 2A</h2>
-                    <p class="login-info-copy">Ruang informasi kelas<br>untuk Ayah &amp; Bunda.</p>
+                    <p class="login-info-copy">Ruang informasi kelas 2A<br>untuk Ayah dan Bunda</p>
                 </div>
             </div>
         </section>
@@ -1762,9 +1784,12 @@ app.get('/login', (req, res) => {
 
             cancelAnimationFrame(loginLoadingFrame);
             overlay.style.display = 'grid';
+            fill.style.width = '0%';
+            fill.textContent = '0%';
+
             const start = performance.now();
-            const duration = 550;
-            const maxPct = 100;
+            const duration = 300;
+            const maxPct = 90;
 
             function tick(now) {
                 const pct = Math.min(maxPct, Math.round(((now - start) / duration) * maxPct));
@@ -1772,11 +1797,8 @@ app.get('/login', (req, res) => {
                 fill.textContent = pct + '%';
                 if (pct < maxPct) loginLoadingFrame = requestAnimationFrame(tick);
             }
+
             loginLoadingFrame = requestAnimationFrame(tick);
-            setTimeout(() => {
-                const loading = document.getElementById('login-loading');
-                if (loading && document.visibilityState === 'visible') loading.style.display = 'none';
-            }, 850);
         }
     </script>
 </body>
@@ -1956,7 +1978,7 @@ app.get('/summative', checkAuth, async (req, res) => {
                             <span class="font-bold text-sm text-earthtext block">📄 ${mat.title}</span>
                             ${monthBadge}
                         </div>
-                        <div class="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                        <div class="summative-download-btn-parent flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                             <a href="${downloadUrl}" target="_blank" class="summative-download-btn flex-1 sm:flex-none text-center bg-deepgreen text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-tangerine transition shadow-sm">Download</a>
                         </div>
                     </div>`;
