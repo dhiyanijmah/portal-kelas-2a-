@@ -557,6 +557,38 @@ const layout = (title, content) => `
             max-width: 100%;
         }
 
+        textarea[placeholder="Catatan pribadi..."] {
+            font-size: 12px !important;
+            line-height: 1.45 !important;
+        }
+
+        .portal-shell {
+            overflow: hidden;
+        }
+
+        @media (max-width: 640px) {
+            textarea[placeholder="Catatan pribadi..."] {
+                font-size: 11px !important;
+            }
+
+            .portal-shell {
+                overflow: hidden;
+            }
+
+            .portal-card {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .portal-main {
+                overflow-x: hidden !important;
+            }
+
+            .portal-shell .flex-wrap {
+                max-width: 100%;
+            }
+        }
+
         @media (max-width: 640px) {
             .page-header {
                 margin-bottom: 18px !important;
@@ -990,14 +1022,152 @@ const layout = (title, content) => `
             .portal-loading-bar { height: 52px !important; }
             .portal-loading-bar-fill { font-size: 16px; }
         }
+
+        /* =====================================================
+           V4 MOBILE-FIRST POLISH
+        ===================================================== */
+        .page-header {
+            margin-top: 22px !important;
+            margin-bottom: 22px !important;
+            padding: 12px 10px 0 !important;
+        }
+        .page-header .page-title,
+        h2.page-title {
+            font-family: 'Fredoka', 'Quicksand', sans-serif !important;
+            font-size: 30px !important;
+            line-height: 1.12 !important;
+            font-weight: 600 !important;
+            letter-spacing: .005em !important;
+            margin: 0 !important;
+        }
+        .page-header .page-title::after {
+            width: 46px;
+            height: 5px;
+            margin-top: 9px;
+        }
+        .portal-shell {
+            padding-top: clamp(16px, 2.5vw, 26px) !important;
+        }
+        .portal-loading-card {
+            position: relative;
+            margin-top: 14px;
+        }
+        #loading-overlay {
+            align-items: flex-start !important;
+            justify-content: center !important;
+            padding-top: 12px !important;
+        }
+        #login-loading {
+            align-items: flex-start !important;
+            padding-top: 12px !important;
+        }
+        .login-visual {
+            min-height: 0 !important;
+            justify-content: flex-start !important;
+        }
+        .login-copy {
+            margin-top: 42px !important;
+        }
+        .login-copy h2 {
+            font-size: clamp(36px, 5.3vw, 58px) !important;
+            line-height: 1.02 !important;
+        }
+        .login-info-copy {
+            max-width: 100% !important;
+            margin-top: 13px !important;
+        }
+        .login-card {
+            min-width: 0 !important;
+        }
+        .portal-main, .portal-shell, .portal-card, form, section, article {
+            min-width: 0 !important;
+        }
+        .overflow-x-auto {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto !important;
+        }
+        @media (max-width: 640px) {
+            .page-header {
+                margin-top: 12px !important;
+                margin-bottom: 18px !important;
+                padding: 10px 8px 0 !important;
+            }
+            .page-header .page-title,
+            h2.page-title {
+                font-size: 27px !important;
+            }
+            .portal-shell {
+                padding: 13px 12px 20px !important;
+                border-radius: 24px;
+            }
+            .login-visual {
+                padding: 22px 18px 20px !important;
+                min-height: 225px !important;
+            }
+            .login-brand {
+                font-size: 18px !important;
+            }
+            .login-copy {
+                margin-top: 27px !important;
+                max-width: 100% !important;
+            }
+            .login-copy h2 {
+                font-size: 34px !important;
+                line-height: 1.04 !important;
+            }
+            .login-info-copy {
+                font-size: 12px !important;
+                line-height: 1.5 !important;
+                margin-top: 9px !important;
+            }
+            .login-card {
+                padding: 23px 17px 26px !important;
+                border-radius: 24px !important;
+            }
+            .login-card h1 {
+                font-size: 29px !important;
+            }
+            .login-subtitle {
+                margin: 8px 0 20px !important;
+            }
+            .login-input {
+                min-height: 52px !important;
+                font-size: 16px !important;
+            }
+            .login-btn {
+                min-height: 52px !important;
+            }
+            table {
+                min-width: 640px !important;
+            }
+            .grid {
+                min-width: 0 !important;
+            }
+        }
+        @media (max-width: 390px) {
+            .page-header .page-title,
+            h2.page-title {
+                font-size: 25px !important;
+            }
+            .login-visual {
+                min-height: 210px !important;
+            }
+            .login-copy h2 {
+                font-size: 30px !important;
+            }
+            .login-card h1 {
+                font-size: 27px !important;
+            }
+        }
 </style>
 </head>
 <body class="text-earthtext min-h-screen flex flex-col selection:bg-merigold selection:text-earthtext">
     <div id="loading-overlay" class="fixed inset-0 flex items-center justify-center z-[9999]" style="display:none; opacity:0;">
         <div class="portal-loading-card">
-            <div class="portal-loading-title">Loading.. <span id="portal-loading-percent">0%</span></div>
+            <div class="portal-loading-title">Loading..</div>
             <div class="portal-loading-bar" aria-label="Loading progress">
-                <div id="portal-loading-progress" class="portal-loading-bar-fill" style="width:0%;">Loading.. 0%</div>
+                <div id="portal-loading-progress" class="portal-loading-bar-fill" style="width:0%;">0%</div>
             </div>
             <div class="portal-loading-dots" aria-hidden="true">
                 <span class="portal-loading-dot"></span>
@@ -1034,52 +1204,72 @@ const layout = (title, content) => `
     <script>
         let portalLoadingFrame = null;
         let portalLoadingStart = 0;
+        let portalLoadingVisible = false;
 
         function startPortalLoading() {
             const overlay = document.getElementById('loading-overlay');
             const bar = document.getElementById('portal-loading-progress');
-            const titlePct = document.getElementById('portal-loading-percent');
-            if (!overlay || !bar || !titlePct) return;
+            if (!overlay || !bar) return;
 
             cancelAnimationFrame(portalLoadingFrame);
             portalLoadingStart = performance.now();
+            portalLoadingVisible = true;
             overlay.style.display = 'flex';
-            requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+            overlay.style.opacity = '1';
+            bar.style.width = '0%';
+            bar.textContent = '0%';
 
-            const duration = 1800;
+            const maxBeforeLoad = 92;
+            const duration = 2200;
 
             function tick(now) {
+                if (!portalLoadingVisible) return;
                 const elapsed = now - portalLoadingStart;
-                const pct = Math.min(100, Math.round((elapsed / duration) * 100));
+                const pct = Math.min(maxBeforeLoad, Math.round((elapsed / duration) * maxBeforeLoad));
                 bar.style.width = pct + '%';
-                bar.textContent = 'Loading.. ' + pct + '%';
-                titlePct.textContent = pct + '%';
-
-                if (pct < 100) {
+                bar.textContent = pct + '%';
+                if (pct < maxBeforeLoad) {
                     portalLoadingFrame = requestAnimationFrame(tick);
-                } else {
-                    setTimeout(hidePortalLoading, 120);
                 }
             }
 
             portalLoadingFrame = requestAnimationFrame(tick);
         }
 
-        function hidePortalLoading() {
+        function finishPortalLoading() {
             const overlay = document.getElementById('loading-overlay');
-            if (!overlay) return;
-            cancelAnimationFrame(portalLoadingFrame);
-            overlay.style.opacity = '0';
-            setTimeout(() => {
+            const bar = document.getElementById('portal-loading-progress');
+            if (!overlay || !bar) return;
+            if (!portalLoadingVisible) {
                 overlay.style.display = 'none';
-                const bar = document.getElementById('portal-loading-progress');
-                const titlePct = document.getElementById('portal-loading-percent');
-                if (bar) { bar.style.width = '0%'; bar.textContent = 'Loading.. 0%'; }
-                if (titlePct) titlePct.textContent = '0%';
-            }, 280);
+                return;
+            }
+
+            cancelAnimationFrame(portalLoadingFrame);
+            bar.style.width = '100%';
+            bar.textContent = '100%';
+
+            setTimeout(() => {
+                portalLoadingVisible = false;
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    bar.style.width = '0%';
+                    bar.textContent = '0%';
+                }, 180);
+            }, 120);
         }
 
-        window.addEventListener('load', hidePortalLoading);
+        window.addEventListener('load', finishPortalLoading);
+        window.addEventListener('pageshow', function() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                portalLoadingVisible = false;
+                cancelAnimationFrame(portalLoadingFrame);
+                overlay.style.opacity = '0';
+                overlay.style.display = 'none';
+            }
+        });
 
         document.addEventListener('click', function(e) {
             const link = e.target.closest('a');
@@ -1088,13 +1278,17 @@ const layout = (title, content) => `
                 link.href &&
                 link.href.startsWith(window.location.origin) &&
                 !link.getAttribute('target') &&
-                !link.href.includes('#')
+                !link.href.includes('#') &&
+                link.origin === window.location.origin
             ) {
                 startPortalLoading();
             }
         });
 
-        document.addEventListener('submit', startPortalLoading);
+        document.addEventListener('submit', function(e) {
+            if (e.defaultPrevented) return;
+            startPortalLoading();
+        });
     </script>
 </body>
 </html>
@@ -1338,9 +1532,9 @@ app.get('/login', (req, res) => {
 <body>
     <div id="login-loading">
         <div class="login-loading-card">
-            <div class="login-loading-title">Loading.. <span id="login-loading-percent">0%</span></div>
+            <div class="login-loading-title">Loading..</div>
             <div class="login-loading-bar">
-                <div id="login-loading-fill" class="login-loading-fill">Loading.. 0%</div>
+                <div id="login-loading-fill" class="login-loading-fill">0%</div>
             </div>
             <div class="login-loading-dots" aria-hidden="true"><span></span><span></span><span></span></div>
         </div>
@@ -1360,10 +1554,9 @@ app.get('/login', (req, res) => {
                 </div>
                 <div class="login-copy">
                     <h2>Portal<br>Walimurid<br>Kelas 2A</h2>
-                    <p>Ruang informasi kelas untuk Ayah &amp; Bunda.</p>
+                    <p class="login-info-copy">Ruang informasi kelas untuk Ayah &amp; Bunda.</p>
                 </div>
             </div>
-            <div class="login-mini-note">Belajar • Bertumbuh • Berkah 🌿</div>
         </section>
 
         <section class="login-card">
@@ -1394,23 +1587,26 @@ app.get('/login', (req, res) => {
 
     <script>
         let loginLoadingFrame = null;
+        window.addEventListener('pageshow', function() {
+            const overlay = document.getElementById('login-loading');
+            if (overlay) overlay.style.display = 'none';
+        });
         function startLoginLoading() {
             const overlay = document.getElementById('login-loading');
             const fill = document.getElementById('login-loading-fill');
-            const pctText = document.getElementById('login-loading-percent');
-            if (!overlay || !fill || !pctText) return;
+            if (!overlay || !fill) return;
 
-            overlay.style.display = 'grid';
             cancelAnimationFrame(loginLoadingFrame);
+            overlay.style.display = 'grid';
             const start = performance.now();
-            const duration = 1800;
+            const duration = 2200;
+            const maxPct = 92;
 
             function tick(now) {
-                const pct = Math.min(100, Math.round(((now - start) / duration) * 100));
+                const pct = Math.min(maxPct, Math.round(((now - start) / duration) * maxPct));
                 fill.style.width = pct + '%';
-                fill.textContent = 'Loading.. ' + pct + '%';
-                pctText.textContent = pct + '%';
-                if (pct < 100) loginLoadingFrame = requestAnimationFrame(tick);
+                fill.textContent = pct + '%';
+                if (pct < maxPct) loginLoadingFrame = requestAnimationFrame(tick);
             }
             loginLoadingFrame = requestAnimationFrame(tick);
         }
