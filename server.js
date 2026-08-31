@@ -1167,7 +1167,13 @@ const layout = (title, content) => `
         <div class="portal-loading-card">
             <div class="portal-loading-title">Loading..</div>
             <div class="portal-loading-bar" aria-label="Loading progress">
-                <div id="portal-loading-progress" class="portal-loading-bar-fill" style="width:0%;">0%</div>
+                <div id="portal-loading-progress" class="portal-loading-bar-fill" style="width:0%;"></div>
+                <div id="portal-loading-percent" class="portal-loading-percent">0%</div>
+                <div id="portal-loading-heart" class="portal-loading-heart" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 20.4S3.5 15.1 3.5 9.2C3.5 5.8 6 3.5 9.1 3.5c1.4 0 2.4.6 2.9 1.7.5-1.1 1.5-1.7 2.9-1.7 3.1 0 5.6 2.3 5.6 5.7 0 5.9-8.5 11.2-8.5 11.2Z"/>
+                    </svg>
+                </div>
             </div>
             <div class="portal-loading-dots" aria-hidden="true">
                 <span class="portal-loading-dot"></span>
@@ -1203,71 +1209,90 @@ const layout = (title, content) => `
 
     <script>
         let portalLoadingFrame = null;
+        let portalLoadingHideTimer = null;
         let portalLoadingStart = 0;
         let portalLoadingVisible = false;
 
+        function setPortalProgress(pct) {
+            const bar = document.getElementById('portal-loading-progress');
+            const percent = document.getElementById('portal-loading-percent');
+            const heart = document.getElementById('portal-loading-heart');
+            if (!bar || !percent || !heart) return;
+
+            pct = Math.max(0, Math.min(100, Math.round(pct)));
+            bar.style.width = pct + '%';
+            percent.textContent = pct + '%';
+
+            // Heart follows the leading edge of the filled area, from left to right.
+            const track = heart.parentElement;
+            const trackWidth = track ? track.clientWidth : 0;
+            const heartHalf = 18;
+            const x = (trackWidth - heartHalf * 2) * (pct / 100);
+            heart.style.left = x + 'px';
+        }
+
         function startPortalLoading() {
             const overlay = document.getElementById('loading-overlay');
-            const bar = document.getElementById('portal-loading-progress');
-            if (!overlay || !bar) return;
+            if (!overlay) return;
 
             cancelAnimationFrame(portalLoadingFrame);
+            clearTimeout(portalLoadingHideTimer);
             portalLoadingStart = performance.now();
             portalLoadingVisible = true;
             overlay.style.display = 'flex';
             overlay.style.opacity = '1';
-            bar.style.width = '0%';
-            bar.textContent = '0%';
+            setPortalProgress(0);
 
-            const maxBeforeLoad = 92;
-            const duration = 2200;
+            // Keep navigation feeling instant. The progress is deliberately fast.
+            const duration = 650;
 
             function tick(now) {
                 if (!portalLoadingVisible) return;
                 const elapsed = now - portalLoadingStart;
-                const pct = Math.min(maxBeforeLoad, Math.round((elapsed / duration) * maxBeforeLoad));
-                bar.style.width = pct + '%';
-                bar.textContent = pct + '%';
-                if (pct < maxBeforeLoad) {
+                const pct = Math.min(100, (elapsed / duration) * 100);
+                setPortalProgress(pct);
+                if (pct < 100) {
                     portalLoadingFrame = requestAnimationFrame(tick);
                 }
             }
 
             portalLoadingFrame = requestAnimationFrame(tick);
+
+            // Safety fallback: never let the overlay trap the user on a slow page.
+            portalLoadingHideTimer = setTimeout(() => {
+                finishPortalLoading();
+            }, 900);
         }
 
         function finishPortalLoading() {
             const overlay = document.getElementById('loading-overlay');
-            const bar = document.getElementById('portal-loading-progress');
-            if (!overlay || !bar) return;
-            if (!portalLoadingVisible) {
-                overlay.style.display = 'none';
-                return;
-            }
+            if (!overlay) return;
 
             cancelAnimationFrame(portalLoadingFrame);
-            bar.style.width = '100%';
-            bar.textContent = '100%';
+            clearTimeout(portalLoadingHideTimer);
+            setPortalProgress(100);
 
             setTimeout(() => {
                 portalLoadingVisible = false;
                 overlay.style.opacity = '0';
                 setTimeout(() => {
                     overlay.style.display = 'none';
-                    bar.style.width = '0%';
-                    bar.textContent = '0%';
-                }, 180);
-            }, 120);
+                    setPortalProgress(0);
+                }, 140);
+            }, 90);
         }
 
         window.addEventListener('load', finishPortalLoading);
+
         window.addEventListener('pageshow', function() {
             const overlay = document.getElementById('loading-overlay');
             if (overlay) {
                 portalLoadingVisible = false;
                 cancelAnimationFrame(portalLoadingFrame);
+                clearTimeout(portalLoadingHideTimer);
                 overlay.style.opacity = '0';
                 overlay.style.display = 'none';
+                setPortalProgress(0);
             }
         });
 
@@ -1288,6 +1313,16 @@ const layout = (title, content) => `
         document.addEventListener('submit', function(e) {
             if (e.defaultPrevented) return;
             startPortalLoading();
+        });
+
+        window.addEventListener('resize', function() {
+            if (portalLoadingVisible) {
+                const percent = document.getElementById('portal-loading-percent');
+                if (percent) {
+                    const pct = parseInt(percent.textContent, 10) || 0;
+                    setPortalProgress(pct);
+                }
+            }
         });
     </script>
 </body>
@@ -1527,7 +1562,136 @@ app.get('/login', (req, res) => {
             .login-copy p { font-size:12px; }
             .login-card { padding:21px 15px 24px; }
         }
-    </style>
+    
+        /* No decorative half-circle in the top-right corner */
+        .portal-shell::after {
+            display: none !important;
+        }
+
+        /* V5 loading heart tracker */
+        #loading-overlay {
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 16px !important;
+        }
+        .portal-loading-card {
+            margin: 0 !important;
+            width: min(360px, calc(100vw - 28px));
+            padding: 24px 22px 20px !important;
+        }
+        .portal-loading-bar {
+            position: relative !important;
+            isolation: isolate;
+        }
+        .portal-loading-bar-fill {
+            position: absolute !important;
+            left: 5px;
+            top: 5px;
+            bottom: 5px;
+            width: 0;
+            min-width: 0 !important;
+            z-index: 1;
+            background: linear-gradient(90deg, #6EAAD8 0%, #6AA2D0 100%) !important;
+            box-shadow: none !important;
+            transition: width .06s linear !important;
+        }
+        .portal-loading-percent {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3D566B;
+            font-family: 'Fredoka', 'Quicksand', sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+            pointer-events: none;
+        }
+        .portal-loading-heart {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 36px;
+            height: 36px;
+            transform: translateY(-50%);
+            z-index: 4;
+            display: grid;
+            place-items: center;
+            transition: left .06s linear;
+            filter: drop-shadow(0 4px 6px rgba(217,58,93,.18));
+        }
+        .portal-loading-heart svg {
+            width: 36px;
+            height: 36px;
+            display: block;
+            fill: #D92F5A;
+            stroke: #C62B52;
+            stroke-width: .55;
+        }
+        .portal-loading-dots {
+            margin-top: 10px !important;
+        }
+
+        /* Login information: clean two-line hierarchy */
+        .login-info-copy {
+            max-width: 310px !important;
+            line-height: 1.45 !important;
+        }
+        .login-info-copy br {
+            display: block;
+        }
+
+        /* Download buttons on Summative: centered label */
+        .summative-download-btn {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            min-width: 108px;
+        }
+
+        /* Phone-first polish */
+        @media (max-width: 640px) {
+            #loading-overlay {
+                padding: 14px !important;
+            }
+            .portal-loading-card {
+                width: min(350px, calc(100vw - 24px));
+                padding: 22px 16px 18px !important;
+                border-radius: 26px !important;
+            }
+            .portal-loading-bar {
+                height: 52px !important;
+            }
+            .portal-loading-heart {
+                width: 32px;
+                height: 32px;
+            }
+            .portal-loading-heart svg {
+                width: 32px;
+                height: 32px;
+            }
+            .portal-loading-percent {
+                font-size: 16px;
+            }
+            .login-wrap {
+                width: 100% !important;
+                gap: 10px !important;
+            }
+            .login-visual,
+            .login-card {
+                width: 100% !important;
+            }
+            .login-info-copy {
+                max-width: 250px !important;
+            }
+            .summative-download-btn {
+                width: 100% !important;
+                min-width: 0 !important;
+            }
+        }
+</style>
 </head>
 <body>
     <div id="login-loading">
@@ -1554,7 +1718,7 @@ app.get('/login', (req, res) => {
                 </div>
                 <div class="login-copy">
                     <h2>Portal<br>Walimurid<br>Kelas 2A</h2>
-                    <p class="login-info-copy">Ruang informasi kelas untuk Ayah &amp; Bunda.</p>
+                    <p class="login-info-copy">Ruang informasi kelas<br>untuk Ayah &amp; Bunda.</p>
                 </div>
             </div>
         </section>
@@ -1599,8 +1763,8 @@ app.get('/login', (req, res) => {
             cancelAnimationFrame(loginLoadingFrame);
             overlay.style.display = 'grid';
             const start = performance.now();
-            const duration = 2200;
-            const maxPct = 92;
+            const duration = 550;
+            const maxPct = 100;
 
             function tick(now) {
                 const pct = Math.min(maxPct, Math.round(((now - start) / duration) * maxPct));
@@ -1609,6 +1773,10 @@ app.get('/login', (req, res) => {
                 if (pct < maxPct) loginLoadingFrame = requestAnimationFrame(tick);
             }
             loginLoadingFrame = requestAnimationFrame(tick);
+            setTimeout(() => {
+                const loading = document.getElementById('login-loading');
+                if (loading && document.visibilityState === 'visible') loading.style.display = 'none';
+            }, 850);
         }
     </script>
 </body>
@@ -1789,7 +1957,7 @@ app.get('/summative', checkAuth, async (req, res) => {
                             ${monthBadge}
                         </div>
                         <div class="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                            <a href="${downloadUrl}" target="_blank" class="flex-1 sm:flex-none text-center bg-deepgreen text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-tangerine transition shadow-sm">Download</a>
+                            <a href="${downloadUrl}" target="_blank" class="summative-download-btn flex-1 sm:flex-none text-center bg-deepgreen text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-tangerine transition shadow-sm">Download</a>
                         </div>
                     </div>`;
                 });
