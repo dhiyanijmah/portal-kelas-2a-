@@ -2752,29 +2752,20 @@ app.get('/finances', checkAuth, async (req, res) => {
         const kasData = db.kas || [];
 
         // =====================================================
-        // FINANCE POOLS
-        // Kas Kelas, Kaos, dan Subsidi Walimurid dipisahkan.
-        // Subsidi Walimurid hanya informasi dan TIDAK mengurangi
-        // saldo kas/kaos/kelas.
+        // FINANCE SUMMARY
+        // Semua pemasukan masuk ke Pendapatan, termasuk Kas, Kaos,
+        // dan kategori Lainnya. Semua pengeluaran mengurangi
+        // Pengeluaran, kecuali Subsidi Walimurid yang hanya
+        // dicatat sebagai informasi dan TIDAK mengurangi saldo.
         // =====================================================
-        let totalKas = 0;
-        let totalKaos = 0;
-        let totalLainnya = 0;
-
-        let expenseKas = 0;
-        let expenseKaos = 0;
+        let totalIncome = 0;
+        let totalExpense = 0;
         let expenseSubsidi = 0;
-        let expenseLainnya = 0;
 
         // Pemasukan dari sheet Kas siswa
         kasData.forEach(item => {
             if (String(item.status || '').trim().toLowerCase() === "lunas") {
-                const amt = Number(item.amount || 0);
-                if (String(item.month || '').trim().toLowerCase() === "kaos") {
-                    totalKaos += amt;
-                } else {
-                    totalKas += amt;
-                }
+                totalIncome += Number(item.amount || 0);
             }
         });
 
@@ -2785,34 +2776,17 @@ app.get('/finances', checkAuth, async (req, res) => {
             const category = String(tx.category || '').trim().toLowerCase();
 
             if (type === 'income') {
-                if (category === 'kas kelas' || category === 'kas') {
-                    totalKas += amt;
-                } else if (category === 'kaos') {
-                    totalKaos += amt;
-                } else {
-                    totalLainnya += amt;
-                }
+                totalIncome += amt;
+            } else if (category === 'subsidi walimurid' || category === 'subsidi wali murid') {
+                expenseSubsidi += amt;
             } else {
-                if (category === 'kas kelas' || category === 'kas') {
-                    expenseKas += amt;
-                } else if (category === 'kaos') {
-                    expenseKaos += amt;
-                } else if (category === 'subsidi walimurid' || category === 'subsidi wali murid') {
-                    expenseSubsidi += amt;
-                } else {
-                    expenseLainnya += amt;
-                }
+                totalExpense += amt;
             }
         });
 
-        // Saldo masing-masing sumber dana
-        const balanceKas = totalKas - expenseKas;
-        const balanceKaos = totalKaos - expenseKaos;
-        const balanceLainnya = totalLainnya - expenseLainnya;
-
-        // Saldo riil yang tersedia. Subsidi TIDAK dimasukkan ke pengurang.
-        const balance = balanceKas + balanceKaos + balanceLainnya;
-        const totalExpenseEffective = expenseKas + expenseKaos + expenseLainnya;
+        // Saldo riil yang tersedia setelah pengeluaran efektif.
+        // Subsidi Walimurid tidak menjadi pengurang.
+        const balance = totalIncome - totalExpense;
 
         let allTransactions = [];
 
@@ -2880,6 +2854,9 @@ app.get('/finances', checkAuth, async (req, res) => {
             <tr class="border-b border-white/20 hover:bg-white/20 transition align-top">
                 <td class="py-3.5 px-3 sm:px-6 text-xs text-earthtext/85 text-center whitespace-nowrap w-[120px] font-semibold">${tx.date}</td>
                 <td class="py-3.5 px-3 sm:px-6 font-bold text-earthtext text-xs sm:text-sm text-left break-words max-w-[180px] sm:max-w-md">${tx.desc}</td>
+                <td class="py-3.5 px-3 sm:px-6 text-center whitespace-nowrap w-[140px]">
+                    <span class="text-earthtext bg-white/70 border border-white/80 px-2.5 py-1 rounded-full text-[11px] font-bold">${tx.category}</span>
+                </td>
                 <td class="py-3.5 px-3 sm:px-6 text-center whitespace-nowrap w-[100px]">${badge}</td>
                 <td class="py-3.5 px-3 sm:px-6 font-bold text-earthtext text-xs sm:text-sm text-left whitespace-nowrap w-[160px] sm:w-[200px]">Rp ${tx.amount.toLocaleString()}</td>
             </tr>`;
@@ -2900,34 +2877,19 @@ app.get('/finances', checkAuth, async (req, res) => {
         const content = `
         <div class="page-header"><h2 class="page-title">Laporan Keuangan</h2></div>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-            <div class="bg-amber-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-amber-200">
-                <span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Saldo Kas Kelas</span>
-                <h3 class="text-xl font-bold text-amber-900 mt-1">Rp ${balanceKas.toLocaleString()}</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div class="bg-emerald-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-emerald-200">
+                <span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Pendapatan</span>
+                <h3 class="text-xl font-bold text-emerald-900 mt-1">Rp ${totalIncome.toLocaleString()}</h3>
             </div>
-            <div class="bg-orange-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-orange-200">
-                <span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Saldo Uang Kaos</span>
-                <h3 class="text-xl font-bold text-orange-900 mt-1">Rp ${balanceKaos.toLocaleString()}</h3>
+            <div class="bg-red-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-red-200">
+                <span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Pengeluaran</span>
+                <h3 class="text-xl font-bold text-red-800 mt-1">Rp ${totalExpense.toLocaleString()}</h3>
             </div>
             <div class="bg-yellowsoft/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-amber-300">
                 <span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Subsidi Walimurid</span>
                 <h3 class="text-xl font-bold text-amber-950 mt-1">Rp ${expenseSubsidi.toLocaleString()}</h3>
                 <p class="text-[11px] font-bold text-earthtext/55 mt-1">Informasi pengeluaran • tidak mengurangi saldo</p>
-            </div>
-            <div class="bg-emerald-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-emerald-200">
-                <span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Pendapatan Lain</span>
-                <h3 class="text-xl font-bold text-emerald-900 mt-1">Rp ${totalLainnya.toLocaleString()}</h3>
-            </div>
-            <div class="bg-red-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-red-200">
-                <span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Pengeluaran Efektif</span>
-                <h3 class="text-xl font-bold text-red-800 mt-1">Rp ${totalExpenseEffective.toLocaleString()}</h3>
-            </div>
-        </div>
-
-        <div class="bg-gradient-to-r from-deepgreen via-[#3A7A61] to-sagegreen backdrop-blur-md text-white p-6 rounded-[2rem] shadow-md border border-white/30 mb-6">
-            <div>
-                <span class="text-xs font-bold uppercase tracking-wider text-white/90">Saldo Akhir Dana Kelas</span>
-                <h3 class="text-2xl sm:text-3xl font-bold text-white mt-1">Rp ${balance.toLocaleString()}</h3>
             </div>
         </div>
 
@@ -2972,6 +2934,7 @@ app.get('/finances', checkAuth, async (req, res) => {
                     <tr class="bg-deepgreen text-white text-xs uppercase tracking-wider font-bold">
                         <th class="py-3.5 px-3 sm:px-6 text-center w-[120px]">Tanggal</th>
                         <th class="py-3 px-3 sm:px-6 text-left">Keterangan</th>
+                        <th class="py-3 px-3 sm:px-6 text-center w-[140px]">Kategori</th>
                         <th class="py-3 px-3 sm:px-6 text-center w-[100px]">Tipe</th>
                         <th class="py-3 px-3 sm:px-6 text-left w-[160px] sm:w-[200px]">Jumlah</th>
                     </tr>
