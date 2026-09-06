@@ -1254,7 +1254,7 @@ const layout = (title, content) => `
             // Move gradually from 0% toward 95%. The same numeric percentage
             // drives both the bar width and heart position. 95% is held until
             // the destination document reports that it has finished loading.
-            const duration = 5000;
+            const duration = 2500;
             const maxBeforeLoad = 95;
 
             function tick(now) {
@@ -1856,6 +1856,138 @@ app.get('/login', (req, res) => {
             }
         }
 
+
+        /* =====================================================
+           V9 CALENDAR + SUMMATIVE MOBILE FIXES
+        ===================================================== */
+
+        /* Calendar must remain visible and usable on phones. */
+        .portal-calendar-wrap {
+            width: 100% !important;
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+            -webkit-overflow-scrolling: touch !important;
+            scrollbar-width: thin;
+        }
+
+        .portal-calendar-grid {
+            min-width: 720px !important;
+        }
+
+        .portal-calendar-cell {
+            min-height: 135px !important;
+        }
+
+        @media (max-width: 640px) {
+            .portal-calendar-grid {
+                min-width: 680px !important;
+            }
+            .portal-calendar-cell {
+                min-height: 120px !important;
+                padding: 10px !important;
+                border-radius: 18px !important;
+            }
+            .portal-calendar-cell textarea {
+                min-height: 46px !important;
+                font-size: 11px !important;
+            }
+        }
+
+        /* Sumative materials: filename stays on the left, Download stays
+           beside it and remains a fixed-size centered button on phones. */
+        .summative-material-row {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) auto !important;
+            align-items: center !important;
+            column-gap: 12px !important;
+            width: 100% !important;
+        }
+
+        .summative-material-info {
+            min-width: 0 !important;
+            overflow-wrap: anywhere !important;
+        }
+
+        .summative-download-btn-parent {
+            width: auto !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin: 0 !important;
+        }
+
+        .summative-download-btn,
+        .summative-download-btn:visited,
+        .summative-download-btn:hover,
+        .summative-download-btn:active {
+            width: 112px !important;
+            min-width: 112px !important;
+            max-width: 112px !important;
+            flex: 0 0 112px !important;
+            height: 40px !important;
+            min-height: 40px !important;
+            padding: 0 10px !important;
+            margin: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+            line-height: 1 !important;
+            font-size: 13px !important;
+        }
+
+        @media (max-width: 640px) {
+            .summative-material-row {
+                grid-template-columns: minmax(0, 1fr) 104px !important;
+                column-gap: 8px !important;
+            }
+
+            .summative-download-btn-parent {
+                width: 104px !important;
+                min-width: 104px !important;
+            }
+
+            .summative-download-btn,
+            .summative-download-btn:visited,
+            .summative-download-btn:hover,
+            .summative-download-btn:active {
+                width: 104px !important;
+                min-width: 104px !important;
+                max-width: 104px !important;
+                flex-basis: 104px !important;
+                font-size: 13px !important;
+                padding: 0 8px !important;
+            }
+        }
+
+        /* Page headings: consistent, with room above and from the left. */
+        .page-header {
+            margin-top: 24px !important;
+            margin-bottom: 20px !important;
+            padding-left: 14px !important;
+            padding-right: 14px !important;
+        }
+        .page-header .page-title,
+        h2.page-title {
+            margin: 0 !important;
+            font-size: 28px !important;
+            line-height: 1.18 !important;
+        }
+
+        @media (max-width: 640px) {
+            .page-header {
+                margin-top: 18px !important;
+                margin-bottom: 16px !important;
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+            }
+            .page-header .page-title,
+            h2.page-title {
+                font-size: 24px !important;
+            }
+        }
+
         /* FINAL V8 OVERRIDES */
 
         /* Remove the decorative top-right half-circle everywhere. */
@@ -2254,13 +2386,13 @@ app.get('/summative', checkAuth, async (req, res) => {
                     let monthBadge = period !== 'month' ? `<span class="text-[10px] bg-sagegreen/20 text-deepgreen px-2.5 py-0.5 rounded-full mt-1 inline-block font-bold whitespace-nowrap">${mat.month || '-'}</span>` : '';
 
                     materialItems += `
-                    <div class="p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/70 mb-2.5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                        <div>
+                    <div class="p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/70 mb-2.5 shadow-sm summative-material-row">
+                        <div class="summative-material-info">
                             <span class="font-bold text-sm text-earthtext block">📄 ${mat.title}</span>
                             ${monthBadge}
                         </div>
-                        <div class="summative-download-btn-parent flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                            <a href="${downloadUrl}" target="_blank" class="summative-download-btn bg-deepgreen text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-tangerine transition shadow-sm">Download</a>
+                        <div class="summative-download-btn-parent">
+                            <a href="${downloadUrl}" target="_blank" class="summative-download-btn bg-deepgreen text-white rounded-xl font-bold hover:bg-tangerine transition shadow-sm">Download</a>
                         </div>
                     </div>`;
                 });
@@ -2364,7 +2496,7 @@ app.get('/calendar', checkAuth, async (req, res) => {
             }
 
             calendarCells += `
-            <div class="${cellBgClass} p-3.5 rounded-[2rem] border shadow-sm flex flex-col justify-between min-h-[170px] transition">
+            <div class="portal-calendar-cell ${cellBgClass} p-3.5 rounded-[2rem] border shadow-sm flex flex-col justify-between min-h-[170px] transition">
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <span class="font-bold text-sm ${isToday ? 'bg-tangerine text-white w-7 h-7 rounded-full flex items-center justify-center' : (isSunday || holidayName ? 'text-red-600 font-extrabold' : 'text-earthtext')}">${d}</span>
@@ -2401,8 +2533,8 @@ app.get('/calendar', checkAuth, async (req, res) => {
             <input type="hidden" name="year" value="${year}">
             <input type="hidden" name="month" value="${month}">
             
-            <div class="bg-white/50 backdrop-blur-md rounded-[2rem] shadow-sm border border-white/70 p-4 sm:p-6 overflow-x-auto">
-                <div class="min-w-[1000px]">
+            <div class="portal-calendar-wrap bg-white/50 backdrop-blur-md rounded-[2rem] shadow-sm border border-white/70 p-4 sm:p-6">
+                <div class="portal-calendar-grid">
                     <div class="grid grid-cols-7 gap-3 mb-3 text-center font-bold text-xs text-deepgreen uppercase tracking-wider">
                         <div class="text-red-600 font-bold">Sun</div>
                         <div>Mon</div>
@@ -2619,8 +2751,22 @@ app.get('/finances', checkAuth, async (req, res) => {
 
         const kasData = db.kas || [];
 
-        let totalKas = 0, totalKaos = 0, totalLainnya = 0, totalExpense = 0;
+        // =====================================================
+        // FINANCE POOLS
+        // Kas Kelas, Kaos, dan Subsidi Walimurid dipisahkan.
+        // Subsidi Walimurid hanya informasi dan TIDAK mengurangi
+        // saldo kas/kaos/kelas.
+        // =====================================================
+        let totalKas = 0;
+        let totalKaos = 0;
+        let totalLainnya = 0;
 
+        let expenseKas = 0;
+        let expenseKaos = 0;
+        let expenseSubsidi = 0;
+        let expenseLainnya = 0;
+
+        // Pemasukan dari sheet Kas siswa
         kasData.forEach(item => {
             if (String(item.status || '').trim().toLowerCase() === "lunas") {
                 const amt = Number(item.amount || 0);
@@ -2632,14 +2778,41 @@ app.get('/finances', checkAuth, async (req, res) => {
             }
         });
 
+        // Transaksi manual dari sheet Transactions
         txData.forEach(tx => {
             const amt = Number(tx.amount || 0);
-            if (String(tx.type || '').trim().toLowerCase() === 'income') {
-                totalLainnya += amt;
+            const type = String(tx.type || '').trim().toLowerCase();
+            const category = String(tx.category || '').trim().toLowerCase();
+
+            if (type === 'income') {
+                if (category === 'kas kelas' || category === 'kas') {
+                    totalKas += amt;
+                } else if (category === 'kaos') {
+                    totalKaos += amt;
+                } else {
+                    totalLainnya += amt;
+                }
             } else {
-                totalExpense += amt;
+                if (category === 'kas kelas' || category === 'kas') {
+                    expenseKas += amt;
+                } else if (category === 'kaos') {
+                    expenseKaos += amt;
+                } else if (category === 'subsidi walimurid' || category === 'subsidi wali murid') {
+                    expenseSubsidi += amt;
+                } else {
+                    expenseLainnya += amt;
+                }
             }
         });
+
+        // Saldo masing-masing sumber dana
+        const balanceKas = totalKas - expenseKas;
+        const balanceKaos = totalKaos - expenseKaos;
+        const balanceLainnya = totalLainnya - expenseLainnya;
+
+        // Saldo riil yang tersedia. Subsidi TIDAK dimasukkan ke pengurang.
+        const balance = balanceKas + balanceKaos + balanceLainnya;
+        const totalExpenseEffective = expenseKas + expenseKaos + expenseLainnya;
 
         let allTransactions = [];
 
@@ -2712,8 +2885,6 @@ app.get('/finances', checkAuth, async (req, res) => {
             </tr>`;
         });
 
-        const grandTotalIncome = totalKas + totalKaos + totalLainnya;
-        const balance = grandTotalIncome - totalExpense;
 
         const monthsList = ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"];
         let monthOptions = `<option value="all">Semua Bulan Kas</option>`;
@@ -2729,16 +2900,33 @@ app.get('/finances', checkAuth, async (req, res) => {
         const content = `
         <div class="page-header"><h2 class="page-title">Laporan Keuangan</h2></div>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-amber-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-amber-200"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Total Kas</span><h3 class="text-xl font-bold text-amber-900 mt-1">Rp ${totalKas.toLocaleString()}</h3></div>
-            <div class="bg-orange-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-orange-200"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Total Kaos</span><h3 class="text-xl font-bold text-orange-900 mt-1">Rp ${totalKaos.toLocaleString()}</h3></div>
-            <div class="bg-amber-100/65 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-amber-300"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Pendapatan Lain</span><h3 class="text-xl font-bold text-amber-950 mt-1">Rp ${totalLainnya.toLocaleString()}</h3></div>
-            <div class="bg-red-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-red-200"><span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Pengeluaran</span><h3 class="text-xl font-bold text-red-800 mt-1">Rp ${totalExpense.toLocaleString()}</h3></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+            <div class="bg-amber-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-amber-200">
+                <span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Saldo Kas Kelas</span>
+                <h3 class="text-xl font-bold text-amber-900 mt-1">Rp ${balanceKas.toLocaleString()}</h3>
+            </div>
+            <div class="bg-orange-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-orange-200">
+                <span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Saldo Uang Kaos</span>
+                <h3 class="text-xl font-bold text-orange-900 mt-1">Rp ${balanceKaos.toLocaleString()}</h3>
+            </div>
+            <div class="bg-yellowsoft/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-amber-300">
+                <span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Subsidi Walimurid</span>
+                <h3 class="text-xl font-bold text-amber-950 mt-1">Rp ${expenseSubsidi.toLocaleString()}</h3>
+                <p class="text-[11px] font-bold text-earthtext/55 mt-1">Informasi pengeluaran • tidak mengurangi saldo</p>
+            </div>
+            <div class="bg-emerald-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-emerald-200">
+                <span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Pendapatan Lain</span>
+                <h3 class="text-xl font-bold text-emerald-900 mt-1">Rp ${totalLainnya.toLocaleString()}</h3>
+            </div>
+            <div class="bg-red-50/70 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-red-200">
+                <span class="text-xs font-bold uppercase tracking-wider text-earthtext/70">Pengeluaran Efektif</span>
+                <h3 class="text-xl font-bold text-red-800 mt-1">Rp ${totalExpenseEffective.toLocaleString()}</h3>
+            </div>
         </div>
 
         <div class="bg-gradient-to-r from-deepgreen via-[#3A7A61] to-sagegreen backdrop-blur-md text-white p-6 rounded-[2rem] shadow-md border border-white/30 mb-6">
             <div>
-                <span class="text-xs font-bold uppercase tracking-wider text-white/90">Saldo Akhir Kas Kelas</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-white/90">Saldo Akhir Dana Kelas</span>
                 <h3 class="text-2xl sm:text-3xl font-bold text-white mt-1">Rp ${balance.toLocaleString()}</h3>
             </div>
         </div>
@@ -3032,7 +3220,7 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
             <!-- 2. TAMBAH TRANSAKSI -->
             <div class="bg-white/50 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/70">
                 <h3 class="font-bold text-lg text-earthtext mb-4">📊 Tambah Transaksi Keuangan (Pemasukan / Pengeluaran)</h3>
-                <form action="/admin/add-transaction" method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                <form action="/admin/add-transaction" method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Tanggal</label>
                         <input type="date" name="date" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
@@ -3047,6 +3235,15 @@ app.get('/admin/manage', checkAuth, async (req, res) => {
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Keterangan</label>
                         <input type="text" name="desc" placeholder="Contoh: Beli alat kelas" required class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Kategori</label>
+                        <select name="category" class="w-full border border-white/70 p-2.5 rounded-2xl text-sm bg-white/70 backdrop-blur-md text-earthtext font-bold shadow-sm">
+                            <option value="Kas Kelas">Kas Kelas</option>
+                            <option value="Kaos">Kaos</option>
+                            <option value="Subsidi Walimurid">Subsidi Walimurid</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-earthtext/80">Jumlah (Rp)</label>
